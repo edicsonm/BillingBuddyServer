@@ -1,0 +1,248 @@
+/**
+ * 
+ */
+package sat.credicard.componentes.genericos.excepciones.objetos.application;
+
+import sat.credicard.componentes.genericos.excepciones.objetos.SatException;
+
+/**
+ * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+ * 
+ * @author abernal
+ * @generated 
+ *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+ */
+public class AplicationException extends SatException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1551937785644346134L;
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	private String codigoError;
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	private String mensajeError;
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @param e
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public AplicationException(SatException e) {
+		// begin-user-code
+		super(e);
+
+		if (e.getNivelError() != null) {
+			this.setNivelError(e.getNivelError());
+			this.setCodigoError(e.getCodigoError());
+			this.setMensajeError(e.getMensajeError());
+			this.setComponenteOrigen(e.getComponenteOrigen());
+		} else {
+			String tagG = this.getClass().getSuperclass().getSimpleName();
+			String tagE = this.getClass().getSimpleName();
+
+			// Sólo en este caso (AplicationException) se usa tagE para obtener
+			// el nivel
+			this.setNivelError(mapaExcepciones.get(tagE + ".nivel"));
+			tagE = tagE + ".1";
+			tagG = tagG + ".1";
+
+			this
+					.setCodigoError(mapaExcepciones.get(tagE) != null ? tagE
+							: tagG);
+			this
+					.setMensajeError(mapaExcepciones.get(tagE) != null ? mapaExcepciones
+							.get(tagE)
+							: mapaExcepciones.get(tagG));
+
+			tagG = this.getStackTrace()[0].getClassName();
+			int sz = this.getStackTrace()[0].getClassName().split("\\.").length;
+
+			this.setComponenteOrigen("class:\t" + tagG.split("\\.")[sz - 1]
+					+ "\n" + "method:\t"
+					+ this.getStackTrace()[0].getMethodName() + "\n"
+					+ "line:\t" + this.getStackTrace()[0].getLineNumber());
+
+			tagE = null;
+			tagG = null;
+		}
+		// end-user-code
+	}
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @param message
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public AplicationException(String message) {
+		// begin-user-code
+		super(message);
+
+		String tagG = this.getClass().getSuperclass().getSimpleName();
+		String tagE = this.getClass().getSimpleName();
+
+		// Sólo en este caso (AplicationException) se usa tagE para obtener el
+		// nivel
+		this.setNivelError(mapaExcepciones.get(tagE + ".nivel"));
+		tagE = tagE + ".1";
+		tagG = tagG + ".1";
+
+		this.setCodigoError(mapaExcepciones.get(tagE) != null ? tagE : tagG);
+		this
+				.setMensajeError(mapaExcepciones.get(tagE) != null ? mapaExcepciones
+						.get(tagE)
+						: mapaExcepciones.get(tagG));
+
+		tagG = this.getStackTrace()[0].getClassName();
+		int sz = this.getStackTrace()[0].getClassName().split("\\.").length;
+
+		this.setComponenteOrigen("class:\t" + tagG.split("\\.")[sz - 1] + "\n"
+				+ "method:\t" + this.getStackTrace()[0].getMethodName() + "\n"
+				+ "line:\t" + this.getStackTrace()[0].getLineNumber());
+
+		tagE = null;
+		tagG = null;
+
+		// end-user-code
+	}
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @param message
+	 * @param cause
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public AplicationException(String message, Throwable cause) {
+		// begin-user-code
+		super(message, cause);
+
+		String tagG = this.getClass().getSuperclass().getSimpleName();
+		String tagE = this.getClass().getSimpleName();
+
+		// Sólo en este caso (AplicationException) se usa tagE para obtener el
+		// nivel
+		this.setNivelError(mapaExcepciones.get(tagE + ".nivel"));
+		tagE = tagE + ".1";
+		tagG = tagG + ".1";
+
+		this.setCodigoError(mapaExcepciones.get(tagE) != null ? tagE : tagG);
+		this
+				.setMensajeError(mapaExcepciones.get(tagE) != null ? mapaExcepciones
+						.get(tagE)
+						: mapaExcepciones.get(tagG));
+
+		tagG = this.getStackTrace()[0].getClassName();
+		int sz = this.getStackTrace()[0].getClassName().split("\\.").length;
+
+		this.setComponenteOrigen("class:\t" + tagG.split("\\.")[sz - 1] + "\n"
+				+ "method:\t" + this.getStackTrace()[0].getMethodName() + "\n"
+				+ "line:\t" + this.getStackTrace()[0].getLineNumber());
+
+		tagE = null;
+		tagG = null;
+
+		// end-user-code
+	}
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @param cause
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public AplicationException(Throwable cause) {
+		// begin-user-code
+		super(cause);
+
+		String tagG = this.getClass().getSuperclass().getSimpleName();
+		String tagE = this.getClass().getSimpleName();
+
+		// Sólo en este caso (AplicationException) se usa tagE para obtener el
+		// nivel
+		this.setNivelError(mapaExcepciones.get(tagE + ".nivel"));
+		tagE = tagE + ".1";
+		tagG = tagG + ".1";
+
+		this.setCodigoError(mapaExcepciones.get(tagE) != null ? tagE : tagG);
+		this
+				.setMensajeError(mapaExcepciones.get(tagE) != null ? mapaExcepciones
+						.get(tagE)
+						: mapaExcepciones.get(tagG));
+
+		tagG = this.getStackTrace()[0].getClassName();
+		int sz = this.getStackTrace()[0].getClassName().split("\\.").length;
+
+		this.setComponenteOrigen("class:\t" + tagG.split("\\.")[sz - 1] + "\n"
+				+ "method:\t" + this.getStackTrace()[0].getMethodName() + "\n"
+				+ "line:\t" + this.getStackTrace()[0].getLineNumber());
+
+		tagE = null;
+		tagG = null;
+
+		// end-user-code
+	}
+
+	/**
+	 * @return the codigoError
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public String getCodigoError() {
+		// begin-user-code
+		return codigoError;
+		// end-user-code
+	}
+
+	/**
+	 * @return the mensajeError
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public String getMensajeError() {
+		// begin-user-code
+		return mensajeError;
+		// end-user-code
+	}
+
+	/**
+	 * @param codigoError
+	 *            the codigoError to set
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public void setCodigoError(String codigoError) {
+		// begin-user-code
+		this.codigoError = codigoError;
+		// end-user-code
+	}
+
+	/**
+	 * @param mensajeError
+	 *            the mensajeError to set
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public void setMensajeError(String mensajeError) {
+		// begin-user-code
+		this.mensajeError = mensajeError;
+		// end-user-code
+	}
+}

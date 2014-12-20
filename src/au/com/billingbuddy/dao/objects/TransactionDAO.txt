@@ -1,0 +1,106 @@
+/**
+ * 
+ */
+package au.com.billingbuddy.dao.objects;
+
+import java.sql.CallableStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import au.com.billingbuddy.common.objects.ConfigurationSystem;
+import au.com.billingbuddy.connection.objects.MySQLConnection;
+import au.com.billingbuddy.connection.objects.MySQLTransaction;
+import au.com.billingbuddy.dao.interfaces.ITransactionDAO;
+import au.com.billingbuddy.exceptions.objects.CardDAOException;
+import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
+import au.com.billingbuddy.exceptions.objects.TransactionDAOException;
+import au.com.billingbuddy.vo.objects.TransactionVO;
+import au.com.billingbuddy.vo.objects.VO;
+
+public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
+
+	public TransactionDAO() throws Exception {
+		super();
+	}
+	
+	public TransactionDAO(MySQLTransaction mySQLTransaction) throws MySQLConnectionException {
+		super(mySQLTransaction);
+	}
+
+	public int insert(TransactionVO transactionVO) throws TransactionDAOException {
+		CallableStatement cstmt = null;
+		int status = 0;
+		try {
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_TRANSACTION( ?, ? , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+//			`id`,
+//			`companyname`,
+			cstmt.setString(1, transactionVO.getCompanyName());
+//			`product`,
+			cstmt.setString(1, transactionVO.getProduct());
+//			`card_id`,
+			cstmt.setString(1, transactionVO.getCardVO().getId());
+//			`ccy`,
+			cstmt.setString(1, transactionVO.getcProduct());
+//			`qty`,
+			
+//			`rate`,
+//			`total`,
+//			`status`,
+//			`fraud`,
+//			`fraud_message`,
+//			`merchant_id`,
+//			`user_agent`,
+//			`domain`,
+//			`ip`,
+//			`proxy`,
+//			`user_fingerprint`,
+//			`country`,
+//			`region`,
+//			`city`,
+//			`postcode`,
+//			`shipping_address`,
+//			`billing_address`,
+//			`create_time`
+			
+			cstmt.setString(1, transactionVO.getBin());
+			cstmt.setString(2, transactionVO.getName());
+			cstmt.setString(3, transactionVO.getAddress());
+			cstmt.setString(4, transactionVO.getCardNumber());
+			cstmt.setString(5, transactionVO.getSalt());
+			cstmt.setString(6, transactionVO.getCardType());
+			cstmt.setString(7, transactionVO.getExpYear());
+			cstmt.setString(8, transactionVO.getExpMonth());
+			cstmt.setString(9, transactionVO.getCreateTime());
+			cstmt.setString(10, transactionVO.getBlackListed());
+			cstmt.setString(11, transactionVO.getBlackListedReason());
+			cstmt.setString(12, transactionVO.getBlackListedCreateTime());
+			cstmt.setString(13, null);
+			
+			status = cstmt.executeUpdate();
+			transactionVO.setId(cstmt.getString(13));
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CardDAOException(e);
+		} finally {
+			Cs(cstmt);
+		}
+		return status;
+	}
+
+	public int update(TransactionVO transactionVO) throws TransactionDAOException {
+		return 0;
+	}
+
+	public int delete() throws TransactionDAOException {
+		return 0;
+	}
+
+	public VO searchByID(String ID) throws TransactionDAOException {
+		return null;
+	}
+
+	public ArrayList<TransactionVO> search() throws TransactionDAOException {
+		return null;
+	}
+
+}

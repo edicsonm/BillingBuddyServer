@@ -1,0 +1,228 @@
+/**
+ * 
+ */
+package sat.credicard.componentes.genericos.excepciones.objetos;
+
+import java.util.HashMap;
+
+import sat.credicard.componentes.genericos.excepciones.interfaces.Iexcepciones;
+import sat.credicard.componentes.genericos.gestorArchivosProp.GestorArchivosProp;
+import sat.credicard.componentes.genericos.gestorArchivosProp.ParamsConfigApp;
+
+/**
+ * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+ * 
+ * @author abernal
+ * @generated 
+ *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+ */
+public class SatException extends Exception implements Iexcepciones {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6390941253246018223L;
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	private String codigoError;
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	private String componenteOrigen;
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	private GestorArchivosProp gestorArchivosProp;
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	protected HashMap<String, String> mapaExcepciones;
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	private String mensajeError;
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	private String nivelError;
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @param message
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public SatException(String message) {
+		// begin-user-code
+		super(message);
+		gestorArchivosProp = GestorArchivosProp.obtenerInstancia();
+		ParamsConfigApp configuracion = gestorArchivosProp
+				.getParamsConfigAppInstance();
+		this.mapaExcepciones = configuracion.getExceptionIds();
+		// end-user-code
+	}
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @param message
+	 * @param cause
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public SatException(String message, Throwable cause) {
+		// begin-user-code
+		// TODO Auto-generated constructor stub
+		super(message, cause);
+		gestorArchivosProp = GestorArchivosProp.obtenerInstancia();
+		ParamsConfigApp configuracion = gestorArchivosProp
+				.getParamsConfigAppInstance();
+		this.mapaExcepciones = configuracion.getExceptionIds();
+		// end-user-code
+	}
+
+	/**
+	 * <!-- begin-UML-doc --> <!-- end-UML-doc -->
+	 * 
+	 * @param cause
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public SatException(Throwable cause) {
+		// begin-user-code
+		super(cause);
+		gestorArchivosProp = GestorArchivosProp.obtenerInstancia();
+		ParamsConfigApp configuracion = gestorArchivosProp
+				.getParamsConfigAppInstance();
+		this.mapaExcepciones = configuracion.getExceptionIds();
+		// end-user-code
+	}
+
+	/**
+	 * @return the codigoError
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public String getCodigoError() {
+		// begin-user-code
+		return codigoError;
+		// end-user-code
+	}
+
+	/**
+	 * @return the componenteOrigen
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public String getComponenteOrigen() {
+		// begin-user-code
+		return componenteOrigen;
+		// end-user-code
+	}
+
+	/**
+	 * @return the gestorArchivosProp
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public GestorArchivosProp getGestorArchivosProp() {
+		// begin-user-code
+		return gestorArchivosProp;
+		// end-user-code
+	}
+
+	/**
+	 * @return the mensajeError
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public String getMensajeError() {
+		// begin-user-code
+		return mensajeError;
+		// end-user-code
+	}
+
+	/**
+	 * @return the nivelError
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public String getNivelError() {
+		// begin-user-code
+		return nivelError;
+		// end-user-code
+	}
+
+	/**
+	 * @param codigoError
+	 *            the codigoError to set
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public void setCodigoError(String codigoError) {
+		// begin-user-code
+		this.codigoError = codigoError;
+		// end-user-code
+	}
+
+	/**
+	 * @param componenteOrigen
+	 *            the componenteOrigen to set
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public void setComponenteOrigen(String componenteOrigen) {
+		// begin-user-code
+		this.componenteOrigen = componenteOrigen;
+		// end-user-code
+	}
+
+	/**
+	 * @param mensajeError
+	 *            the mensajeError to set
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public void setMensajeError(String mensajeError) {
+		// begin-user-code
+		this.mensajeError = mensajeError;
+		// end-user-code
+	}
+
+	/**
+	 * @param nivelError
+	 *            the nivelError to set
+	 * @generated 
+	 *            "UML to Java (com.ibm.xtools.transform.uml2.java5.internal.UML2JavaTransform)"
+	 */
+	public void setNivelError(String nivelError) {
+		// begin-user-code
+		this.nivelError = nivelError;
+		// end-user-code
+	}
+}
