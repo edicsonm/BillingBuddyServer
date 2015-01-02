@@ -1,5 +1,6 @@
 package au.com.billingbuddy.business.objects;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,23 +12,34 @@ import com.stripe.exception.AuthenticationException;
 import com.stripe.exception.CardException;
 import com.stripe.exception.InvalidRequestException;
 import com.stripe.model.Charge;
+import com.stripe.model.Customer;
+import com.stripe.model.Refund;
 
+import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
-import au.com.billingbuddy.common.objects.Json;
+import au.com.billingbuddy.common.objects.Currency;
 import au.com.billingbuddy.common.objects.Utilities;
-import au.com.billingbuddy.dao.objects.StripeChargeDAO;
-import au.com.billingbuddy.exceptions.objects.JsonException;
+import au.com.billingbuddy.dao.objects.CardDAO;
+import au.com.billingbuddy.dao.objects.ChargeDAO;
+import au.com.billingbuddy.dao.objects.CustomerDAO;
+import au.com.billingbuddy.dao.objects.RefundDAO;
+import au.com.billingbuddy.exceptions.objects.CardDAOException;
+import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
+import au.com.billingbuddy.exceptions.objects.CustomerDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
-import au.com.billingbuddy.exceptions.objects.StripeChargeDAOException;
-import au.com.billingbuddy.vo.objects.StripeChargeVO;
+import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
+import au.com.billingbuddy.exceptions.objects.RefundDAOException;
+import au.com.billingbuddy.vo.objects.CardVO;
+import au.com.billingbuddy.vo.objects.ChargeVO;
+import au.com.billingbuddy.vo.objects.CustomerVO;
 import au.com.billingbuddy.vo.objects.TransactionVO;
 
 public class ProcessorMDTR {
 	
 	private static ProcessorMDTR instance = null;
 	private static ConfigurationSystem configurationSystem = ConfigurationSystem.getInstance();
+	private static ConfigurationApplication instanceConfigurationApplication = ConfigurationApplication.getInstance();
 	
-	private boolean printTimes;
 	private long initialTime;
 	private long finalTime;
 	
@@ -42,15 +54,17 @@ public class ProcessorMDTR {
 		Stripe.apiKey = configurationSystem.getKey("apiKey");
 	}
 	
-	public void chargeTransaction(TransactionVO transactionVO){
+	public TransactionVO chargePayment(TransactionVO transactionVO) throws ProcessorMDTRException {
+		ChargeVO chargeVO = null;
 		try {
+			
 			Map<String, Object> hashMapCharge = new HashMap<String, Object>();
-			hashMapCharge.put("amount", transactionVO.getOrderAmount());
+			hashMapCharge.put("amount", Utilities.currencyToStripe(transactionVO.getOrderAmount(), Currency.USD));
 			hashMapCharge.put("currency", transactionVO.getOrderCurrency());
 			hashMapCharge.put("description", "Charge for test@example.com");
 
 			Map<String, Object> hashMapCard = new HashMap<String, Object>();
-			hashMapCard.put("number", transactionVO.getCardVO().getCardNumber());
+			hashMapCard.put("number", transactionVO.getCardVO().getNumber());
 			hashMapCard.put("exp_month", transactionVO.getCardVO().getExpMonth());
 			hashMapCard.put("exp_year", transactionVO.getCardVO().getExpYear());
 			hashMapCard.put("cvc", transactionVO.getCardVO().getCvv());
@@ -59,35 +73,116 @@ public class ProcessorMDTR {
 			hashMapCharge.put("card", hashMapCard);
 			initialTime = Calendar.getInstance().getTimeInMillis();
 			Charge charge = Charge.create(hashMapCharge);
-			
-			System.out.println("charge.getAmount(): " + charge.getAmount());
-			
+			printValues(charge);
+	        printTimes(initialTime, finalTime);
 			
 			finalTime = Calendar.getInstance().getTimeInMillis();
-			StripeChargeVO stripeChargeVO = new StripeChargeVO();
-			Utilities.copyChargeToStripeChargeVO(stripeChargeVO,charge);
-			StripeChargeDAO stripeChargeDAO = new StripeChargeDAO();
-			stripeChargeDAO.insert(stripeChargeVO);
-			System.out.println("stripeChargeVO.getId(): " + stripeChargeVO.getId());
+			chargeVO = new ChargeVO();
+			chargeVO.setCardVO(transactionVO.getCardVO());
+			chargeVO.setTransactionId(transactionVO.getId());
+			chargeVO.setProcessTime((finalTime-initialTime) + " ms.");
 			
-//			printValues(charge);
+			long initialTime = Calendar.getInstance().getTimeInMillis();
+			Utilities.copyChargeToChargeVO(chargeVO,charge);
+			long finalTime = Calendar.getInstance().getTimeInMillis();
+			System.out.println("Tiempo total para copiar los elementos de Stripe: " + (finalTime-initialTime) + " ms.");
+			
+			transactionVO.setCardVO(chargeVO.getCardVO());
+			
+			printValues(charge);
 	        printTimes(initialTime, finalTime);
+	        chargeVO.setProcessTime((finalTime-initialTime) + " ms.");
+	        transactionVO.setChargeVO(chargeVO);
 	        
+	        CardVO cardVO = chargeVO.getCardVO();
+	        CustomerVO customerVO = transactionVO.getCardVO().getCustomerVO();
+	        
+	        CustomerDAO customerDAO = new CustomerDAO();
+	        initialTime = Calendar.getInstance().getTimeInMillis();
+	        customerDAO.insert(customerVO);
+			finalTime = Calendar.getInstance().getTimeInMillis();
+			System.out.println("Tiempo total para copiar registrar un Customer: " + (finalTime-initialTime) + " ms.");
+	        
+	        if(customerVO != null && customerVO.getId() != null){
+	        	cardVO.setCustomerId(customerVO.getId());
+	        	CardDAO cardDAO = new CardDAO();
+		        
+	        	initialTime = Calendar.getInstance().getTimeInMillis();
+	        	cardDAO.insert(cardVO);
+				finalTime = Calendar.getInstance().getTimeInMillis();
+				System.out.println("Tiempo total para copiar registrar una Card: " + (finalTime-initialTime) + " ms.");
+		        
+	        	if(cardVO != null && cardVO.getId() != null){
+		        	chargeVO.setCardId(cardVO.getId());
+		        	chargeVO.setTransactionId(transactionVO.getId());
+		        	ChargeDAO chargeDAO = new ChargeDAO();
+					
+					initialTime = Calendar.getInstance().getTimeInMillis();
+					chargeDAO.insert(chargeVO);
+					finalTime = Calendar.getInstance().getTimeInMillis();
+					System.out.println("Tiempo total para copiar registrar un Charge: " + (finalTime-initialTime) + " ms.");
+					
+					System.out.println("chargeVO.getId(): " + chargeVO.getId());
+		        } else {
+		        	System.out.println("#################################################################");
+		        	System.out.println("No fue posible registrar la tarjeta .... ");
+		        	System.out.println("#################################################################");
+		        }
+	        } else {
+	        	System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar el cliente .... ");
+	        	System.out.println("#################################################################");
+	        }
+			
 		} catch (AuthenticationException e) {
 			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.AuthenticationException");
+			throw processorMDTRException;
 		} catch (InvalidRequestException e) {
 			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.InvalidRequestException");
+			throw processorMDTRException;
 		} catch (APIConnectionException e) {
 			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.APIConnectionException");
+			throw processorMDTRException;
 		} catch (CardException e) {
 			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.CardException");
+			throw processorMDTRException;
 		} catch (APIException e) {
 			e.printStackTrace();
-		} catch (StripeChargeDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.APIException");
+			throw processorMDTRException;
+		} catch (ChargeDAOException e) {
 			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.ChargeDAOException");
+			throw processorMDTRException;
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CardDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.CardDAOException");
+			throw processorMDTRException;
+		} catch (CustomerDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.CustomerDAOException");
+			throw processorMDTRException;
+		} finally{
+			transactionVO.setChargeVO(chargeVO);
 		}
+		return transactionVO;
 	}
 
 	private void printTimes(long initialTime, long finalTime) {
@@ -117,10 +212,79 @@ public class ProcessorMDTR {
 		System.out.println("charge.getRefunded(): " + charge.getRefunded());
 		System.out.println("charge.getRefunds(): " + charge.getRefunds());
 		System.out.println("charge.getStatementDescription(): " + charge.getStatementDescription());
-		
 		System.out.println("charge.toString(): " + charge.toString());
 	}
 	
+	public ArrayList<ChargeVO> listCharge(ChargeVO chargeVO){
+		ArrayList<ChargeVO> listCharge = null;
+		try {
+			ChargeDAO chargeDAO = new ChargeDAO();
+			listCharge = chargeDAO.search(chargeVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+		} catch (ChargeDAOException e) {
+			e.printStackTrace();
+		}
+		return listCharge;
+	}
+
+	public ChargeVO processRefund(ChargeVO chargeVO) throws ProcessorMDTRException {
+		Map<String, Object> params = new HashMap<String, Object>(); 
+		try {
+			Charge charge = Charge.retrieve(chargeVO.getStripeId());
+			Refund refund = charge.getRefunds().create(params);
+			System.out.println("refund object: " + refund);
+			Utilities.copyRefundToChargeVO(chargeVO, refund);
+			
+			RefundDAO refundDAO = new RefundDAO();
+			refundDAO.insert(chargeVO.getRefundVO());
+			System.out.println("chargeVO.getRefundVO().getId(): " + chargeVO.getRefundVO().getId());
+			if(chargeVO.getRefundVO() != null && chargeVO.getRefundVO().getId() != null){
+				chargeVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				chargeVO.setMessage(instanceConfigurationApplication.getKey("ProcessorMDTR.processRefound.0"));
+	        }else{
+	        	chargeVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				chargeVO.setMessage(instanceConfigurationApplication.getKey("ProcessorMDTR.processRefound.1"));
+	        }
+		} catch (AuthenticationException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.AuthenticationException");
+			throw processorMDTRException;
+		} catch (InvalidRequestException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.InvalidRequestException");
+			throw processorMDTRException;
+		} catch (APIConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.APIConnectionException");
+			throw processorMDTRException;
+		} catch (CardException e) {
+			System.out.println("Status is: " + e.getCode());
+			System.out.println("Message is: " + e.getParam());
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.CardException");
+			throw processorMDTRException;
+		} catch (APIException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.APIException");
+			throw processorMDTRException;
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (RefundDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.RefundDAOException");
+			throw processorMDTRException;
+		}
+		return chargeVO;
+	}
 	
 }
 

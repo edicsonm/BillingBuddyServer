@@ -27,14 +27,13 @@ public class CustomerDAO extends MySQLConnection implements ICustomerDAO{
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_CUSTOMER( ?, ? , ?, ?, ?)}");
-			cstmt.setString(1, customerVO.getPhone());
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_CUSTOMER( ?, ? , ?, ?)}");
+			cstmt.setString(1, customerVO.getCreateTime());
 			cstmt.setString(2, customerVO.getEmail());
-			cstmt.setString(3, customerVO.getUsername());
-			cstmt.setString(4, customerVO.getPassword());
-			cstmt.setString(5, "0");
+			cstmt.setString(3, customerVO.getPhoneNumber());
+			cstmt.setString(4, "0");
 			status = cstmt.executeUpdate();
-			customerVO.setId(cstmt.getString(5));
+			customerVO.setId(cstmt.getString(4));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new CustomerDAOException(e);

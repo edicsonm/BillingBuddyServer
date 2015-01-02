@@ -24,28 +24,32 @@ public class ThreadTransaction implements Runnable {
 	}
 
 	public void run() {
-		try {
-			System.out.println("Esperando informacion ....");
-			in = new BufferedReader(new InputStreamReader(this.connectionSocket.getInputStream()));
-			out = new PrintWriter(connectionSocket.getOutputStream(), true);
-
-			String context;
-			StringBuffer message = new StringBuffer("");
-			while ((context = in.readLine()) != null) {
-				if (context.equals("Q$#*_"))
-					break;
-				message.append(context);
-			}
-			System.out.println("message: " + message);
-			String messageResponse = transactionFacade.proccesMessage(message.toString());
-			out.println("Aca te envio la respuesta cliente ..." + messageResponse);
-			out.flush();
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-			new TransactionException(e);
-		}
-
+		
 	}
+
+//	public void run() {
+//		try {
+//			System.out.println("Esperando informacion ....");
+//			in = new BufferedReader(new InputStreamReader(this.connectionSocket.getInputStream()));
+//			out = new PrintWriter(connectionSocket.getOutputStream(), true);
+//
+//			String context;
+//			StringBuffer message = new StringBuffer("");
+//			while ((context = in.readLine()) != null) {
+//				if (context.equals("Q$#*_"))
+//					break;
+//				message.append(context);
+//			}
+//			System.out.println("message: " + message);
+//			String messageResponse = transactionFacade.proccesMessage(message.toString());
+//			out.println("Aca te envio la respuesta cliente ..." + messageResponse);
+//			out.flush();
+//			out.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			new TransactionException(e);
+//		}
+//
+//	}
 
 }
