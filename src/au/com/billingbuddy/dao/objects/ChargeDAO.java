@@ -17,6 +17,7 @@ import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
+import au.com.billingbuddy.vo.objects.RefundVO;
 import au.com.billingbuddy.vo.objects.StripeChargeVO;
 import au.com.billingbuddy.vo.objects.VO;
 
@@ -141,6 +142,7 @@ public class ChargeDAO extends MySQLConnection implements IChargeDAO {
 					chargeVO.setReceiptMail(resultSet.getString("Char_ReceiptEmail"));
 					chargeVO.setReceiptNumber(resultSet.getString("Char_ReceiptNumber"));
 					chargeVO.setProcessTime(resultSet.getString("Char_ProcessTime"));
+					chargeVO.setAmountRefunded(resultSet.getString("REFUND"));
 					list.add(chargeVO);
 				}
 			}

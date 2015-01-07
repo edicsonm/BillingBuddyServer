@@ -2,7 +2,7 @@ package au.com.billingbuddy.vo.objects;
 
 import java.io.Serializable;
 
-public class CardVO implements Serializable {
+public class CardVO extends VO implements Serializable{
 
 	private static final long serialVersionUID = 587132337119064926L;
 	private String id;

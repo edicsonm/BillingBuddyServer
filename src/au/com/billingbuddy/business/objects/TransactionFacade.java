@@ -51,19 +51,22 @@ public class TransactionFacade {
 //		return messageResponse;
 //	}
 	
-	public TransactionVO proccesPayment(TransactionVO transactionVO) throws TransactionFacadeException{
+	public TransactionVO proccesPayment(TransactionVO transactionVO) throws TransactionFacadeException {
 		try {/*1.- Registrar la tarjeta.*/
 			/*2.- Registrar la transaccion.*/
 			/*3.- Registrar el Cargo.*/
 			/*Realizar todo en una sola transacion*/
-			
 			long initialTime = Calendar.getInstance().getTimeInMillis();
-			transactionVO = fraudDetectionMDRT.creditCardFraudDetection(transactionVO);
+//			transactionVO = fraudDetectionMDRT.creditCardFraudDetection(transactionVO);
 			long finalTime = Calendar.getInstance().getTimeInMillis();
 			System.out.println("Tiempo total de procesamiento para MaxMind: " + (finalTime-initialTime) + " ms.");
-//			transactionVO.setId("17");
-//			transactionVO.setHighRiskScore(false);
-			if(!transactionVO.isHighRiskScore()){
+			
+			
+			transactionVO.setId("17");
+			transactionVO.setHighRiskScore(false);
+			
+			
+			if(!transactionVO.isHighRiskScore()) {
 				initialTime = Calendar.getInstance().getTimeInMillis();	
 				processorMDTR.chargePayment(transactionVO);
 				finalTime = Calendar.getInstance().getTimeInMillis();
@@ -103,12 +106,6 @@ public class TransactionFacade {
 		}
 		return transactionVO;
 	}
-	
-	public ArrayList<ChargeVO> listCharge(ChargeVO chargeVO){
-		ArrayList<ChargeVO> listCharges = processorMDTR.listCharge(chargeVO);
-		return listCharges;
-	}
-	
 	
 //	public ArrayList<TransactionVO> listTransaction(TransactionVO transactionVO){
 //		ArrayList<TransactionVO> listTransaction = transactionMDTR.listTransaction(transactionVO);

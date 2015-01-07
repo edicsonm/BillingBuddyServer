@@ -1,7 +1,9 @@
 package au.com.billingbuddy.vo.objects;
 
+import java.io.Serializable;
 
-public class CustomerVO {
+
+public class CustomerVO implements Serializable {
 	
 //	private String id;
 //	private String email;
@@ -9,6 +11,7 @@ public class CustomerVO {
 //	private String username;
 //	private String password;
 	
+	private static final long serialVersionUID = 5929911480071411063L;
 	private String id;
 	private String createTime;
 	private String email;

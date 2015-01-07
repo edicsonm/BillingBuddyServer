@@ -12,7 +12,6 @@ import com.stripe.exception.AuthenticationException;
 import com.stripe.exception.CardException;
 import com.stripe.exception.InvalidRequestException;
 import com.stripe.model.Charge;
-import com.stripe.model.Customer;
 import com.stripe.model.Refund;
 
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
@@ -22,16 +21,20 @@ import au.com.billingbuddy.common.objects.Utilities;
 import au.com.billingbuddy.dao.objects.CardDAO;
 import au.com.billingbuddy.dao.objects.ChargeDAO;
 import au.com.billingbuddy.dao.objects.CustomerDAO;
+import au.com.billingbuddy.dao.objects.PlanDAO;
 import au.com.billingbuddy.dao.objects.RefundDAO;
 import au.com.billingbuddy.exceptions.objects.CardDAOException;
 import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
 import au.com.billingbuddy.exceptions.objects.CustomerDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
+import au.com.billingbuddy.exceptions.objects.PlanDAOException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.RefundDAOException;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
 import au.com.billingbuddy.vo.objects.CustomerVO;
+import au.com.billingbuddy.vo.objects.PlanVO;
+import au.com.billingbuddy.vo.objects.RefundVO;
 import au.com.billingbuddy.vo.objects.TransactionVO;
 
 public class ProcessorMDTR {
@@ -215,36 +218,44 @@ public class ProcessorMDTR {
 		System.out.println("charge.toString(): " + charge.toString());
 	}
 	
-	public ArrayList<ChargeVO> listCharge(ChargeVO chargeVO){
+	public ArrayList<ChargeVO> listCharge(ChargeVO chargeVO) throws ProcessorMDTRException{
 		ArrayList<ChargeVO> listCharge = null;
 		try {
 			ChargeDAO chargeDAO = new ChargeDAO();
 			listCharge = chargeDAO.search(chargeVO);
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCharge.MySQLConnectionException");
+			throw processorMDTRException;
 		} catch (ChargeDAOException e) {
 			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCharge.ChargeDAOException");
+			throw processorMDTRException;
 		}
 		return listCharge;
 	}
-
+	
 	public ChargeVO processRefund(ChargeVO chargeVO) throws ProcessorMDTRException {
 		Map<String, Object> params = new HashMap<String, Object>(); 
 		try {
 			Charge charge = Charge.retrieve(chargeVO.getStripeId());
+			params.put("amount", Utilities.currencyToStripe(chargeVO.getRefundVO().getAmount(), chargeVO.getCurrency().toUpperCase()));
 			Refund refund = charge.getRefunds().create(params);
 			System.out.println("refund object: " + refund);
 			Utilities.copyRefundToChargeVO(chargeVO, refund);
-			
 			RefundDAO refundDAO = new RefundDAO();
 			refundDAO.insert(chargeVO.getRefundVO());
-			System.out.println("chargeVO.getRefundVO().getId(): " + chargeVO.getRefundVO().getId());
 			if(chargeVO.getRefundVO() != null && chargeVO.getRefundVO().getId() != null){
 				chargeVO.setStatus(instanceConfigurationApplication.getKey("success"));
-				chargeVO.setMessage(instanceConfigurationApplication.getKey("ProcessorMDTR.processRefound.0"));
+				chargeVO.setMessage("ProcessorMDTR.processRefound.success");
 	        }else{
-	        	chargeVO.setStatus(instanceConfigurationApplication.getKey("success"));
-				chargeVO.setMessage(instanceConfigurationApplication.getKey("ProcessorMDTR.processRefound.1"));
+	        	chargeVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+				chargeVO.setMessage("ProcessorMDTR.processRefound.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar el Refund .... ");
+	        	System.out.println("#################################################################");
 	        }
 		} catch (AuthenticationException e) {
 			e.printStackTrace();
@@ -252,8 +263,10 @@ public class ProcessorMDTR {
 			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.AuthenticationException");
 			throw processorMDTRException;
 		} catch (InvalidRequestException e) {
+			System.out.println("e.getParam(): " + e.getParam());
+			System.out.println("e.getParam(): " + e.getMessage());
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.InvalidRequestException");
+			processorMDTRException.setErrorCode(Utilities.searchStripeError(e.getMessage()));
 			throw processorMDTRException;
 		} catch (APIConnectionException e) {
 			e.printStackTrace();
@@ -285,6 +298,130 @@ public class ProcessorMDTR {
 		}
 		return chargeVO;
 	}
+	
+	
+	public ArrayList<RefundVO> listRefunds(RefundVO refundVO) throws ProcessorMDTRException {
+		ArrayList<RefundVO> listRefunds = null;
+		try {
+			RefundDAO refundDAO = new RefundDAO();
+			listRefunds = refundDAO.search(refundVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listRefunds.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (RefundDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listRefunds.RefundDAOException");
+			throw processorMDTRException;
+		}
+		return listRefunds;
+	}
+	
+	public ArrayList<PlanVO> listPlans(PlanVO planVO) throws ProcessorMDTRException {
+		ArrayList<PlanVO> listPlans = null;
+		try {
+			PlanDAO planDAO = new PlanDAO();
+			listPlans = planDAO.search(planVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listRefunds.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (PlanDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listRefunds.PlanDAOException");
+			throw processorMDTRException;
+		}
+		return listPlans;
+	}
+	
+	public PlanVO savePlan(PlanVO planVO) throws ProcessorMDTRException{
+		try {
+			PlanDAO planDAO = new PlanDAO();
+			planDAO.insert(planVO);
+			if(planVO != null && planVO.getId() != null){
+				planVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				planVO.setMessage("ProcessorMDTR.savePlan.success");
+	        }else{
+	        	planVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	planVO.setMessage("ProcessorMDTR.savePlan.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar el Plan .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.savePlan.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (PlanDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.savePlan.PlanDAOException");
+			throw processorMDTRException;
+		}
+		return planVO;
+	}
+	
+	public PlanVO updatePlan(PlanVO planVO) throws ProcessorMDTRException{
+		try {
+			PlanDAO planDAO = new PlanDAO();
+			planDAO.update(planVO);
+			if(planVO != null && planVO.getId() != null){
+				planVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				planVO.setMessage("ProcessorMDTR.updatePlan.success");
+	        }else{
+	        	planVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	planVO.setMessage("ProcessorMDTR.updatePlan.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible actualizar el Plan .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updatePlan.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (PlanDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updatePlan.PlanDAOException");
+			throw processorMDTRException;
+		}
+		return planVO;
+	}
+	
+	public PlanVO deletePlan(PlanVO planVO) throws ProcessorMDTRException{
+		try {
+			PlanDAO planDAO = new PlanDAO();
+			planDAO.delete(planVO);
+			if(planVO != null && planVO.getId() != null){
+				planVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				planVO.setMessage("ProcessorMDTR.deletePlan.success");
+	        }else{
+	        	planVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	planVO.setMessage("ProcessorMDTR.deletePlan.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible eliminar el Plan .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deletePlan.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (PlanDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deletePlan.PlanDAOException");
+			throw processorMDTRException;
+		}
+		return planVO;
+	}
+	
 	
 }
 

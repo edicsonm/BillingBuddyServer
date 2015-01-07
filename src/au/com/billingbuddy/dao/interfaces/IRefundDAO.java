@@ -8,7 +8,6 @@ import au.com.billingbuddy.vo.objects.VO;
 
 public interface IRefundDAO {
 	public int insert(RefundVO refundVO) throws RefundDAOException;
-	public RefundVO searchBin(RefundVO refundVO) throws RefundDAOException;
 	public int update() throws RefundDAOException;
 	public int delete() throws RefundDAOException;
 	public VO searchByID(String ID) throws RefundDAOException;

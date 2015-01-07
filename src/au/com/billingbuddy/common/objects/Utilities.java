@@ -1,7 +1,11 @@
 package au.com.billingbuddy.common.objects;
 
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.MissingResourceException;
+import java.util.regex.Pattern;
 
 import com.stripe.model.Charge;
 import com.stripe.model.Refund;
@@ -101,14 +105,39 @@ public class Utilities {
 	}
 
 	public static void copyRefundToChargeVO(ChargeVO chargeVO, Refund refund) {
-		chargeVO.setRefundVO(new RefundVO());
 		chargeVO.getRefundVO().setId(refund.getId());
 		chargeVO.getRefundVO().setAmount(String.valueOf(refund.getAmount()));
 		chargeVO.getRefundVO().setCurrency(refund.getCurrency());
 		chargeVO.getRefundVO().setCreationTime(String.valueOf(refund.getCreated()));
 		chargeVO.getRefundVO().setBalanceTransaction(refund.getBalanceTransaction());
-		chargeVO.getRefundVO().setChargeId(refund.getCharge());
+		chargeVO.getRefundVO().setChargeId(chargeVO.getId());
+		chargeVO.getRefundVO().setStripeId(refund.getId());
 	}
+	
+	public static String searchStripeError(String message ){
+		if(Pattern.compile("Charge.*has already been refunded.*").matcher(message).matches()) return "ProcessorMDTR.processRefound.InvalidRequestException.1";
+		if(Pattern.compile("Amount must be no more than than .*").matcher(message).matches()) return "ProcessorMDTR.processRefound.InvalidRequestException.2";
+		if(Pattern.compile("Refund amount.*is greater than unrefunded amount on charge.*").matcher(message).matches()) return "ProcessorMDTR.processRefound.InvalidRequestException.3";
+		return "";
+	}
+	
+	public static String formatDate(String date){
+		try {
+			return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} 
+		return date;
+	}
+	
+	public static boolean c(String value){
+		if(value == null )return true;
+		if(value.length() == 0 )return true;
+		if(value.trim().length() == 0 )return true;
+		if(value.equalsIgnoreCase(""))return true;
+		else return true;
+	}
+	
 	
 	
 }
