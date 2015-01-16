@@ -1,8 +1,10 @@
 package au.com.billingbuddy.common.objects;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.MissingResourceException;
 import java.util.regex.Pattern;
@@ -123,7 +125,7 @@ public class Utilities {
 	
 	public static String formatDate(String date){
 		try {
-			return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date));
+			return getSimpleDateFormat().format(getSystemDateFormat().parse(date));
 		} catch (ParseException e) {
 			e.printStackTrace();
 		} 
@@ -138,6 +140,63 @@ public class Utilities {
 		else return true;
 	}
 	
+	public static String getCurrentDate(){
+		return getSimpleDateFormat().format(Calendar.getInstance().getTime()); 
+	}
 	
+	public static SimpleDateFormat getSimpleDateFormat(){
+		return  new SimpleDateFormat("dd-MM-yyyy");
+	}
 	
+	public static SimpleDateFormat getSystemDateFormat(){
+		return  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	}
+	
+	public static Calendar getCalendarDateSimple(String stringDate) {
+		Calendar calendar = Calendar.getInstance();
+		try {
+			calendar = Calendar.getInstance();
+			Date date = Utilities.getSimpleDateFormat().parse(stringDate);
+			calendar.setTime(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return calendar;
+	}
+	
+	public static Calendar getCalendarDateSystem(String stringDate) {
+		Calendar calendar = Calendar.getInstance();
+		try {
+			calendar = Calendar.getInstance();
+			Date date = Utilities.getSystemDateFormat().parse(stringDate);
+			calendar.setTime(date);
+			return calendar;
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+		
+		try {
+			calendar = Calendar.getInstance();
+			Date date = Utilities.getSimpleDateFormat().parse(stringDate);
+			calendar.setTime(date);
+			return calendar;
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+		
+		return calendar;
+	}
+	
+	public static java.sql.Date stringToSqlDate(String stringDate){
+		try {
+			Calendar calendar = Calendar.getInstance();
+			java.util.Date date = getSimpleDateFormat().parse(stringDate);
+			calendar.setTime(date);
+			java.sql.Date sqlDate = new java.sql.Date(calendar.getTimeInMillis());
+			return sqlDate;
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return new java.sql.Date(Calendar.getInstance().getTimeInMillis());
+	}
 }

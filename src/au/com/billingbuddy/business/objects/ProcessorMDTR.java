@@ -20,21 +20,36 @@ import au.com.billingbuddy.common.objects.Currency;
 import au.com.billingbuddy.common.objects.Utilities;
 import au.com.billingbuddy.dao.objects.CardDAO;
 import au.com.billingbuddy.dao.objects.ChargeDAO;
+import au.com.billingbuddy.dao.objects.CountryDAO;
+import au.com.billingbuddy.dao.objects.CountryRestrictionDAO;
 import au.com.billingbuddy.dao.objects.CustomerDAO;
+import au.com.billingbuddy.dao.objects.MerchantDAO;
+import au.com.billingbuddy.dao.objects.MerchantRestrictionDAO;
 import au.com.billingbuddy.dao.objects.PlanDAO;
 import au.com.billingbuddy.dao.objects.RefundDAO;
+import au.com.billingbuddy.dao.objects.SubscriptionDAO;
 import au.com.billingbuddy.exceptions.objects.CardDAOException;
 import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
+import au.com.billingbuddy.exceptions.objects.CountryDAOException;
+import au.com.billingbuddy.exceptions.objects.CountryRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.CustomerDAOException;
+import au.com.billingbuddy.exceptions.objects.MerchantDAOException;
+import au.com.billingbuddy.exceptions.objects.MerchantRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.PlanDAOException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.RefundDAOException;
+import au.com.billingbuddy.exceptions.objects.SubscriptionDAOException;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
+import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
+import au.com.billingbuddy.vo.objects.CountryVO;
 import au.com.billingbuddy.vo.objects.CustomerVO;
+import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
+import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.PlanVO;
 import au.com.billingbuddy.vo.objects.RefundVO;
+import au.com.billingbuddy.vo.objects.SubscriptionVO;
 import au.com.billingbuddy.vo.objects.TransactionVO;
 
 public class ProcessorMDTR {
@@ -318,7 +333,10 @@ public class ProcessorMDTR {
 		}
 		return listRefunds;
 	}
-	
+
+/**********************************************************************************************************************************/
+/**********************************************************************************************************************************/
+/**********************************************************************************************************************************/
 	public ArrayList<PlanVO> listPlans(PlanVO planVO) throws ProcessorMDTRException {
 		ArrayList<PlanVO> listPlans = null;
 		try {
@@ -327,12 +345,12 @@ public class ProcessorMDTR {
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.listRefunds.MySQLConnectionException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.listPlans.MySQLConnectionException");
 			throw processorMDTRException;
 		} catch (PlanDAOException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.listRefunds.PlanDAOException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.listPlans.PlanDAOException");
 			throw processorMDTRException;
 		}
 		return listPlans;
@@ -422,6 +440,451 @@ public class ProcessorMDTR {
 		return planVO;
 	}
 	
+/**********************************************************************************************************************************/
+/**********************************************************************************************************************************/
+/**********************************************************************************************************************************/
+	public ArrayList<SubscriptionVO> listSubscriptions(SubscriptionVO subscriptionVO) throws ProcessorMDTRException {
+		ArrayList<SubscriptionVO> listSubscriptions = null;
+		try {
+			SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+			listSubscriptions = subscriptionDAO.search(subscriptionVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listSubscription.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (SubscriptionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listSubscription.SubscriptionDAOException");
+			throw processorMDTRException;
+		}
+		return listSubscriptions;
+	}
+	
+	public SubscriptionVO saveSubscription(SubscriptionVO subscriptionVO) throws ProcessorMDTRException{
+		try {
+			SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+			subscriptionDAO.insert(subscriptionVO);
+			if(subscriptionVO != null && subscriptionVO.getId() != null){
+				subscriptionVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				subscriptionVO.setMessage("ProcessorMDTR.saveSubscription.success");
+	        }else{
+	        	subscriptionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	subscriptionVO.setMessage("ProcessorMDTR.saveSubscription.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar la Subscription  .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveSubscription.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (SubscriptionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveSubscription.SubscriptionDAOException");
+			throw processorMDTRException;
+		}
+		return subscriptionVO;
+	}
+	
+	public SubscriptionVO updateSubscription(SubscriptionVO subscriptionVO) throws ProcessorMDTRException{
+		try {
+			SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+			subscriptionDAO.update(subscriptionVO);
+			if(subscriptionVO != null && subscriptionVO.getId() != null){
+				subscriptionVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				subscriptionVO.setMessage("ProcessorMDTR.updateSubscription.success");
+	        }else{
+	        	subscriptionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	subscriptionVO.setMessage("ProcessorMDTR.updateSubscription.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible actualizar la Subscription .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateSubscription.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (SubscriptionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateSubscription.SubscriptionDAOException");
+			throw processorMDTRException;
+		}
+		return subscriptionVO;
+	}
+	
+	public SubscriptionVO deleteSubscription(SubscriptionVO subscriptionVO) throws ProcessorMDTRException{
+		try {
+			SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
+			subscriptionDAO.delete(subscriptionVO);
+			if(subscriptionVO != null && subscriptionVO.getId() != null){
+				subscriptionVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				subscriptionVO.setMessage("ProcessorMDTR.deleteSubscription.success");
+	        }else{
+	        	subscriptionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	subscriptionVO.setMessage("ProcessorMDTR.deleteSubscription.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible eliminar la Subscription .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteSubscription.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (SubscriptionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteSubscription.SubscriptionDAOException");
+			throw processorMDTRException;
+		}
+		return subscriptionVO;
+	}
+
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<CountryRestrictionVO> listCountryRestrictions(CountryRestrictionVO countryRestrictionVO) throws ProcessorMDTRException {
+		ArrayList<CountryRestrictionVO> listCountryRestrictions = null;
+		try {
+			CountryRestrictionDAO countryRestrictionDAO = new CountryRestrictionDAO();
+			listCountryRestrictions = countryRestrictionDAO.search(countryRestrictionVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCountryRestrictions.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CountryRestrictionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCountryRestrictions.CountryRestrictionDAOException");
+			throw processorMDTRException;
+		}
+		return listCountryRestrictions;
+	}
+	
+	public CountryRestrictionVO saveCountryRestriction(CountryRestrictionVO countryRestrictionVO) throws ProcessorMDTRException{
+		try {
+			CountryRestrictionDAO countryRestrictionDAO = new CountryRestrictionDAO();
+			countryRestrictionDAO.insert(countryRestrictionVO);
+			if(countryRestrictionVO != null && countryRestrictionVO.getId() != null){
+				countryRestrictionVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				countryRestrictionVO.setMessage("ProcessorMDTR.saveCountryRestriction.success");
+	        }else{
+	        	countryRestrictionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	countryRestrictionVO.setMessage("ProcessorMDTR.saveCountryRestriction.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar la Restriccion por pais.... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveCountryRestriction.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CountryRestrictionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveCountryRestriction.CountryRestrictionDAOException");
+			throw processorMDTRException;
+		}
+		return countryRestrictionVO;
+	}
+	
+	public CountryRestrictionVO updateCountryRestriction(CountryRestrictionVO countryRestrictionVO) throws ProcessorMDTRException{
+		try {
+			CountryRestrictionDAO countryRestrictionDAO = new CountryRestrictionDAO();
+			countryRestrictionDAO.update(countryRestrictionVO);
+			if(countryRestrictionVO != null && countryRestrictionVO.getId() != null){
+				countryRestrictionVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				countryRestrictionVO.setMessage("ProcessorMDTR.updateCountryRestriction.success");
+	        }else{
+	        	countryRestrictionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	countryRestrictionVO.setMessage("ProcessorMDTR.updateCountryRestriction.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible actualizar la Restriccion por pais .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateCountryRestriction.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CountryRestrictionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateCountryRestriction.CountryRestrictionDAOException");
+			throw processorMDTRException;
+		}
+		return countryRestrictionVO;
+	}
+	
+	public CountryRestrictionVO deleteCountryRestriction(CountryRestrictionVO countryRestrictionVO) throws ProcessorMDTRException{
+		try {
+			CountryRestrictionDAO countryRestrictionDAO = new CountryRestrictionDAO();
+			countryRestrictionDAO.delete(countryRestrictionVO);
+			if(countryRestrictionVO != null && countryRestrictionVO.getId() != null){
+				countryRestrictionVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				countryRestrictionVO.setMessage("ProcessorMDTR.deleteCountryRestriction.success");
+	        }else{
+	        	countryRestrictionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	countryRestrictionVO.setMessage("ProcessorMDTR.deleteCountryRestriction.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible eliminar la Restriccion por Pais .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteCountryRestriction.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CountryRestrictionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteCountryRestriction.CountryRestrictionDAOException");
+			throw processorMDTRException;
+		}
+		return countryRestrictionVO;
+	}
+		
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<CountryVO> listCountries(CountryVO countryVO) throws ProcessorMDTRException {
+		ArrayList<CountryVO> listCountries = null;
+		try {
+			CountryDAO countryDAO = new CountryDAO();
+			listCountries = countryDAO.search(countryVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCountries.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CountryDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCountries.CountryDAOException");
+			throw processorMDTRException;
+		}
+		return listCountries;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<MerchantRestrictionVO> listMerchantRestrictions(MerchantRestrictionVO merchantRestrictionVO) throws ProcessorMDTRException {
+		ArrayList<MerchantRestrictionVO> listMerchantRestrictions = null;
+		try {
+			MerchantRestrictionDAO merchantRestrictionDAO = new MerchantRestrictionDAO();
+			listMerchantRestrictions = merchantRestrictionDAO.search(merchantRestrictionVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantRestrictions.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantRestrictionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantRestrictions.MerchantRestrictionDAOException");
+			throw processorMDTRException;
+		}
+		return listMerchantRestrictions;
+	}
+	
+	public MerchantRestrictionVO saveMerchantRestriction(MerchantRestrictionVO merchantRestrictionVO) throws ProcessorMDTRException{
+		try {
+			MerchantRestrictionDAO merchantRestrictionDAO = new MerchantRestrictionDAO();
+			merchantRestrictionDAO.insert(merchantRestrictionVO);
+			if(merchantRestrictionVO != null && merchantRestrictionVO.getId() != null){
+				merchantRestrictionVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				merchantRestrictionVO.setMessage("ProcessorMDTR.saveMerchantRestriction.success");
+	        }else{
+	        	merchantRestrictionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	merchantRestrictionVO.setMessage("ProcessorMDTR.saveMerchantRestriction.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar la Restriccion por Merchant.... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantRestriction.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantRestrictionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantRestriction.MerchantRestrictionDAOException");
+			throw processorMDTRException;
+		}
+		return merchantRestrictionVO;
+	}
+	
+	public MerchantRestrictionVO updateMerchantRestriction(MerchantRestrictionVO merchantRestrictionVO) throws ProcessorMDTRException{
+		try {
+			MerchantRestrictionDAO merchantRestrictionDAO = new MerchantRestrictionDAO();
+			merchantRestrictionDAO.update(merchantRestrictionVO);
+			if(merchantRestrictionVO != null && merchantRestrictionVO.getId() != null){
+				merchantRestrictionVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				merchantRestrictionVO.setMessage("ProcessorMDTR.updateMerchantRestriction.success");
+	        }else{
+	        	merchantRestrictionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	merchantRestrictionVO.setMessage("ProcessorMDTR.updateMerchantRestriction.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible actualizar la Restriccion por Merchant .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateMerchantRestriction.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantRestrictionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateMerchantRestriction.MerchantRestrictionDAOException");
+			throw processorMDTRException;
+		}
+		return merchantRestrictionVO;
+	}
+	
+	public MerchantRestrictionVO deleteMerchantRestriction(MerchantRestrictionVO merchantRestrictionVO) throws ProcessorMDTRException{
+		try {
+			MerchantRestrictionDAO merchantRestrictionDAO = new MerchantRestrictionDAO();
+			merchantRestrictionDAO.delete(merchantRestrictionVO);
+			if(merchantRestrictionVO != null && merchantRestrictionVO.getId() != null){
+				merchantRestrictionVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				merchantRestrictionVO.setMessage("ProcessorMDTR.deleteMerchantRestriction.success");
+	        }else{
+	        	merchantRestrictionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	merchantRestrictionVO.setMessage("ProcessorMDTR.deleteMerchantRestriction.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible eliminar la Restriccion por Merchant .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchantRestriction.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantRestrictionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchantRestriction.MerchantRestrictionDAOException");
+			throw processorMDTRException;
+		}
+		return merchantRestrictionVO;
+	}	
+
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<MerchantVO> listMerchants(MerchantVO merchantVO) throws ProcessorMDTRException {
+		ArrayList<MerchantVO> listMerchants = null;
+		try {
+			MerchantDAO merchantDAO = new MerchantDAO();
+			listMerchants = merchantDAO.search(merchantVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerhants.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerhants.MerchantDAOException");
+			throw processorMDTRException;
+		}
+		return listMerchants;
+	}	
+
+	public MerchantVO saveMerchant(MerchantVO merchantVO) throws ProcessorMDTRException{
+		try {
+			MerchantDAO merchantDAO = new MerchantDAO();
+			merchantDAO.insert(merchantVO);
+			if(merchantVO != null && merchantVO.getId() != null){
+				merchantVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				merchantVO.setMessage("ProcessorMDTR.saveMerchant.success");
+	        }else{
+	        	merchantVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	merchantVO.setMessage("ProcessorMDTR.saveMerchant.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar el Merchant.... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchant.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchant.MerchantDAOException");
+			throw processorMDTRException;
+		}
+		return merchantVO;
+	}
+	
+	public MerchantVO updateMerchant(MerchantVO merchantVO) throws ProcessorMDTRException{
+		try {
+			MerchantDAO merchantDAO = new MerchantDAO();
+			merchantDAO.update(merchantVO);
+			if(merchantVO != null && merchantVO.getId() != null){
+				merchantVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				merchantVO.setMessage("ProcessorMDTR.updateMerchant.success");
+	        }else{
+	        	merchantVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	merchantVO.setMessage("ProcessorMDTR.updateMerchant.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible actualizar el Merchant .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateMerchant.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateMerchant.MerchantDAOException");
+			throw processorMDTRException;
+		}
+		return merchantVO;
+	}
+	
+	public MerchantVO deleteMerchant(MerchantVO merchantVO) throws ProcessorMDTRException{
+		try {
+			MerchantDAO merchantDAO = new MerchantDAO();
+			merchantDAO.delete(merchantVO);
+			if(merchantVO != null && merchantVO.getId() != null){
+				merchantVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				merchantVO.setMessage("ProcessorMDTR.deleteMerchant.success");
+	        }else{
+	        	merchantVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	merchantVO.setMessage("ProcessorMDTR.deleteMerchant.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible eliminar el Merchant .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchant.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchant.MerchantDAOException");
+			throw processorMDTRException;
+		}
+		return merchantVO;
+	}	
 	
 }
 
