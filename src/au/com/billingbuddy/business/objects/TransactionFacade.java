@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
+import au.com.billingbuddy.exceptions.objects.ProcesorFacadeException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.TransactionFacadeException;
 import au.com.billingbuddy.vo.objects.ChargeVO;
@@ -99,10 +100,15 @@ public class TransactionFacade {
 //			e.printStackTrace();
 //		}
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+//			TransactionFacadeException transactionFacadeException = new TransactionFacadeException(e);
+//			transactionFacadeException.setErrorCode("TransactionFacade.proccesPayment.ProcessorMDTRException");
+//			throw transactionFacadeException;
+			
 			TransactionFacadeException transactionFacadeException = new TransactionFacadeException(e);
-			transactionFacadeException.setErrorCode("TransactionFacade.proccesPayment.ProcessorMDTRException");
+			transactionFacadeException.setErrorCode(e.getErrorCode());
 			throw transactionFacadeException;
+			
 		}
 		return transactionVO;
 	}

@@ -30,12 +30,14 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_MERCHANT(?,?,?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_MERCHANT(?,?,?,?,?)}");
 			cstmt.setString(1,merchantVO.getCountryNumeric());
 			cstmt.setString(2,merchantVO.getName());
-			cstmt.setString(3,"0");
+			cstmt.setString(3,merchantVO.getUrlDeny());
+			cstmt.setString(4,merchantVO.getUrlApproved());
+			cstmt.setString(5,"0");
 			status = cstmt.executeUpdate();
-			merchantVO.setId(cstmt.getString(3));
+			merchantVO.setId(cstmt.getString(5));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new MerchantDAOException(e);
@@ -49,12 +51,14 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT(?,?,?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT(?,?,?,?,?)}");
 			cstmt.setString(1,merchantVO.getCountryNumeric());
 			cstmt.setString(2,merchantVO.getName());
-			cstmt.setString(3,merchantVO.getId());
+			cstmt.setString(3,merchantVO.getUrlDeny());
+			cstmt.setString(4,merchantVO.getUrlApproved());
+			cstmt.setString(5,merchantVO.getId());
 			status = cstmt.executeUpdate();
-			merchantVO.setId(cstmt.getString(3));
+			merchantVO.setId(cstmt.getString(5));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new MerchantDAOException(e);
@@ -81,8 +85,35 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		return status;
 	}
 
-	public MerchantVO searchByID(String ID) throws MerchantDAOException {
-		return null;
+	public MerchantVO searchDetail(MerchantVO merchantVO) throws MerchantDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_DETAIL(?)}");
+			pstmt.setString(1,merchantVO.getId());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				while (resultSet.next()) {
+					merchantVO = new MerchantVO();
+					merchantVO.setId(resultSet.getString("Merc_ID"));
+					merchantVO.setCountryNumeric(resultSet.getString("Coun_Numeric"));
+					merchantVO.setUrlApproved(resultSet.getString("Merc_UrlApproved"));
+					merchantVO.setUrlDeny(resultSet.getString("Merc_UrlDeny"));
+					merchantVO.setCountryVO(new CountryVO());
+					merchantVO.getCountryVO().setName(resultSet.getString("Coun_Name"));
+					merchantVO.setName(resultSet.getString("Merc_Name"));
+				}
+			}else{
+				merchantVO = null;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new MerchantDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return merchantVO;
 	}
 
 	public ArrayList<MerchantVO> search() throws MerchantDAOException {
@@ -103,6 +134,10 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 					merchantVO = new MerchantVO();
 					merchantVO.setId(resultSet.getString("Merc_ID"));
 					merchantVO.setCountryNumeric(resultSet.getString("Coun_Numeric"));
+					
+					merchantVO.setUrlApproved(resultSet.getString("Merc_UrlApproved"));
+					merchantVO.setUrlDeny(resultSet.getString("Merc_UrlDeny"));
+					
 					merchantVO.setCountryVO(new CountryVO());
 					merchantVO.getCountryVO().setName(resultSet.getString("Coun_Name"));
 					merchantVO.setName(resultSet.getString("Merc_Name"));

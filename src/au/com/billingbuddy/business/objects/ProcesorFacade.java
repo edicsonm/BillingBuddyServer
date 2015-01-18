@@ -309,7 +309,19 @@ public class ProcesorFacade {
 			throw procesorFacadeException;
 		}
 		return listMerchants;
-	}		
+	}
+	
+	public MerchantVO listMerchantDetail(MerchantVO merchantVO) throws ProcesorFacadeException{
+		try {
+			merchantVO = processorMDTR.listMerchantDetail(merchantVO);
+		} catch (ProcessorMDTRException e) {
+			e.printStackTrace();
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return merchantVO;
+	}	
 
 	public MerchantVO saveMerchant(MerchantVO merchantVO) throws ProcesorFacadeException{
 		try {

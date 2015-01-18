@@ -37,6 +37,7 @@ import au.com.billingbuddy.exceptions.objects.MerchantDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.PlanDAOException;
+import au.com.billingbuddy.exceptions.objects.ProcesorFacadeException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.RefundDAOException;
 import au.com.billingbuddy.exceptions.objects.SubscriptionDAOException;
@@ -801,7 +802,25 @@ public class ProcessorMDTR {
 		}
 		return listMerchants;
 	}	
-
+	
+	public MerchantVO listMerchantDetail(MerchantVO merchantVO) throws ProcessorMDTRException{
+		try {
+			MerchantDAO merchantDAO = new MerchantDAO();
+			merchantDAO.searchDetail(merchantVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDetail.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDetail.MerchantDAOException");
+			throw processorMDTRException;
+		}
+		return merchantVO;
+	}
+	
 	public MerchantVO saveMerchant(MerchantVO merchantVO) throws ProcessorMDTRException{
 		try {
 			MerchantDAO merchantDAO = new MerchantDAO();

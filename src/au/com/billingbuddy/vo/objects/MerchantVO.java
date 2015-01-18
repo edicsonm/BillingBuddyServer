@@ -9,6 +9,10 @@ public class MerchantVO extends VO implements Serializable {
 	private String id;
 	private String countryNumeric;
 	private String name;
+	
+	private String urlApproved;
+	private String urlDeny;
+	
 	private CountryVO countryVO;
 
 	public String getId() {
@@ -41,6 +45,22 @@ public class MerchantVO extends VO implements Serializable {
 
 	public void setCountryVO(CountryVO countryVO) {
 		this.countryVO = countryVO;
+	}
+
+	public String getUrlApproved() {
+		return urlApproved;
+	}
+
+	public void setUrlApproved(String urlApproved) {
+		this.urlApproved = urlApproved;
+	}
+
+	public String getUrlDeny() {
+		return urlDeny;
+	}
+
+	public void setUrlDeny(String urlDeny) {
+		this.urlDeny = urlDeny;
 	}
 
 }
