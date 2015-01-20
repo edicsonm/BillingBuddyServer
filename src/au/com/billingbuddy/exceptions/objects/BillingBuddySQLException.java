@@ -1,16 +1,44 @@
 package au.com.billingbuddy.exceptions.objects;
 
+import java.sql.SQLException;
+
+import au.com.billingbuddy.common.objects.MySQLError;
+import au.com.billingbuddy.common.objects.Utilities;
 import au.com.billingbuddy.exceptions.interfaces.IException;
 
-public class BillingBuddyException extends Exception implements IException {
+public class BillingBuddySQLException extends SQLException implements IException {
 
 	private static final long serialVersionUID = 886765645402562172L;
-	private String errorCode;
 	private String componentOrigen;
 	private String errorMenssage;
 	private String errorLevel;
-
-	public BillingBuddyException(String message) {
+	
+	private String value;
+	private String sqlObjectName;
+	
+	public BillingBuddySQLException(SQLException e) {
+		super(e);
+//		String tagG = this.getClass().getSuperclass().getSimpleName();
+//		String tagE = this.getClass().getSimpleName();
+//		System.out.println("tagG: " + tagG);
+//		System.out.println("tagE: " + tagE);
+//		
+//		tagG = this.getStackTrace()[0].getClassName();
+//		int sz = this.getStackTrace()[0].getClassName().split("\\.").length;
+//		System.out.println("tagG: " + tagG);
+		
+		MySQLError mySQLError = Utilities.extractSQLError(e.getMessage(), e.getErrorCode());
+		if(mySQLError != null){
+			setValue(mySQLError.getValue());
+			setSqlObjectName(mySQLError.getSqlObjectName());
+		}
+		// gestorArchivosProp = GestorArchivosProp.obtenerInstancia();
+		// ParamsConfigApp configuracion =
+		// gestorArchivosProp.getParamsConfigAppInstance();
+		// this.mapaExcepciones = configuracion.getExceptionIds();
+	}
+	
+	public BillingBuddySQLException(String message) {
 		super(message);
 		// gestorArchivosProp = GestorArchivosProp.obtenerInstancia();
 		// ParamsConfigApp configuracion =
@@ -18,7 +46,7 @@ public class BillingBuddyException extends Exception implements IException {
 		// this.mapaExcepciones = configuracion.getExceptionIds();
 	}
 
-	public BillingBuddyException(String message, Throwable cause) {
+	public BillingBuddySQLException(String message, Throwable cause) {
 		super(message, cause);
 		// gestorArchivosProp = GestorArchivosProp.obtenerInstancia();
 		// ParamsConfigApp configuracion =
@@ -26,19 +54,11 @@ public class BillingBuddyException extends Exception implements IException {
 		// this.mapaExcepciones = configuracion.getExceptionIds();
 	}
 
-	public BillingBuddyException(Throwable cause) {
+	public BillingBuddySQLException(Throwable cause) {
 		super(cause);
 //		System.out.println("1:" + this.getClass().getSuperclass().getSimpleName());
 //		System.out.println("2:" + this.getClass().getSimpleName() + ".1");
 //		System.out.println("3:" + this.getStackTrace()[0].getClassName());
-	}
-
-	public String getErrorCode() {
-		return errorCode;
-	}
-
-	public void setErrorCode(String errorCode) {
-		this.errorCode = errorCode;
 	}
 
 	public String getComponentOrigen() {
@@ -63,6 +83,22 @@ public class BillingBuddyException extends Exception implements IException {
 
 	public void setErrorLevel(String errorLevel) {
 		this.errorLevel = errorLevel;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public String getSqlObjectName() {
+		return sqlObjectName;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	public void setSqlObjectName(String sqlObjectName) {
+		this.sqlObjectName = sqlObjectName;
 	}
 
 	// private GestorArchivosProp gestorArchivosProp;

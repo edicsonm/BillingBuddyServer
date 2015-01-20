@@ -30,14 +30,12 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_MERCHANT(?,?,?,?,?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_MERCHANT(?,?,?)}");
 			cstmt.setString(1,merchantVO.getCountryNumeric());
 			cstmt.setString(2,merchantVO.getName());
-			cstmt.setString(3,merchantVO.getUrlDeny());
-			cstmt.setString(4,merchantVO.getUrlApproved());
-			cstmt.setString(5,"0");
+			cstmt.setString(3,"0");
 			status = cstmt.executeUpdate();
-			merchantVO.setId(cstmt.getString(5));
+			merchantVO.setId(cstmt.getString(3));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new MerchantDAOException(e);
@@ -51,14 +49,12 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT(?,?,?,?,?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT(?,?,?)}");
 			cstmt.setString(1,merchantVO.getCountryNumeric());
 			cstmt.setString(2,merchantVO.getName());
-			cstmt.setString(3,merchantVO.getUrlDeny());
-			cstmt.setString(4,merchantVO.getUrlApproved());
-			cstmt.setString(5,merchantVO.getId());
+			cstmt.setString(3,merchantVO.getId());
 			status = cstmt.executeUpdate();
-			merchantVO.setId(cstmt.getString(5));
+			merchantVO.setId(cstmt.getString(3));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new MerchantDAOException(e);
@@ -98,8 +94,6 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 					merchantVO = new MerchantVO();
 					merchantVO.setId(resultSet.getString("Merc_ID"));
 					merchantVO.setCountryNumeric(resultSet.getString("Coun_Numeric"));
-					merchantVO.setUrlApproved(resultSet.getString("Merc_UrlApproved"));
-					merchantVO.setUrlDeny(resultSet.getString("Merc_UrlDeny"));
 					merchantVO.setCountryVO(new CountryVO());
 					merchantVO.getCountryVO().setName(resultSet.getString("Coun_Name"));
 					merchantVO.setName(resultSet.getString("Merc_Name"));
@@ -134,10 +128,6 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 					merchantVO = new MerchantVO();
 					merchantVO.setId(resultSet.getString("Merc_ID"));
 					merchantVO.setCountryNumeric(resultSet.getString("Coun_Numeric"));
-					
-					merchantVO.setUrlApproved(resultSet.getString("Merc_UrlApproved"));
-					merchantVO.setUrlDeny(resultSet.getString("Merc_UrlDeny"));
-					
 					merchantVO.setCountryVO(new CountryVO());
 					merchantVO.getCountryVO().setName(resultSet.getString("Coun_Name"));
 					merchantVO.setName(resultSet.getString("Merc_Name"));

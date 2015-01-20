@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.stripe.Stripe;
 import com.stripe.exception.APIConnectionException;
 import com.stripe.exception.APIException;
@@ -17,12 +18,14 @@ import com.stripe.model.Refund;
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.common.objects.Currency;
+import au.com.billingbuddy.common.objects.MySQLError;
 import au.com.billingbuddy.common.objects.Utilities;
 import au.com.billingbuddy.dao.objects.CardDAO;
 import au.com.billingbuddy.dao.objects.ChargeDAO;
 import au.com.billingbuddy.dao.objects.CountryDAO;
 import au.com.billingbuddy.dao.objects.CountryRestrictionDAO;
 import au.com.billingbuddy.dao.objects.CustomerDAO;
+import au.com.billingbuddy.dao.objects.MerchantConfigurationDAO;
 import au.com.billingbuddy.dao.objects.MerchantDAO;
 import au.com.billingbuddy.dao.objects.MerchantRestrictionDAO;
 import au.com.billingbuddy.dao.objects.PlanDAO;
@@ -33,6 +36,7 @@ import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
 import au.com.billingbuddy.exceptions.objects.CountryDAOException;
 import au.com.billingbuddy.exceptions.objects.CountryRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.CustomerDAOException;
+import au.com.billingbuddy.exceptions.objects.MerchantConfigurationDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
@@ -46,6 +50,7 @@ import au.com.billingbuddy.vo.objects.ChargeVO;
 import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
 import au.com.billingbuddy.vo.objects.CustomerVO;
+import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
 import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.PlanVO;
@@ -904,6 +909,102 @@ public class ProcessorMDTR {
 		}
 		return merchantVO;
 	}	
+
+
+/**********************************************************************************************************************************/
+/**********************************************************************************************************************************/
+/**********************************************************************************************************************************/
+	public ArrayList<MerchantConfigurationVO> listMerchantConfigurations() throws ProcessorMDTRException {
+		ArrayList<MerchantConfigurationVO> listMerchantConfigurations = null;
+		try {
+			MerchantConfigurationDAO merchantConfigurationDAO = new MerchantConfigurationDAO();
+			listMerchantConfigurations = merchantConfigurationDAO.search();
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantConfiguration.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantConfigurationDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantConfiguration.MerchantConfigurationDAOException");
+			throw processorMDTRException;
+		}
+		return listMerchantConfigurations;
+	}
+
+	public MerchantConfigurationVO listMerchantConfigurationDetail(MerchantConfigurationVO merchantConfigurationVO) throws ProcessorMDTRException{
+		try {
+			MerchantConfigurationDAO merchantConfigurationDAO = new MerchantConfigurationDAO();
+			merchantConfigurationDAO.searchDetail(merchantConfigurationVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantConfigurationDetail.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantConfigurationDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantConfigurationDetail.MerchantConfigurationDAOException");
+			throw processorMDTRException;
+		}
+		return merchantConfigurationVO;
+	}	
+	
+	public MerchantConfigurationVO saveMerchantConfiguration(MerchantConfigurationVO merchantConfigurationVO) throws ProcessorMDTRException{
+		try {
+			MerchantConfigurationDAO merchantConfigurationDAO = new MerchantConfigurationDAO();
+			merchantConfigurationDAO.insert(merchantConfigurationVO);
+			if(merchantConfigurationVO != null && merchantConfigurationVO.getId() != null){
+				merchantConfigurationVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				merchantConfigurationVO.setMessage("ProcessorMDTR.saveMerchantConfiguration.success");
+	        }else{
+	        	merchantConfigurationVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	merchantConfigurationVO.setMessage("ProcessorMDTR.saveMerchantConfiguration.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar la Configuracion del Merchant.... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantConfiguration.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantConfigurationDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantConfiguration.MerchantConfigurationDAOException"+ (!Utilities.isNUllOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
+			throw processorMDTRException;
+		}
+		return merchantConfigurationVO;
+	}
+	
+	public MerchantConfigurationVO updateMerchantConfiguration(MerchantConfigurationVO merchantConfigurationVO) throws ProcessorMDTRException{
+		try {
+			MerchantConfigurationDAO merchantConfigurationDAO = new MerchantConfigurationDAO();
+			merchantConfigurationDAO.update(merchantConfigurationVO);
+			if(merchantConfigurationVO != null && merchantConfigurationVO.getId() != null){
+				merchantConfigurationVO.setStatus(instanceConfigurationApplication.getKey("success"));
+				merchantConfigurationVO.setMessage("ProcessorMDTR.updateMerchantConfiguration.success");
+	        }else{
+	        	merchantConfigurationVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+	        	merchantConfigurationVO.setMessage("ProcessorMDTR.updateMerchantConfiguration.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible actualizar la Configuracion del Merchant .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateMerchantConfiguration.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantConfigurationDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateMerchantConfiguration.MerchantConfigurationDAOException");
+			throw processorMDTRException;
+		}
+		return merchantConfigurationVO;
+	}
 	
 }
 

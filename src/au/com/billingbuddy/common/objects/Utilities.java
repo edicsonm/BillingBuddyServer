@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.MissingResourceException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.stripe.model.Charge;
@@ -132,12 +133,12 @@ public class Utilities {
 		return date;
 	}
 	
-	public static boolean c(String value){
+	public static boolean isNUllOrEmpty(String value){
 		if(value == null )return true;
 		if(value.length() == 0 )return true;
 		if(value.trim().length() == 0 )return true;
 		if(value.equalsIgnoreCase(""))return true;
-		else return true;
+		else return false;
 	}
 	
 	public static String getCurrentDate(){
@@ -199,4 +200,22 @@ public class Utilities {
 		}
 		return new java.sql.Date(Calendar.getInstance().getTimeInMillis());
 	}
+	
+	public static MySQLError extractSQLError(String errorMessage, int mysqlCode){
+		MySQLError mySQLError = null;
+		switch (mysqlCode) {
+		case 1062:
+//			String string = "Duplicate entry '2' for key 'Merc_ID_UNIQUE'";
+	        Pattern pattern = Pattern.compile("(\\')(.*?)(\\')");
+	        Matcher matcher = pattern.matcher(errorMessage);
+	        mySQLError = new MySQLError();
+	        mySQLError.setValue(matcher.find() ? matcher.group(0).replace("'", ""): "");
+	        mySQLError.setSqlObjectName(matcher.find() ? matcher.group(0).replace("'", ""): "");
+			break;
+		default:
+			break;
+		}
+		return mySQLError;
+	}
+	
 }

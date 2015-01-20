@@ -8,6 +8,7 @@ import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.vo.objects.ChargeVO;
 import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
+import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
 import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.PlanVO;
@@ -33,10 +34,8 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.processRefund(chargeVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
-//			procesorFacadeException.setErrorMenssage(instanceConfigurationApplication.getKey(e.getErrorCode()));
 			throw procesorFacadeException;
 		}
 		return chargeVO;
@@ -47,7 +46,9 @@ public class ProcesorFacade {
 		try {
 			listRefunds = processorMDTR.listRefunds(refundVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
 		}
 		return listRefunds;
 	}
@@ -57,7 +58,6 @@ public class ProcesorFacade {
 		try {
 			listCharges = processorMDTR.listCharge(chargeVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -74,7 +74,6 @@ public class ProcesorFacade {
 		try {
 			listPlans = processorMDTR.listPlans(planVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -86,7 +85,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.savePlan(planVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -98,7 +96,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.updatePlan(planVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -110,7 +107,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.deletePlan(planVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -127,7 +123,6 @@ public class ProcesorFacade {
 		try {
 			listSubscriptions = processorMDTR.listSubscriptions(subscriptionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -139,7 +134,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.saveSubscription(subscriptionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -151,7 +145,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.updateSubscription(subscriptionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -163,7 +156,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.deleteSubscription(subscriptionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -180,7 +172,6 @@ public class ProcesorFacade {
 		try {
 			listCountryRestrictions = processorMDTR.listCountryRestrictions(countryRestrictionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -192,7 +183,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.saveCountryRestriction(countryRestrictionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -204,7 +194,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.updateCountryRestriction(countryRestrictionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -216,7 +205,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.deleteCountryRestriction(countryRestrictionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -233,7 +221,6 @@ public class ProcesorFacade {
 		try {
 			listCountries = processorMDTR.listCountries(countryVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -250,7 +237,6 @@ public class ProcesorFacade {
 		try {
 			listMerchantRestrictions = processorMDTR.listMerchantRestrictions(merchantRestrictionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -262,7 +248,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.saveMerchantRestriction(merchantRestrictionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -274,7 +259,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.updateMerchantRestriction(merchantRestrictionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -286,7 +270,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.deleteMerchantRestriction(merchantRestrictionVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -303,7 +286,6 @@ public class ProcesorFacade {
 		try {
 			listMerchants = processorMDTR.listMerchants(merchantVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -315,7 +297,6 @@ public class ProcesorFacade {
 		try {
 			merchantVO = processorMDTR.listMerchantDetail(merchantVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -327,7 +308,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.saveMerchant(merchantVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -339,7 +319,6 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.updateMerchant(merchantVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
@@ -351,12 +330,60 @@ public class ProcesorFacade {
 		try {
 			processorMDTR.deleteMerchant(merchantVO);
 		} catch (ProcessorMDTRException e) {
-			e.printStackTrace();
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
 			throw procesorFacadeException;
 		}
 		return merchantVO;
 	}	
+
+/**********************************************************************************************************************************/
+/**********************************************************************************************************************************/
+/**********************************************************************************************************************************/
+	
+	public ArrayList<MerchantConfigurationVO> listMerchantConfigurations() throws ProcesorFacadeException{
+		ArrayList<MerchantConfigurationVO> listMerchantConfigurations = null;
+		try {
+			listMerchantConfigurations = processorMDTR.listMerchantConfigurations();
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listMerchantConfigurations;
+	}
+	
+	public MerchantConfigurationVO listMerchantConfigurationDetail(MerchantConfigurationVO merchantConfigurationVO) throws ProcesorFacadeException{
+		try {
+			merchantConfigurationVO = processorMDTR.listMerchantConfigurationDetail(merchantConfigurationVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return merchantConfigurationVO;
+	}	
+
+	public MerchantConfigurationVO saveMerchantConfiguration(MerchantConfigurationVO merchantConfigurationVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.saveMerchantConfiguration(merchantConfigurationVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return merchantConfigurationVO;
+	}
+	
+	public MerchantConfigurationVO updateMerchantConfiguration(MerchantConfigurationVO merchantConfigurationVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.updateMerchantConfiguration(merchantConfigurationVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return merchantConfigurationVO;
+	}
 	
 }
