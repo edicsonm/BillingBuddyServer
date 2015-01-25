@@ -12,4 +12,8 @@ public interface IMerchantDAO {
 	public MerchantVO searchDetail(MerchantVO merchantVO) throws MerchantDAOException;
 	public ArrayList<MerchantVO> search() throws MerchantDAOException;
 	public ArrayList<MerchantVO> search(MerchantVO merchantVO) throws MerchantDAOException;
+	
+	public MerchantVO verifyRestrictionByAmount(MerchantVO merchantVO) throws MerchantDAOException;
+	public MerchantVO verifyRestrictionByTransactions(MerchantVO merchantVO) throws MerchantDAOException;
+	
 }

@@ -18,6 +18,7 @@ public class BillingBuddySQLException extends SQLException implements IException
 	
 	public BillingBuddySQLException(SQLException e) {
 		super(e);
+		e.printStackTrace();
 //		String tagG = this.getClass().getSuperclass().getSimpleName();
 //		String tagE = this.getClass().getSimpleName();
 //		System.out.println("tagG: " + tagG);
@@ -26,6 +27,9 @@ public class BillingBuddySQLException extends SQLException implements IException
 //		tagG = this.getStackTrace()[0].getClassName();
 //		int sz = this.getStackTrace()[0].getClassName().split("\\.").length;
 //		System.out.println("tagG: " + tagG);
+		
+		System.out.println("e.getMessage(): " + e.getMessage());
+		System.out.println("e.getErrorCode(): " + e.getErrorCode());
 		
 		MySQLError mySQLError = Utilities.extractSQLError(e.getMessage(), e.getErrorCode());
 		if(mySQLError != null){

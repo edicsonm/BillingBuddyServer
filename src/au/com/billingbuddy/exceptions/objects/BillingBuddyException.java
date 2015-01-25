@@ -25,6 +25,13 @@ public class BillingBuddyException extends Exception implements IException {
 		// gestorArchivosProp.getParamsConfigAppInstance();
 		// this.mapaExcepciones = configuracion.getExceptionIds();
 	}
+	
+	public BillingBuddyException(Exception e) {
+		super(e);
+//		System.out.println("1:" + this.getClass().getSuperclass().getSimpleName());
+//		System.out.println("2:" + this.getClass().getSimpleName() + ".1");
+//		System.out.println("3:" + this.getStackTrace()[0].getClassName());
+	}
 
 	public BillingBuddyException(Throwable cause) {
 		super(cause);

@@ -1,6 +1,5 @@
 package au.com.billingbuddy.common.objects;
 
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,21 +13,20 @@ import com.stripe.model.Charge;
 import com.stripe.model.Refund;
 
 import au.com.billingbuddy.vo.objects.ChargeVO;
-import au.com.billingbuddy.vo.objects.RefundVO;
 
 public class Utilities {
 	
 	Currency currency;
 	public static ConfigurationApplication configurationApplication = ConfigurationApplication.getInstance();
 	
-	public static boolean isNullOrEmpty(String valor) {
-		if (valor == null)
-			return true;
-		if (valor.length() == 0)
-			return true;
-		else
-			return false;
-	}
+//	public static boolean isNullOrEmpty(String valor) {
+//		if (valor == null)
+//			return true;
+//		if (valor.length() == 0)
+//			return true;
+//		else
+//			return false;
+//	}
 	
 	public static String currencyToStripe(String amount, String currency) {
 		int decimalValue = Integer.parseInt(configurationApplication.getKey("currency."+currency));

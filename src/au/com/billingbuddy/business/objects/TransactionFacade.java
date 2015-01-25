@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
+import au.com.billingbuddy.exceptions.objects.FraudDetectionMDTRException;
 import au.com.billingbuddy.exceptions.objects.ProcesorFacadeException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.TransactionFacadeException;
@@ -13,7 +14,7 @@ import au.com.billingbuddy.vo.objects.TransactionVO;
 public class TransactionFacade {
 	
 	ProcessorMDTR processorMDTR = ProcessorMDTR.getInstance();
-	FraudDetectionMDRT fraudDetectionMDRT = FraudDetectionMDRT.getInstance();
+	FraudDetectionMDTR fraudDetectionMDTR = FraudDetectionMDTR.getInstance();
 	
 	private static TransactionFacade instance = null;
 	private static ConfigurationApplication instanceConfigurationApplication = ConfigurationApplication.getInstance();
@@ -58,14 +59,12 @@ public class TransactionFacade {
 			/*3.- Registrar el Cargo.*/
 			/*Realizar todo en una sola transacion*/
 			long initialTime = Calendar.getInstance().getTimeInMillis();
-//			transactionVO = fraudDetectionMDRT.creditCardFraudDetection(transactionVO);
+			transactionVO = fraudDetectionMDTR.creditCardFraudDetection(transactionVO);
 			long finalTime = Calendar.getInstance().getTimeInMillis();
 			System.out.println("Tiempo total de procesamiento para MaxMind: " + (finalTime-initialTime) + " ms.");
 			
-			
-			transactionVO.setId("17");
-			transactionVO.setHighRiskScore(false);
-			
+//			transactionVO.setId("17");
+//			transactionVO.setHighRiskScore(false);
 			
 			if(!transactionVO.isHighRiskScore()) {
 				initialTime = Calendar.getInstance().getTimeInMillis();	
@@ -109,6 +108,11 @@ public class TransactionFacade {
 			transactionFacadeException.setErrorCode(e.getErrorCode());
 			throw transactionFacadeException;
 			
+		} catch (FraudDetectionMDTRException e) {
+			e.printStackTrace();
+			TransactionFacadeException transactionFacadeException = new TransactionFacadeException(e);
+			transactionFacadeException.setErrorCode(e.getErrorCode());
+			throw transactionFacadeException;
 		}
 		return transactionVO;
 	}

@@ -13,6 +13,7 @@ public interface IMerchantConfigurationDAO {
 	public int update(MerchantConfigurationVO merchantConfigurationVO) throws MerchantConfigurationDAOException;
 	public int delete(MerchantConfigurationVO merchantConfigurationVO) throws MerchantConfigurationDAOException;
 	public MerchantConfigurationVO searchDetail(MerchantConfigurationVO merchantConfigurationVO) throws MerchantConfigurationDAOException;
+	public MerchantConfigurationVO searchDetailByMerchantId(MerchantConfigurationVO merchantConfigurationVO) throws MerchantConfigurationDAOException;
 	public ArrayList<MerchantConfigurationVO> search() throws MerchantConfigurationDAOException;
 	public ArrayList<MerchantConfigurationVO> search(MerchantConfigurationVO merchantConfigurationVO) throws MerchantConfigurationDAOException;
 }

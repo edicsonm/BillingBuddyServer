@@ -6,16 +6,18 @@ import java.util.HashMap;
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.dao.objects.TransactionDAO;
+import au.com.billingbuddy.exceptions.objects.FraudDetectionMDTRException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
+import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.TransactionDAOException;
 import au.com.billingbuddy.vo.objects.TransactionVO;
 
 import com.maxmind.ws.CreditCardFraudDetection;
 
-public class FraudDetectionMDRT {
+public class FraudDetectionMDTR {
 	
 	final boolean isSecure = true;
-	private static FraudDetectionMDRT instance = null;	
+	private static FraudDetectionMDTR instance = null;	
 	private static ConfigurationSystem configurationSystem = ConfigurationSystem.getInstance();
 	private static ConfigurationApplication instanceConfigurationApplication = ConfigurationApplication.getInstance();
 
@@ -24,16 +26,16 @@ public class FraudDetectionMDRT {
 	private long initialTime;
 	private long finalTime;
 	
-	public static synchronized FraudDetectionMDRT getInstance() {
+	public static synchronized FraudDetectionMDTR getInstance() {
 		if (instance == null) {
-			instance = new FraudDetectionMDRT();
+			instance = new FraudDetectionMDTR();
 		}
 		return instance;
 	}
 	
-	private FraudDetectionMDRT() {}
+	private FraudDetectionMDTR() {}
 	
-	public TransactionVO creditCardFraudDetection(TransactionVO transactionVO){
+	public TransactionVO creditCardFraudDetection(TransactionVO transactionVO) throws FraudDetectionMDTRException{
 		try {
 			HashMap<String, String> hashMap = new HashMap<String, String>();
 			CreditCardFraudDetection creditCardFraudDetection = new CreditCardFraudDetection(isSecure);
@@ -113,10 +115,19 @@ public class FraudDetectionMDRT {
 	        	transactionVO.setStatus(instanceConfigurationApplication.getKey("success"));
 				transactionVO.setMessage(instanceConfigurationApplication.getKey("FraudDetectionMDRT.0"));
 	        }
-        } catch (MySQLConnectionException e) {
+		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
+			FraudDetectionMDTRException fraudDetectionMDTRException = new FraudDetectionMDTRException(e);
+			fraudDetectionMDTRException.setErrorCode("ProcessorMDTR.creditCardFraudDetection.MySQLConnectionException");
+			throw fraudDetectionMDTRException;
 		} catch (TransactionDAOException e) {
-			e.printStackTrace();
+			FraudDetectionMDTRException fraudDetectionMDTRException = new FraudDetectionMDTRException(e);
+			fraudDetectionMDTRException.setErrorCode("ProcessorMDTR.creditCardFraudDetection.TransactionDAOException");
+			throw fraudDetectionMDTRException;
+		} catch (Exception e) {
+			FraudDetectionMDTRException fraudDetectionMDTRException = new FraudDetectionMDTRException(e);
+			fraudDetectionMDTRException.setErrorCode("ProcessorMDTR.creditCardFraudDetection.Exception");
+			throw fraudDetectionMDTRException;
 		}
         return transactionVO;
 	}

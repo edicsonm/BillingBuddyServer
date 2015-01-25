@@ -47,7 +47,6 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 		} catch (MySQLIntegrityConstraintViolationException e) {
 			throw new MerchantConfigurationDAOException(e);
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw new MerchantConfigurationDAOException(e);
 		} finally {
 			Cs(cstmt, getConnection());
@@ -128,6 +127,7 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 				while (resultSet.next()) {
 					MerchantConfigurationVO merchantConfigurationVO = new MerchantConfigurationVO();
 					merchantConfigurationVO.setId(resultSet.getString("Meco_ID"));
+					System.out.println("Merc_ID: " + resultSet.getString("Merc_ID"));
 					merchantConfigurationVO.setMerchantId(resultSet.getString("Merc_ID"));
 					merchantConfigurationVO.setUrlDeny(resultSet.getString("Meco_UrlDeny"));
 					merchantConfigurationVO.setUrlApproved(resultSet.getString("Meco_UrlApproved"));
@@ -137,6 +137,8 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 					merchantConfigurationVO.setKeyName(resultSet.getString("Meco_keyName"));
 					list.add(merchantConfigurationVO);
 				}
+			}else{
+				System.out.println("Lista vacia");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -150,6 +152,37 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 
 	public ArrayList<MerchantConfigurationVO> search(MerchantConfigurationVO merchantConfigurationVO) throws MerchantConfigurationDAOException {
 		return null;
+	}
+
+	public MerchantConfigurationVO searchDetailByMerchantId(MerchantConfigurationVO merchantConfigurationVO) throws MerchantConfigurationDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_CONFIGURATION_DETAIL_BY_MERCHANT_ID(?)}");
+			pstmt.setString(1,merchantConfigurationVO.getMerchantId());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				merchantConfigurationVO = null;
+				while (resultSet.next()) {
+					merchantConfigurationVO = new MerchantConfigurationVO();
+					merchantConfigurationVO.setId(resultSet.getString("Meco_ID"));
+					merchantConfigurationVO.setMerchantId(resultSet.getString("Merc_ID"));
+					merchantConfigurationVO.setUrlDeny(resultSet.getString("Meco_UrlDeny"));
+					merchantConfigurationVO.setUrlApproved(resultSet.getString("Meco_UrlApproved"));
+					merchantConfigurationVO.setPasswordKeyStore(resultSet.getString("Meco_PasswordKeyStore"));
+					merchantConfigurationVO.setPrivacyKeyStore(resultSet.getString("Meco_PrivacyKeyStore"));
+					merchantConfigurationVO.setPasswordkey(resultSet.getString("Meco_Passwordkey"));
+					merchantConfigurationVO.setKeyName(resultSet.getString("Meco_keyName"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new MerchantConfigurationDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return merchantConfigurationVO;
 	}
 
 

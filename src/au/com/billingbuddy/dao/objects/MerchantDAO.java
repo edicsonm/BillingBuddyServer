@@ -18,7 +18,7 @@ import au.com.billingbuddy.vo.objects.MerchantVO;
 
 public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 
-	public MerchantDAO() throws MySQLConnectionException{
+	public MerchantDAO() throws MySQLConnectionException {
 		super();
 	}
 	
@@ -141,6 +141,56 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 			PsRs(pstmt, resultSet,connection);
 		}
 		return list;
+	}
+
+	public MerchantVO verifyRestrictionByAmount(MerchantVO merchantVO) throws MerchantDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_VERIFY_MERCHANT_RESTRICTION_BY_AMOUNT(?, ?)}");
+			pstmt.setString(1,merchantVO.getId());
+			pstmt.setString(2,merchantVO.getTimeUnit());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				while (resultSet.next()) {
+					merchantVO.setAmountTransactions(resultSet.getString("Amount_Transactions"));
+					merchantVO.setSince(resultSet.getString("Since"));
+					merchantVO.setTo(resultSet.getString("To"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new MerchantDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return merchantVO;
+	}
+
+	public MerchantVO verifyRestrictionByTransactions(MerchantVO merchantVO) throws MerchantDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_VERIFY_MERCHANT_RESTRICTION_BY_TRANSACTIONS(?, ?)}");
+			pstmt.setString(1,merchantVO.getId());
+			pstmt.setString(2,merchantVO.getTimeUnit());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				while (resultSet.next()) {
+					merchantVO.setNumberTransactions(resultSet.getString("Number_Transactions"));
+					merchantVO.setSince(resultSet.getString("Since"));
+					merchantVO.setTo(resultSet.getString("To"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new MerchantDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return merchantVO;
 	}
 
 

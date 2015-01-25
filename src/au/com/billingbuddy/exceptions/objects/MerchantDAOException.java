@@ -1,11 +1,12 @@
 package au.com.billingbuddy.exceptions.objects;
 
+import java.sql.SQLException;
 
-public class MerchantDAOException extends BillingBuddyException{
+public class MerchantDAOException extends BillingBuddySQLException{
 
 	private static final long serialVersionUID = 121031465390765747L;
 
-	public MerchantDAOException(Exception e) {
+	public MerchantDAOException(SQLException e) {
 		super(e);
 	}
 

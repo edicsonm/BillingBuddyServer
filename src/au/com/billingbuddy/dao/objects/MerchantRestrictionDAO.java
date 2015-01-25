@@ -39,7 +39,6 @@ public class MerchantRestrictionDAO extends MySQLConnection implements IMerchant
 			status = cstmt.executeUpdate();
 			merchantRestrictionVO.setId(cstmt.getString(5));
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw new MerchantRestrictionDAOException(e);
 		} finally {
 			Cs(cstmt, getConnection());
@@ -60,7 +59,6 @@ public class MerchantRestrictionDAO extends MySQLConnection implements IMerchant
 			status = cstmt.executeUpdate();
 			merchantRestrictionVO.setId(cstmt.getString(5));
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw new MerchantRestrictionDAOException(e);
 		} finally {
 			Cs(cstmt, getConnection());
@@ -77,7 +75,6 @@ public class MerchantRestrictionDAO extends MySQLConnection implements IMerchant
 			status = cstmt.executeUpdate();
 			merchantRestrictionVO.setId(cstmt.getString(1));
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw new MerchantRestrictionDAOException(e);
 		} finally {
 			Cs(cstmt, getConnection());
@@ -116,7 +113,35 @@ public class MerchantRestrictionDAO extends MySQLConnection implements IMerchant
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new MerchantRestrictionDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return list;
+	}
+
+	public ArrayList<MerchantRestrictionVO> searchDetails(MerchantRestrictionVO merchantRestrictionVO) throws MerchantRestrictionDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		ArrayList<MerchantRestrictionVO> list = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_RESTRICTION_BY_MERCHANT_ID(?)}");
+			pstmt.setString(1,merchantRestrictionVO.getMerchantId());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				list = new ArrayList<MerchantRestrictionVO>();
+				while (resultSet.next()) {
+					merchantRestrictionVO = new MerchantRestrictionVO();
+					merchantRestrictionVO.setId(resultSet.getString("Mere_ID"));
+					merchantRestrictionVO.setMerchantId(resultSet.getString("Merc_ID"));
+					merchantRestrictionVO.setValue(resultSet.getString("Mere_Value"));
+					merchantRestrictionVO.setConcept(resultSet.getString("Mere_Concept"));
+					merchantRestrictionVO.setTimeUnit(resultSet.getString("Mere_TimeUnit"));
+					list.add(merchantRestrictionVO);
+				}
+			}
+		} catch (SQLException e) {
 			throw new MerchantRestrictionDAOException(e);
 		} finally {
 			PsRs(pstmt, resultSet,connection);

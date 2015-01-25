@@ -293,9 +293,9 @@ public class ProcesorFacade {
 		return listMerchants;
 	}
 	
-	public MerchantVO listMerchantDetail(MerchantVO merchantVO) throws ProcesorFacadeException{
+	public MerchantVO listMerchantDetails(MerchantVO merchantVO) throws ProcesorFacadeException{
 		try {
-			merchantVO = processorMDTR.listMerchantDetail(merchantVO);
+			merchantVO = processorMDTR.listMerchantDetails(merchantVO);
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
@@ -384,6 +384,17 @@ public class ProcesorFacade {
 			throw procesorFacadeException;
 		}
 		return merchantConfigurationVO;
+	}
+	
+	public MerchantVO validateMerchant(MerchantVO merchantVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.validateMerchant(merchantVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return merchantVO;
 	}
 	
 }

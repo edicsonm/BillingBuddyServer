@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.stripe.Stripe;
 import com.stripe.exception.APIConnectionException;
 import com.stripe.exception.APIException;
@@ -18,8 +17,8 @@ import com.stripe.model.Refund;
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.common.objects.Currency;
-import au.com.billingbuddy.common.objects.MySQLError;
 import au.com.billingbuddy.common.objects.Utilities;
+import au.com.billingbuddy.connection.objects.MySQLTransaction;
 import au.com.billingbuddy.dao.objects.CardDAO;
 import au.com.billingbuddy.dao.objects.ChargeDAO;
 import au.com.billingbuddy.dao.objects.CountryDAO;
@@ -40,8 +39,8 @@ import au.com.billingbuddy.exceptions.objects.MerchantConfigurationDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
+import au.com.billingbuddy.exceptions.objects.MySQLTransactionException;
 import au.com.billingbuddy.exceptions.objects.PlanDAOException;
-import au.com.billingbuddy.exceptions.objects.ProcesorFacadeException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.RefundDAOException;
 import au.com.billingbuddy.exceptions.objects.SubscriptionDAOException;
@@ -722,9 +721,8 @@ public class ProcessorMDTR {
 			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantRestriction.MySQLConnectionException");
 			throw processorMDTRException;
 		} catch (MerchantRestrictionDAOException e) {
-			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantRestriction.MerchantRestrictionDAOException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantRestriction.MerchantRestrictionDAOException"+ (!Utilities.isNUllOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
 			throw processorMDTRException;
 		}
 		return merchantRestrictionVO;
@@ -750,9 +748,8 @@ public class ProcessorMDTR {
 			processorMDTRException.setErrorCode("ProcessorMDTR.updateMerchantRestriction.MySQLConnectionException");
 			throw processorMDTRException;
 		} catch (MerchantRestrictionDAOException e) {
-			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.updateMerchantRestriction.MerchantRestrictionDAOException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateMerchantRestriction.MerchantRestrictionDAOException"+ (!Utilities.isNUllOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
 			throw processorMDTRException;
 		}
 		return merchantRestrictionVO;
@@ -778,7 +775,6 @@ public class ProcessorMDTR {
 			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchantRestriction.MySQLConnectionException");
 			throw processorMDTRException;
 		} catch (MerchantRestrictionDAOException e) {
-			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
 			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchantRestriction.MerchantRestrictionDAOException");
 			throw processorMDTRException;
@@ -808,19 +804,38 @@ public class ProcessorMDTR {
 		return listMerchants;
 	}	
 	
-	public MerchantVO listMerchantDetail(MerchantVO merchantVO) throws ProcessorMDTRException{
+	public MerchantVO listMerchantDetails(MerchantVO merchantVO) throws ProcessorMDTRException{
 		try {
 			MerchantDAO merchantDAO = new MerchantDAO();
 			merchantDAO.searchDetail(merchantVO);
+			if(merchantVO != null && !Utilities.isNUllOrEmpty(merchantVO.getId())){
+				MerchantRestrictionVO merchantRestrictionVO = new MerchantRestrictionVO();
+				merchantRestrictionVO.setId(merchantVO.getId());
+				MerchantRestrictionDAO merchantRestrictionDAO = new MerchantRestrictionDAO();
+				merchantVO.setListMerchantRestrictionsVO(merchantRestrictionDAO.searchDetails(merchantRestrictionVO));
+				
+				MerchantConfigurationVO merchantConfigurationVO = new MerchantConfigurationVO();
+				merchantConfigurationVO.setMerchantId(merchantVO.getId());
+				MerchantConfigurationDAO merchantConfigurationDAO = new MerchantConfigurationDAO();
+				merchantConfigurationDAO.searchDetailByMerchantId(merchantConfigurationVO);
+				merchantVO.setMerchantConfigurationVO(merchantConfigurationVO);
+			}
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
 			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDetail.MySQLConnectionException");
 			throw processorMDTRException;
 		} catch (MerchantDAOException e) {
-			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
 			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDetail.MerchantDAOException");
+			throw processorMDTRException;
+		} catch (MerchantRestrictionDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDetail.MerchantRestrictionDAOException");
+			throw processorMDTRException;
+		} catch (MerchantConfigurationDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDetail.MerchantConfigurationDAOException");
 			throw processorMDTRException;
 		}
 		return merchantVO;
@@ -1004,6 +1019,87 @@ public class ProcessorMDTR {
 			throw processorMDTRException;
 		}
 		return merchantConfigurationVO;
+	}
+
+	public MerchantVO validateMerchant(MerchantVO merchantVO) throws ProcessorMDTRException{
+		MySQLTransaction mySQLTransaction = null;
+		try {
+			mySQLTransaction = new MySQLTransaction();
+			mySQLTransaction.start();
+			MerchantDAO merchantDAO = new MerchantDAO(mySQLTransaction);
+			merchantDAO.searchDetail(merchantVO);
+			if(merchantVO != null && !Utilities.isNUllOrEmpty(merchantVO.getId())){
+				MerchantRestrictionVO merchantRestrictionVO = new MerchantRestrictionVO();
+				merchantRestrictionVO.setMerchantId(merchantVO.getId());
+				MerchantRestrictionDAO merchantRestrictionDAO = new MerchantRestrictionDAO(mySQLTransaction);
+				ArrayList<MerchantRestrictionVO> listMerchantRestrictionsVO = merchantRestrictionDAO.searchDetails(merchantRestrictionVO);
+				for (MerchantRestrictionVO merchantRestrictionVO2 : listMerchantRestrictionsVO) {
+					if(merchantRestrictionVO2.getConcept().equalsIgnoreCase("Transactions")) {
+						merchantVO.setTimeUnit(merchantRestrictionVO2.getTimeUnit());
+						merchantDAO.verifyRestrictionByTransactions(merchantVO);
+						if(!Utilities.isNUllOrEmpty(merchantVO.getNumberTransactions()) && Integer.parseInt(merchantVO.getNumberTransactions()) > Double.parseDouble(merchantRestrictionVO2.getValue())){
+							ProcessorMDTRException processorMDTRException = new ProcessorMDTRException("");
+							processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MerchantRestrictionDAOException.RestrictionByTransactions");
+							throw processorMDTRException;
+						}
+					}else if(merchantRestrictionVO2.getConcept().equalsIgnoreCase("Amount")) {
+						merchantVO.setTimeUnit(merchantRestrictionVO2.getTimeUnit());
+						merchantDAO.verifyRestrictionByAmount(merchantVO);
+						if(!Utilities.isNUllOrEmpty(merchantVO.getAmountTransactions()) && (Double.parseDouble(merchantVO.getAmountTransactions()) > Double.parseDouble(merchantRestrictionVO2.getValue()))){
+							ProcessorMDTRException processorMDTRException = new ProcessorMDTRException("");
+							processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MerchantRestrictionDAOException.RestrictionByAmount");
+							throw processorMDTRException;
+						}
+					}
+				}
+				
+				MerchantConfigurationVO merchantConfigurationVO = new MerchantConfigurationVO();
+				merchantConfigurationVO.setMerchantId(merchantVO.getId());
+				MerchantConfigurationDAO merchantConfigurationDAO = new MerchantConfigurationDAO(mySQLTransaction);
+				merchantConfigurationVO = merchantConfigurationDAO.searchDetailByMerchantId(merchantConfigurationVO);
+				if(merchantConfigurationVO != null) {
+					merchantVO.setMerchantConfigurationVO(merchantConfigurationVO);
+				}else{
+					ProcessorMDTRException processorMDTRException = new ProcessorMDTRException("");
+					processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MerchantRestrictionDAOException.MisconfigureMerchant");
+					throw processorMDTRException;
+				}
+			}
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MerchantDAOException");
+			throw processorMDTRException;
+		} catch (MerchantConfigurationDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MerchantConfigurationDAOException");
+			throw processorMDTRException;
+		} catch (MerchantRestrictionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MerchantRestrictionDAOException");
+			throw processorMDTRException;
+		} catch (MySQLTransactionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MySQLTransactionException");
+			throw processorMDTRException;
+		}finally{
+			try {
+				if(mySQLTransaction != null){
+					mySQLTransaction.end();
+				}
+			} catch (MySQLTransactionException e) {
+				e.printStackTrace();
+			}
+		}
+		return merchantVO;
 	}
 	
 }

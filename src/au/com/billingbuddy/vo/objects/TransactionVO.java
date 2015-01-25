@@ -84,6 +84,7 @@ public class TransactionVO  extends VO implements Serializable {
 	
 	private ChargeVO chargeVO;
 	private CardVO cardVO;
+	private MerchantVO merchantVO;
 	
 	public TransactionVO(){}
 
@@ -709,6 +710,14 @@ public class TransactionVO  extends VO implements Serializable {
 
 	public void setHighRiskScore(boolean highRiskScore) {
 		this.highRiskScore = highRiskScore;
+	}
+
+	public MerchantVO getMerchantVO() {
+		return merchantVO;
+	}
+
+	public void setMerchantVO(MerchantVO merchantVO) {
+		this.merchantVO = merchantVO;
 	}
 
 
