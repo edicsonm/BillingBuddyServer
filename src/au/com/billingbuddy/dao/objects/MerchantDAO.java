@@ -111,7 +111,32 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 	}
 
 	public ArrayList<MerchantVO> search() throws MerchantDAOException {
-		return null;
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		ArrayList<MerchantVO> list = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT()}");
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				list = new ArrayList<MerchantVO>();
+				while (resultSet.next()) {
+					MerchantVO merchantVO = new MerchantVO();
+					merchantVO.setId(resultSet.getString("Merc_ID"));
+					merchantVO.setCountryNumeric(resultSet.getString("Coun_Numeric"));
+					merchantVO.setCountryVO(new CountryVO());
+					merchantVO.getCountryVO().setName(resultSet.getString("Coun_Name"));
+					merchantVO.setName(resultSet.getString("Merc_Name"));
+					list.add(merchantVO);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new MerchantDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return list;
 	}
 
 	public ArrayList<MerchantVO> search(MerchantVO merchantVO) throws MerchantDAOException {

@@ -131,7 +131,7 @@ public class Utilities {
 		return date;
 	}
 	
-	public static boolean isNUllOrEmpty(String value){
+	public static boolean isNullOrEmpty(String value){
 		if(value == null )return true;
 		if(value.length() == 0 )return true;
 		if(value.trim().length() == 0 )return true;

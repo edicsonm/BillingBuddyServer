@@ -216,10 +216,10 @@ public class ProcesorFacade {
 /**********************************************************************************************************************************/
 /**********************************************************************************************************************************/
 	
-	public ArrayList<CountryVO> listCountries(CountryVO countryVO) throws ProcesorFacadeException{
+	public ArrayList<CountryVO> listCountries() throws ProcesorFacadeException{
 		ArrayList<CountryVO> listCountries = null;
 		try {
-			listCountries = processorMDTR.listCountries(countryVO);
+			listCountries = processorMDTR.listCountries();
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
@@ -281,10 +281,10 @@ public class ProcesorFacade {
 /**********************************************************************************************************************************/
 /**********************************************************************************************************************************/
 	
-	public ArrayList<MerchantVO> listMerchants(MerchantVO merchantVO) throws ProcesorFacadeException{
+	public ArrayList<MerchantVO> listMerchants() throws ProcesorFacadeException{
 		ArrayList<MerchantVO> listMerchants = null;
 		try {
-			listMerchants = processorMDTR.listMerchants(merchantVO);
+			listMerchants = processorMDTR.listMerchants();
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());

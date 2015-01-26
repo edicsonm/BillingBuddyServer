@@ -140,7 +140,7 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 		ResultSet rs = null;
 		try {
 			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_LIST_TRANSACTION( ? )}");
-			pstmt.setString(1, Utilities.isNUllOrEmpty(transactionVO.getId()) ? "0" : transactionVO.getId());
+			pstmt.setString(1, Utilities.isNullOrEmpty(transactionVO.getId()) ? "0" : transactionVO.getId());
 			rs = pstmt.executeQuery();
 			if (rs != null) {
 				listTransactions = new ArrayList<TransactionVO>();

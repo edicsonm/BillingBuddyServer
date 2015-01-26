@@ -127,7 +127,6 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 				while (resultSet.next()) {
 					MerchantConfigurationVO merchantConfigurationVO = new MerchantConfigurationVO();
 					merchantConfigurationVO.setId(resultSet.getString("Meco_ID"));
-					System.out.println("Merc_ID: " + resultSet.getString("Merc_ID"));
 					merchantConfigurationVO.setMerchantId(resultSet.getString("Merc_ID"));
 					merchantConfigurationVO.setUrlDeny(resultSet.getString("Meco_UrlDeny"));
 					merchantConfigurationVO.setUrlApproved(resultSet.getString("Meco_UrlApproved"));

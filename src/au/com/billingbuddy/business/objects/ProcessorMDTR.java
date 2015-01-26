@@ -660,11 +660,11 @@ public class ProcessorMDTR {
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
-	public ArrayList<CountryVO> listCountries(CountryVO countryVO) throws ProcessorMDTRException {
+	public ArrayList<CountryVO> listCountries() throws ProcessorMDTRException {
 		ArrayList<CountryVO> listCountries = null;
 		try {
 			CountryDAO countryDAO = new CountryDAO();
-			listCountries = countryDAO.search(countryVO);
+			listCountries = countryDAO.search();
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
@@ -722,7 +722,7 @@ public class ProcessorMDTR {
 			throw processorMDTRException;
 		} catch (MerchantRestrictionDAOException e) {
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantRestriction.MerchantRestrictionDAOException"+ (!Utilities.isNUllOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantRestriction.MerchantRestrictionDAOException"+ (!Utilities.isNullOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
 			throw processorMDTRException;
 		}
 		return merchantRestrictionVO;
@@ -749,7 +749,7 @@ public class ProcessorMDTR {
 			throw processorMDTRException;
 		} catch (MerchantRestrictionDAOException e) {
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.updateMerchantRestriction.MerchantRestrictionDAOException"+ (!Utilities.isNUllOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateMerchantRestriction.MerchantRestrictionDAOException"+ (!Utilities.isNullOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
 			throw processorMDTRException;
 		}
 		return merchantRestrictionVO;
@@ -785,11 +785,11 @@ public class ProcessorMDTR {
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
-	public ArrayList<MerchantVO> listMerchants(MerchantVO merchantVO) throws ProcessorMDTRException {
+	public ArrayList<MerchantVO> listMerchants() throws ProcessorMDTRException {
 		ArrayList<MerchantVO> listMerchants = null;
 		try {
 			MerchantDAO merchantDAO = new MerchantDAO();
-			listMerchants = merchantDAO.search(merchantVO);
+			listMerchants = merchantDAO.search();
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
@@ -808,7 +808,7 @@ public class ProcessorMDTR {
 		try {
 			MerchantDAO merchantDAO = new MerchantDAO();
 			merchantDAO.searchDetail(merchantVO);
-			if(merchantVO != null && !Utilities.isNUllOrEmpty(merchantVO.getId())){
+			if(merchantVO != null && !Utilities.isNullOrEmpty(merchantVO.getId())){
 				MerchantRestrictionVO merchantRestrictionVO = new MerchantRestrictionVO();
 				merchantRestrictionVO.setId(merchantVO.getId());
 				MerchantRestrictionDAO merchantRestrictionDAO = new MerchantRestrictionDAO();
@@ -987,7 +987,7 @@ public class ProcessorMDTR {
 			throw processorMDTRException;
 		} catch (MerchantConfigurationDAOException e) {
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantConfiguration.MerchantConfigurationDAOException"+ (!Utilities.isNUllOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantConfiguration.MerchantConfigurationDAOException"+ (!Utilities.isNullOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
 			throw processorMDTRException;
 		}
 		return merchantConfigurationVO;
@@ -1028,7 +1028,7 @@ public class ProcessorMDTR {
 			mySQLTransaction.start();
 			MerchantDAO merchantDAO = new MerchantDAO(mySQLTransaction);
 			merchantDAO.searchDetail(merchantVO);
-			if(merchantVO != null && !Utilities.isNUllOrEmpty(merchantVO.getId())){
+			if(merchantVO != null && !Utilities.isNullOrEmpty(merchantVO.getId())){
 				MerchantRestrictionVO merchantRestrictionVO = new MerchantRestrictionVO();
 				merchantRestrictionVO.setMerchantId(merchantVO.getId());
 				MerchantRestrictionDAO merchantRestrictionDAO = new MerchantRestrictionDAO(mySQLTransaction);
@@ -1037,7 +1037,7 @@ public class ProcessorMDTR {
 					if(merchantRestrictionVO2.getConcept().equalsIgnoreCase("Transactions")) {
 						merchantVO.setTimeUnit(merchantRestrictionVO2.getTimeUnit());
 						merchantDAO.verifyRestrictionByTransactions(merchantVO);
-						if(!Utilities.isNUllOrEmpty(merchantVO.getNumberTransactions()) && Integer.parseInt(merchantVO.getNumberTransactions()) > Double.parseDouble(merchantRestrictionVO2.getValue())){
+						if(!Utilities.isNullOrEmpty(merchantVO.getNumberTransactions()) && Integer.parseInt(merchantVO.getNumberTransactions()) > Double.parseDouble(merchantRestrictionVO2.getValue())){
 							ProcessorMDTRException processorMDTRException = new ProcessorMDTRException("");
 							processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MerchantRestrictionDAOException.RestrictionByTransactions");
 							throw processorMDTRException;
@@ -1045,7 +1045,7 @@ public class ProcessorMDTR {
 					}else if(merchantRestrictionVO2.getConcept().equalsIgnoreCase("Amount")) {
 						merchantVO.setTimeUnit(merchantRestrictionVO2.getTimeUnit());
 						merchantDAO.verifyRestrictionByAmount(merchantVO);
-						if(!Utilities.isNUllOrEmpty(merchantVO.getAmountTransactions()) && (Double.parseDouble(merchantVO.getAmountTransactions()) > Double.parseDouble(merchantRestrictionVO2.getValue()))){
+						if(!Utilities.isNullOrEmpty(merchantVO.getAmountTransactions()) && (Double.parseDouble(merchantVO.getAmountTransactions()) > Double.parseDouble(merchantRestrictionVO2.getValue()))){
 							ProcessorMDTRException processorMDTRException = new ProcessorMDTRException("");
 							processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MerchantRestrictionDAOException.RestrictionByAmount");
 							throw processorMDTRException;

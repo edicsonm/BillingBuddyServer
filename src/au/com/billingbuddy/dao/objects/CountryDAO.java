@@ -97,7 +97,32 @@ public class CountryDAO extends MySQLConnection implements ICountryDAO {
 	}
 
 	public ArrayList<CountryVO> search() throws CountryDAOException {
-		return null;
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		ArrayList<CountryVO> list = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_COUNTRIES()}");
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				list = new ArrayList<CountryVO>();
+				while (resultSet.next()) {
+					CountryVO countryVO = new CountryVO();
+					countryVO.setNumeric(resultSet.getString("Coun_Numeric"));
+					countryVO.setAlpha_2(resultSet.getString("Coun_Alpha_2"));
+					countryVO.setAlpha_3(resultSet.getString("Coun_Alpha_3"));
+					countryVO.setName(resultSet.getString("Coun_Name"));
+					countryVO.setISO_3166_2(resultSet.getString("Count_ISO_3166-2"));
+					list.add(countryVO);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CountryDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return list;
 	}
 
 	public ArrayList<CountryVO> search(CountryVO countryVO) throws CountryDAOException {
