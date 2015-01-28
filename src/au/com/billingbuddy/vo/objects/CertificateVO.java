@@ -1,23 +1,31 @@
 package au.com.billingbuddy.vo.objects;
 
+import java.io.File;
 import java.io.Serializable;
+
+import com.mysql.jdbc.Blob;
 
 public class CertificateVO extends VO implements Serializable {
 
 	private static final long serialVersionUID = 5453993659224427175L;
+	private String id;
 	private String merchantId;
 	private String commonName;
 	private String organization;
 	private String organizationUnit;
 	private String country;
 	private String passwordKeyStore;
-	private String passwordKeyStoreConfirmation;
-	private String privacyKeyStore;
-	private String privacyKeyStoreConfirmation;
 	private String passwordkey;
-	private String passwordkeyConfirmation;
 	private String keyName;
 	private String aliasMerchant;
+	private String creationTime;
+	private String expirationTime;
+	private Blob BBKeyStore;
+	private Blob MerchantKeyStore;
+	private File fileKeyStoreMerchant;
+	private File fileKeyStoreBB;
+	private String infoCertificateBB;
+	private String infoCertificateMerchant;
 	
 	private StringBuffer log;
 	
@@ -45,24 +53,8 @@ public class CertificateVO extends VO implements Serializable {
 		return passwordKeyStore;
 	}
 
-	public String getPasswordKeyStoreConfirmation() {
-		return passwordKeyStoreConfirmation;
-	}
-
-	public String getPrivacyKeyStore() {
-		return privacyKeyStore;
-	}
-
-	public String getPrivacyKeyStoreConfirmation() {
-		return privacyKeyStoreConfirmation;
-	}
-
 	public String getPasswordkey() {
 		return passwordkey;
-	}
-
-	public String getPasswordkeyConfirmation() {
-		return passwordkeyConfirmation;
 	}
 
 	public String getKeyName() {
@@ -93,26 +85,8 @@ public class CertificateVO extends VO implements Serializable {
 		this.passwordKeyStore = passwordKeyStore;
 	}
 
-	public void setPasswordKeyStoreConfirmation(
-			String passwordKeyStoreConfirmation) {
-		this.passwordKeyStoreConfirmation = passwordKeyStoreConfirmation;
-	}
-
-	public void setPrivacyKeyStore(String privacyKeyStore) {
-		this.privacyKeyStore = privacyKeyStore;
-	}
-
-	public void setPrivacyKeyStoreConfirmation(
-			String privacyKeyStoreConfirmation) {
-		this.privacyKeyStoreConfirmation = privacyKeyStoreConfirmation;
-	}
-
 	public void setPasswordkey(String passwordkey) {
 		this.passwordkey = passwordkey;
-	}
-
-	public void setPasswordkeyConfirmation(String passwordkeyConfirmation) {
-		this.passwordkeyConfirmation = passwordkeyConfirmation;
 	}
 
 	public void setKeyName(String keyName) {
@@ -135,5 +109,76 @@ public class CertificateVO extends VO implements Serializable {
 		this.aliasMerchant = aliasMerchant;
 	}
 
+	public String getExpirationTime() {
+		return expirationTime;
+	}
+
+	public Blob getBBKeyStore() {
+		return BBKeyStore;
+	}
+
+	public Blob getMerchantKeyStore() {
+		return MerchantKeyStore;
+	}
+
+	public void setExpirationTime(String expirationTime) {
+		this.expirationTime = expirationTime;
+	}
+
+	public void setBBKeyStore(Blob bBKeyStore) {
+		BBKeyStore = bBKeyStore;
+	}
+
+	public void setMerchantKeyStore(Blob merchantKeyStore) {
+		MerchantKeyStore = merchantKeyStore;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getCreationTime() {
+		return creationTime;
+	}
+
+	public void setCreationTime(String creationTime) {
+		this.creationTime = creationTime;
+	}
+
+	public File getFileKeyStoreMerchant() {
+		return fileKeyStoreMerchant;
+	}
+
+	public File getFileKeyStoreBB() {
+		return fileKeyStoreBB;
+	}
+
+	public void setFileKeyStoreMerchant(File fileKeyStoreMerchant) {
+		this.fileKeyStoreMerchant = fileKeyStoreMerchant;
+	}
+
+	public void setFileKeyStoreBB(File fileKeyStoreBB) {
+		this.fileKeyStoreBB = fileKeyStoreBB;
+	}
+
+	public String getInfoCertificateBB() {
+		return infoCertificateBB;
+	}
+
+	public String getInfoCertificateMerchant() {
+		return infoCertificateMerchant;
+	}
+
+	public void setInfoCertificateBB(String infoCertificateBB) {
+		this.infoCertificateBB = infoCertificateBB;
+	}
+
+	public void setInfoCertificateMerchant(String infoCertificateMerchant) {
+		this.infoCertificateMerchant = infoCertificateMerchant;
+	}
 
 }

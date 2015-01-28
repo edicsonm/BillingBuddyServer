@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.MissingResourceException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -210,10 +211,30 @@ public class Utilities {
 	        mySQLError.setValue(matcher.find() ? matcher.group(0).replace("'", ""): "");
 	        mySQLError.setSqlObjectName(matcher.find() ? matcher.group(0).replace("'", ""): "");
 			break;
+		case 1644:
+			mySQLError = new MySQLError();
+	        mySQLError.setValue(errorMessage);
+	        mySQLError.setSqlObjectName(errorMessage);
+			break;
 		default:
 			break;
 		}
 		return mySQLError;
+	}
+	
+	public static HashMap<String , String> processingCertificateAnswer(String line, HashMap<String , String> infoCertificates){
+		if(line.contains("#")){
+			String[] messages = line.split("#");
+			System.out.println("Clave: " + messages[0]);
+			if(messages[0].equalsIgnoreCase("FOLDER")){
+				infoCertificates.put("FOLDER", messages[1]);
+			}else if(messages[0].equalsIgnoreCase("KEYSTOREBB")){
+				infoCertificates.put("KEYSTOREBB", messages[1]);
+			}else if(messages[0].equalsIgnoreCase("KEYSTOREMERCHANT")){
+				infoCertificates.put("KEYSTOREMERCHANT", messages[1]);
+			}
+		}
+		return infoCertificates;
 	}
 	
 }

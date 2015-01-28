@@ -14,7 +14,7 @@ public class ConfigurationApplication {
 		return instance;
 	}
 	
-	public String getKey(String key){
+	public static String getKey(String key){
 		return resourceBundle.getString(key);
 	}
 	

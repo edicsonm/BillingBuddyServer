@@ -1,6 +1,8 @@
 package au.com.billingbuddy.business.objects;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,13 +15,22 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.common.objects.SecurityMethods;
+import au.com.billingbuddy.common.objects.Utilities;
+import au.com.billingbuddy.dao.objects.CertificateDAO;
+import au.com.billingbuddy.dao.objects.MerchantConfigurationDAO;
+import au.com.billingbuddy.exceptions.objects.CertificateDAOException;
+import au.com.billingbuddy.exceptions.objects.MerchantConfigurationDAOException;
+import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.SecurityMDTRException;
 import au.com.billingbuddy.vo.objects.CertificateVO;
+import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
 
 public class SecurityMDTR {
 	
@@ -100,34 +111,132 @@ public class SecurityMDTR {
 	}
 	
 	public CertificateVO certificateGeneration(CertificateVO certificateVO) throws SecurityMDTRException {
+		HashMap<String , String> infoCertificates = new HashMap<String , String>();
 		try {
 			certificateVO.setAliasMerchant(ConfigurationSystem.getKey("aliasMerchant")+certificateVO.getMerchantId());
-			System.out.println(certificateVO.getCommonName() +", "+ certificateVO.getOrganizationUnit() + ", " + certificateVO.getOrganization() + ", " + certificateVO.getCountry());
-			System.out.println(certificateVO.getAliasMerchant());
-			System.out.println(certificateVO.getPasswordKeyStore());
-			System.out.println(ConfigurationSystem.getKey("dnaBB"));
-			System.out.println(ConfigurationSystem.getKey("aliasBB")+certificateVO.getMerchantId());
-			System.out.println(ConfigurationSystem.getKey("passwordBB"));
-			System.out.println(ConfigurationSystem.getKey("validDaysCertificate"));
-			ProcessBuilder pb = new ProcessBuilder(ConfigurationSystem.getKey("urlScriptCertificateGeneration"),  
-					(System.getProperty("java.home") + "/bin"), "cn="+certificateVO.getCommonName() +",ou= "+ certificateVO.getOrganizationUnit() + ",o= " + certificateVO.getOrganization() + ",c= " + certificateVO.getCountry(), 
-					certificateVO.getAliasMerchant(), certificateVO.getPasswordKeyStore(), ConfigurationSystem.getKey("dnaBB"),
-					(ConfigurationSystem.getKey("aliasBB")+certificateVO.getMerchantId()), ConfigurationSystem.getKey("passwordBB"), ConfigurationSystem.getKey("validDaysCertificate"));
+			ProcessBuilder pb = new ProcessBuilder(ConfigurationSystem.getKey("urlScriptCertificateGeneration"),
+					(System.getProperty("java.home") + "/bin"),
+					"cn="+certificateVO.getCommonName() +",ou= "+ certificateVO.getOrganizationUnit() + ",o= " + certificateVO.getOrganization() + ",c= " + certificateVO.getCountry(), 
+					certificateVO.getAliasMerchant(),
+					certificateVO.getPasswordKeyStore(),
+					certificateVO.getPasswordkey(), 
+					ConfigurationSystem.getKey("dnaBB"),
+					(ConfigurationSystem.getKey("aliasBB")+certificateVO.getMerchantId()), 
+					ConfigurationSystem.getKey("passwordBBKeyStore"),
+					ConfigurationSystem.getKey("passwordBBKey"));
 			Process p = pb.start();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line = null;
 			certificateVO.setLog(new StringBuffer());
+			int swMerchantCertificate = 0;
+			int swBBCertificate = 0;
+			StringBuffer infoCertificateMerchant = new StringBuffer();
+			StringBuffer infoCertificateBB = new StringBuffer();
 			while ((line = reader.readLine()) != null) {
-				System.out.println("--> " + line);
-				certificateVO.getLog().append(line);
+				if(line.contains("#"))Utilities.processingCertificateAnswer(line, infoCertificates);
+				else if(line.equalsIgnoreCase("StartMerchantCertificateInformation")){
+					swMerchantCertificate = 1;
+				}else if(line.equalsIgnoreCase("StopMerchantCertificateInformation")){
+					swMerchantCertificate = 0;
+				}else if(swMerchantCertificate == 1){
+					infoCertificateMerchant.append(line+"\n");
+				}else if(line.equalsIgnoreCase("StartBillingBuddyCertificateInformation")){
+					swBBCertificate = 1;
+				}else if(line.equalsIgnoreCase("StopBillingBuddyCertificateInformation")){
+					swBBCertificate = 0;
+				}else if(swBBCertificate == 1){
+					infoCertificateBB.append(line+"\n");
+				}else{
+					System.out.println("--> " + line);
+				}
+				certificateVO.getLog().append(line+"\n");
 			}
-		}catch (Exception e){
-			e.printStackTrace();
+			
+			System.out.println("KEYSTOREBB: " +infoCertificates.get("FOLDER")+"/"+infoCertificates.get("KEYSTOREBB"));
+			System.out.println("KEYSTOREMERCHANT: " + infoCertificates.get("FOLDER")+"/"+infoCertificates.get("KEYSTOREMERCHANT"));
+			
+			File fileKeyStoreBB = new File(infoCertificates.get("FOLDER")+"/"+infoCertificates.get("KEYSTOREBB"));
+			certificateVO.setFileKeyStoreBB(fileKeyStoreBB);
+			
+			File fileKeyStoreMerchant = new File(infoCertificates.get("FOLDER")+"/"+infoCertificates.get("KEYSTOREMERCHANT"));
+			certificateVO.setFileKeyStoreMerchant(fileKeyStoreMerchant);
+			
+			certificateVO.setInfoCertificateBB(infoCertificateBB.toString());
+			certificateVO.setInfoCertificateMerchant(infoCertificateMerchant.toString());
+			
+			CertificateDAO certificateDAO= new CertificateDAO();
+			certificateDAO.insert(certificateVO);
+			if(certificateVO != null && certificateVO.getId() != null){
+				certificateVO.setStatus(ConfigurationApplication.getKey("success"));
+				certificateVO.setMessage("SecurityMDTR.certificateGeneration.success");
+	        }else{
+	        	certificateVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	certificateVO.setMessage("SecurityMDTR.certificateGeneration.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar el Certificado .... ");
+	        	System.out.println("#################################################################");
+//	        	SecurityMDTRException securityMDTRException = new SecurityMDTRException("");
+//				securityMDTRException.setErrorCode("SecurityMDTR.certificateGeneration.failure");
+//				throw securityMDTRException;
+	        }
+		} catch (MySQLConnectionException e) {
 			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
-			securityMDTRException.setErrorCode("SecurityMDTR.certificateGeneration.Exception");
+			securityMDTRException.setErrorCode("SecurityMDTR.certificateGeneration.MySQLConnectionException");
+			throw securityMDTRException;
+		}catch (CertificateDAOException e){
+			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
+			securityMDTRException.setErrorCode("SecurityMDTR.certificateGeneration.CertificateDAOException");
+			throw securityMDTRException;
+		} catch (IOException e) {
+			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
+			securityMDTRException.setErrorCode("SecurityMDTR.certificateGeneration.IOException");
 			throw securityMDTRException;
 		}
 		return certificateVO;	
+	}
+	
+	public ArrayList<CertificateVO> listCertificates() throws SecurityMDTRException {
+		ArrayList<CertificateVO> listCertificates = null;
+		try {
+			CertificateDAO certificateDAO = new CertificateDAO();
+			listCertificates = certificateDAO.search();
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
+			securityMDTRException.setErrorCode("SecurityMDTR.certificateGeneration.MySQLConnectionException");
+			throw securityMDTRException;
+		} catch (CertificateDAOException e) {
+			e.printStackTrace();
+			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
+			securityMDTRException.setErrorCode("SecurityMDTR.certificateGeneration.CertificateDAOException");
+			throw securityMDTRException;
+		}
+		return listCertificates;
+	}
+	
+	public CertificateVO updateStatusCertificate(CertificateVO certificateVO) throws SecurityMDTRException {
+		try {
+			CertificateDAO certificateDAO = new CertificateDAO();
+			if(certificateDAO.updateStatus(certificateVO) == 1){
+				certificateVO.setStatus(ConfigurationApplication.getKey("success"));
+				certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.success");
+	        }else{
+	        	certificateVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible actualizar status del certificado .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
+			securityMDTRException.setErrorCode("SecurityMDTR.updateStatusCertificate.MySQLConnectionException");
+			throw securityMDTRException;
+		} catch (CertificateDAOException e) {
+			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
+			securityMDTRException.setErrorCode("SecurityMDTR.updateStatusCertificate.CertificateDAOException"+ (!Utilities.isNullOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
+			throw securityMDTRException;
+		}
+		return certificateVO;
 	}
 		
 	

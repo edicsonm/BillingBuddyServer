@@ -1,10 +1,11 @@
 package au.com.billingbuddy.business.objects;
 
-import au.com.billingbuddy.exceptions.objects.ProcesorFacadeException;
-import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
+import java.util.ArrayList;
+
 import au.com.billingbuddy.exceptions.objects.SecurityFacadeException;
 import au.com.billingbuddy.exceptions.objects.SecurityMDTRException;
 import au.com.billingbuddy.vo.objects.CertificateVO;
+import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
 
 public class SecurityFacade {
 	
@@ -41,7 +42,31 @@ public class SecurityFacade {
 			securityFacadeException.setErrorCode(e.getErrorCode());
 			throw securityFacadeException;
 		}
-	return certificateVO;	
+		return certificateVO;	
 	}
+	
+	public ArrayList<CertificateVO> listCertificates() throws SecurityFacadeException {
+		ArrayList<CertificateVO> listCertificates = null;
+		try {
+			listCertificates = securityMDTR.listCertificates();
+		} catch (SecurityMDTRException e) {
+			SecurityFacadeException securityFacadeException = new SecurityFacadeException(e);
+			securityFacadeException.setErrorCode(e.getErrorCode());
+			throw securityFacadeException;
+		}
+	return listCertificates;	
+	}
+	
+	public CertificateVO updateStatusCertificate(CertificateVO certificateVO) throws SecurityFacadeException {
+		try {
+			securityMDTR.updateStatusCertificate(certificateVO);
+		} catch (SecurityMDTRException e) {
+			SecurityFacadeException securityFacadeException = new SecurityFacadeException(e);
+			securityFacadeException.setErrorCode(e.getErrorCode());
+			throw securityFacadeException;
+		}
+		return certificateVO;
+	}
+	
 	
 }

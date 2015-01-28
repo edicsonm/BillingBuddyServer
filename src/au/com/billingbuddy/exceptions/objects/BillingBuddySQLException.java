@@ -30,6 +30,8 @@ public class BillingBuddySQLException extends SQLException implements IException
 		
 		System.out.println("e.getMessage(): " + e.getMessage());
 		System.out.println("e.getErrorCode(): " + e.getErrorCode());
+		System.out.println("e.getSQLState(): " + e.getSQLState());
+		
 		
 		MySQLError mySQLError = Utilities.extractSQLError(e.getMessage(), e.getErrorCode());
 		if(mySQLError != null){
