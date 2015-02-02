@@ -8,6 +8,7 @@ import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.vo.objects.ChargeVO;
 import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
+import au.com.billingbuddy.vo.objects.CreditCardRestrictionVO;
 import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
 import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
@@ -396,5 +397,55 @@ public class ProcesorFacade {
 		}
 		return merchantVO;
 	}
+
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
+	public ArrayList<CreditCardRestrictionVO> listCreditCardRestrictions() throws ProcesorFacadeException{
+		ArrayList<CreditCardRestrictionVO> listCreditCardRestrictions = null;
+		try {
+			listCreditCardRestrictions = processorMDTR.listCreditCardRestrictions();
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listCreditCardRestrictions;
+	}
+	
+	public CreditCardRestrictionVO saveCreditCardRestriction(CreditCardRestrictionVO creditCardRestrictionVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.saveCreditCardRestriction(creditCardRestrictionVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return creditCardRestrictionVO;
+	}
+	
+	public CreditCardRestrictionVO updateCreditCardRestriction(CreditCardRestrictionVO creditCardRestrictionVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.updateCreditCardRestriction(creditCardRestrictionVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return creditCardRestrictionVO;
+	}
+	
+	public CreditCardRestrictionVO deleteCreditCardRestriction(CreditCardRestrictionVO creditCardRestrictionVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.deleteCreditCardRestriction(creditCardRestrictionVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return creditCardRestrictionVO;
+	}
+	
 	
 }

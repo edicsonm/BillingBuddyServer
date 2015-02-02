@@ -33,17 +33,13 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_MERCHANT_CONFIGURATION(?,?,?,?,?,?,?,?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_MERCHANT_CONFIGURATION(?,?,?,?)}");
 			cstmt.setString(1,merchantConfigurationVO.getMerchantId());
 			cstmt.setString(2,merchantConfigurationVO.getUrlDeny());
 			cstmt.setString(3,merchantConfigurationVO.getUrlApproved());
-			cstmt.setString(4,merchantConfigurationVO.getPasswordKeyStore());
-			cstmt.setString(5,merchantConfigurationVO.getPrivacyKeyStore());
-			cstmt.setString(6,merchantConfigurationVO.getPasswordkey());
-			cstmt.setString(7,merchantConfigurationVO.getKeyName());
-			cstmt.setString(8,"0");
+			cstmt.setString(4,"0");
 			status = cstmt.executeUpdate();
-			merchantConfigurationVO.setId(cstmt.getString(8));
+			merchantConfigurationVO.setId(cstmt.getString(4));
 		} catch (MySQLIntegrityConstraintViolationException e) {
 			throw new MerchantConfigurationDAOException(e);
 		} catch (SQLException e) {
@@ -58,17 +54,12 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT_CONFIGURATION(?,?,?,?,?,?,?,?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT_CONFIGURATION(?,?,?,?)}");
 			cstmt.setString(1,merchantConfigurationVO.getMerchantId());
 			cstmt.setString(2,merchantConfigurationVO.getUrlDeny());
 			cstmt.setString(3,merchantConfigurationVO.getUrlApproved());
-			cstmt.setString(4,merchantConfigurationVO.getPasswordKeyStore());
-			cstmt.setString(5,merchantConfigurationVO.getPrivacyKeyStore());
-			cstmt.setString(6,merchantConfigurationVO.getPasswordkey());
-			cstmt.setString(7,merchantConfigurationVO.getKeyName());
-			cstmt.setString(8,merchantConfigurationVO.getId());
 			status = cstmt.executeUpdate();
-			merchantConfigurationVO.setId(cstmt.getString(8));
+			merchantConfigurationVO.setId(cstmt.getString(4));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new MerchantConfigurationDAOException(e);
@@ -97,10 +88,6 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 					merchantConfigurationVO.setMerchantId(resultSet.getString("Merc_ID"));
 					merchantConfigurationVO.setUrlDeny(resultSet.getString("Meco_UrlDeny"));
 					merchantConfigurationVO.setUrlApproved(resultSet.getString("Meco_UrlApproved"));
-					merchantConfigurationVO.setPasswordKeyStore(resultSet.getString("Meco_PasswordKeyStore"));
-					merchantConfigurationVO.setPrivacyKeyStore(resultSet.getString("Meco_PrivacyKeyStore"));
-					merchantConfigurationVO.setPasswordkey(resultSet.getString("Meco_Passwordkey"));
-					merchantConfigurationVO.setKeyName(resultSet.getString("Meco_keyName"));
 				}
 			}else{
 				merchantConfigurationVO = null;
@@ -130,10 +117,6 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 					merchantConfigurationVO.setMerchantId(resultSet.getString("Merc_ID"));
 					merchantConfigurationVO.setUrlDeny(resultSet.getString("Meco_UrlDeny"));
 					merchantConfigurationVO.setUrlApproved(resultSet.getString("Meco_UrlApproved"));
-					merchantConfigurationVO.setPasswordKeyStore(resultSet.getString("Meco_PasswordKeyStore"));
-					merchantConfigurationVO.setPrivacyKeyStore(resultSet.getString("Meco_PrivacyKeyStore"));
-					merchantConfigurationVO.setPasswordkey(resultSet.getString("Meco_Passwordkey"));
-					merchantConfigurationVO.setKeyName(resultSet.getString("Meco_keyName"));
 					list.add(merchantConfigurationVO);
 				}
 			}else{
@@ -169,10 +152,6 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 					merchantConfigurationVO.setMerchantId(resultSet.getString("Merc_ID"));
 					merchantConfigurationVO.setUrlDeny(resultSet.getString("Meco_UrlDeny"));
 					merchantConfigurationVO.setUrlApproved(resultSet.getString("Meco_UrlApproved"));
-					merchantConfigurationVO.setPasswordKeyStore(resultSet.getString("Meco_PasswordKeyStore"));
-					merchantConfigurationVO.setPrivacyKeyStore(resultSet.getString("Meco_PrivacyKeyStore"));
-					merchantConfigurationVO.setPasswordkey(resultSet.getString("Meco_Passwordkey"));
-					merchantConfigurationVO.setKeyName(resultSet.getString("Meco_keyName"));
 				}
 			}
 		} catch (SQLException e) {

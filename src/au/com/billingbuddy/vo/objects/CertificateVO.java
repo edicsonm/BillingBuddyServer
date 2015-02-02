@@ -3,7 +3,7 @@ package au.com.billingbuddy.vo.objects;
 import java.io.File;
 import java.io.Serializable;
 
-import com.mysql.jdbc.Blob;
+import java.sql.Blob;
 
 public class CertificateVO extends VO implements Serializable {
 

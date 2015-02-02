@@ -1,5 +1,11 @@
 package au.com.billingbuddy.common.objects;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -13,6 +19,7 @@ import java.util.regex.Pattern;
 import com.stripe.model.Charge;
 import com.stripe.model.Refund;
 
+import au.com.billingbuddy.vo.objects.CertificateVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
 
 public class Utilities {
@@ -235,6 +242,32 @@ public class Utilities {
 			}
 		}
 		return infoCertificates;
+	}
+	
+	public static boolean configureCertificate(String path, CertificateVO certificateVO, String fileName){
+		boolean answer = false;
+		BufferedInputStream input = null;
+		OutputStream output = null;
+		try {
+			input = new BufferedInputStream(certificateVO.getBBKeyStore().getBinaryStream());
+			output = new FileOutputStream(new File(path+"/"+fileName));
+			byte[] buffer = new byte[8192];
+			for (int length = 0; (length = input.read(buffer)) > 0;) {
+				output.write(buffer, 0, length);
+			}
+			answer = true;
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally {
+			if (output != null) try { output.close(); } catch (IOException ignore) {}
+			if (input != null) try { input.close(); } catch (IOException ignore) {}
+		}
+		certificateVO.setBBKeyStore(null);
+		return answer;
+	}
+	
+	public static boolean removeCertificate(String path, String fileName){
+		return new File(path+"/"+fileName).delete();
 	}
 	
 }

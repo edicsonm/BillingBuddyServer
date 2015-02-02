@@ -1,5 +1,6 @@
 package au.com.billingbuddy.business.objects;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import au.com.billingbuddy.exceptions.objects.SecurityFacadeException;
@@ -59,7 +60,7 @@ public class SecurityFacade {
 	
 	public CertificateVO updateStatusCertificate(CertificateVO certificateVO) throws SecurityFacadeException {
 		try {
-			securityMDTR.updateStatusCertificate(certificateVO);
+			certificateVO = securityMDTR.updateStatusCertificate(certificateVO);
 		} catch (SecurityMDTRException e) {
 			SecurityFacadeException securityFacadeException = new SecurityFacadeException(e);
 			securityFacadeException.setErrorCode(e.getErrorCode());
@@ -67,6 +68,19 @@ public class SecurityFacade {
 		}
 		return certificateVO;
 	}
+	
+	public CertificateVO downloadCertificate(CertificateVO certificateVO) throws SecurityFacadeException {
+		try {
+			certificateVO = securityMDTR.downloadCertificate(certificateVO);
+		} catch (SecurityMDTRException e) {
+			SecurityFacadeException securityFacadeException = new SecurityFacadeException(e);
+			securityFacadeException.setErrorCode(e.getErrorCode());
+			throw securityFacadeException;
+		}
+		return certificateVO;
+	}
+	
+	
 	
 	
 }

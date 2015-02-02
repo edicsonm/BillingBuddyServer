@@ -23,6 +23,7 @@ import au.com.billingbuddy.dao.objects.CardDAO;
 import au.com.billingbuddy.dao.objects.ChargeDAO;
 import au.com.billingbuddy.dao.objects.CountryDAO;
 import au.com.billingbuddy.dao.objects.CountryRestrictionDAO;
+import au.com.billingbuddy.dao.objects.CreditCardRestrictionDAO;
 import au.com.billingbuddy.dao.objects.CustomerDAO;
 import au.com.billingbuddy.dao.objects.MerchantConfigurationDAO;
 import au.com.billingbuddy.dao.objects.MerchantDAO;
@@ -34,6 +35,7 @@ import au.com.billingbuddy.exceptions.objects.CardDAOException;
 import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
 import au.com.billingbuddy.exceptions.objects.CountryDAOException;
 import au.com.billingbuddy.exceptions.objects.CountryRestrictionDAOException;
+import au.com.billingbuddy.exceptions.objects.CreditCardRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.CustomerDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantConfigurationDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantDAOException;
@@ -48,6 +50,7 @@ import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
 import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
+import au.com.billingbuddy.vo.objects.CreditCardRestrictionVO;
 import au.com.billingbuddy.vo.objects.CustomerVO;
 import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
 import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
@@ -923,7 +926,7 @@ public class ProcessorMDTR {
 			throw processorMDTRException;
 		}
 		return merchantVO;
-	}	
+	}
 
 
 /**********************************************************************************************************************************/
@@ -1101,6 +1104,109 @@ public class ProcessorMDTR {
 		}
 		return merchantVO;
 	}
+
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<CreditCardRestrictionVO> listCreditCardRestrictions() throws ProcessorMDTRException {
+		ArrayList<CreditCardRestrictionVO> listCreditCardRestrictions = null;
+		try {
+			CreditCardRestrictionDAO creditCardRestrictionDAO = new CreditCardRestrictionDAO();
+			listCreditCardRestrictions = creditCardRestrictionDAO.search();
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCreditCardRestrictions.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CreditCardRestrictionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCreditCardRestrictions.CreditCardRestrictionDAOException");
+			throw processorMDTRException;
+		}
+		return listCreditCardRestrictions;
+	}
+	
+	public CreditCardRestrictionVO saveCreditCardRestriction(CreditCardRestrictionVO creditCardRestrictionVO) throws ProcessorMDTRException{
+		try {
+			CreditCardRestrictionDAO creditCardRestrictionDAO = new CreditCardRestrictionDAO();
+			creditCardRestrictionDAO.insert(creditCardRestrictionVO);
+			if(creditCardRestrictionVO != null && creditCardRestrictionVO.getId() != null){
+				creditCardRestrictionVO.setStatus(ConfigurationApplication.getKey("success"));
+				creditCardRestrictionVO.setMessage("ProcessorMDTR.saveCreditCardRestriction.success");
+	        }else{
+	        	creditCardRestrictionVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	creditCardRestrictionVO.setMessage("ProcessorMDTR.saveCountryRestriction.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar la Restriccion por Tarjeta de Credito.... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveCreditCardRestriction.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CreditCardRestrictionDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveCreditCardRestriction.CreditCardRestrictionDAOException"+ (!Utilities.isNullOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
+			throw processorMDTRException;
+		}
+		return creditCardRestrictionVO;
+	}
+	
+	public CreditCardRestrictionVO updateCreditCardRestriction(CreditCardRestrictionVO creditCardRestrictionVO) throws ProcessorMDTRException{
+		try {
+			CreditCardRestrictionDAO creditCardRestrictionDAO = new CreditCardRestrictionDAO();
+			creditCardRestrictionDAO.update(creditCardRestrictionVO);
+			if(creditCardRestrictionVO != null && creditCardRestrictionVO.getId() != null){
+				creditCardRestrictionVO.setStatus(ConfigurationApplication.getKey("success"));
+				creditCardRestrictionVO.setMessage("ProcessorMDTR.updateCreditCardRestriction.success");
+	        }else{
+	        	creditCardRestrictionVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	creditCardRestrictionVO.setMessage("ProcessorMDTR.updateCreditCardRestriction.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible actualizar la Restriccion por Tarjeta de Credito .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateCountryRestriction.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CreditCardRestrictionDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateCountryRestriction.CreditCardRestrictionDAOException");
+			throw processorMDTRException;
+		}
+		return creditCardRestrictionVO;
+	}
+	
+	public CreditCardRestrictionVO deleteCreditCardRestriction(CreditCardRestrictionVO creditCardRestrictionVO) throws ProcessorMDTRException{
+		try {
+			CreditCardRestrictionDAO creditCardRestrictionDAO = new CreditCardRestrictionDAO();
+			creditCardRestrictionDAO.delete(creditCardRestrictionVO);
+			if(creditCardRestrictionVO != null && creditCardRestrictionVO.getId() != null){
+				creditCardRestrictionVO.setStatus(ConfigurationApplication.getKey("success"));
+				creditCardRestrictionVO.setMessage("ProcessorMDTR.deleteCreditCardRestriction.success");
+	        }else{
+	        	creditCardRestrictionVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	creditCardRestrictionVO.setMessage("ProcessorMDTR.deleteCreditCardRestriction.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible eliminar la Restriccion por Tarjeta de Credito .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteCreditCardRestriction.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CreditCardRestrictionDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteCreditCardRestriction.CreditCardRestrictionDAOException");
+			throw processorMDTRException;
+		}
+		return creditCardRestrictionVO;
+	}	
 	
 }
 

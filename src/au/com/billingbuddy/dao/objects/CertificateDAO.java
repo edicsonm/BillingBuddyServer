@@ -82,36 +82,6 @@ public class CertificateDAO extends MySQLConnection implements ICertificateDAO {
 		return 0;
 	}
 
-	public CertificateVO searchDetail(CertificateVO certificateVO) throws CertificateDAOException {
-		Connection connection = this.connection;
-		ResultSet resultSet = null; 
-		PreparedStatement pstmt = null;
-		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_CONFIGURATION_DETAIL(?)}");
-			pstmt.setString(1,certificateVO.getId());
-			resultSet = (ResultSet)pstmt.executeQuery();
-			if (resultSet != null) {
-				while (resultSet.next()) {
-					certificateVO = new CertificateVO();
-					certificateVO.setId(resultSet.getString("Cert_ID"));
-					certificateVO.setMerchantId(resultSet.getString("Merc_ID"));
-//					CertificateVO.setUrlDeny(resultSet.getString("Meco_UrlDeny"));
-//					CertificateVO.setUrlApproved(resultSet.getString("Meco_UrlApproved"));
-//					CertificateVO.setPasswordKeyStore(resultSet.getString("Meco_PasswordKeyStore"));
-//					CertificateVO.setPrivacyKeyStore(resultSet.getString("Meco_PrivacyKeyStore"));
-//					CertificateVO.setPasswordkey(resultSet.getString("Meco_Passwordkey"));
-//					CertificateVO.setKeyName(resultSet.getString("Meco_keyName"));
-				}
-			}else{
-				certificateVO = null;
-			}
-		} catch (SQLException e) {
-			throw new CertificateDAOException(e);
-		} finally {
-			PsRs(pstmt, resultSet,connection);
-		}
-		return certificateVO;
-	}
 
 	public ArrayList<CertificateVO> search() throws CertificateDAOException {
 		Connection connection = this.connection;
@@ -150,20 +120,46 @@ public class CertificateDAO extends MySQLConnection implements ICertificateDAO {
 		return null;
 	}
 
-	public CertificateVO searchDetailByMerchantId(CertificateVO certificateVO) throws CertificateDAOException {
+	public CertificateVO searchDetailMerchant(CertificateVO certificateVO) throws CertificateDAOException {
 		Connection connection = this.connection;
 		ResultSet resultSet = null; 
 		PreparedStatement pstmt = null;
 		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_CONFIGURATION_DETAIL_BY_MERCHANT_ID(?)}");
-			pstmt.setString(1,certificateVO.getMerchantId());
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CERTIFICATE_DETAIL_MERCHANT(?)}");
+			pstmt.setString(1,certificateVO.getId());
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				certificateVO = null;
 				while (resultSet.next()) {
 					certificateVO = new CertificateVO();
-					certificateVO.setId(resultSet.getString("Meco_ID"));
+					certificateVO.setId(resultSet.getString("Cert_ID"));
 					certificateVO.setMerchantId(resultSet.getString("Merc_ID"));
+					certificateVO.setMerchantKeyStore(resultSet.getBlob("Cert_MerchantKeyStore"));
+				}
+			}
+		} catch (SQLException e) {
+			throw new CertificateDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return certificateVO;
+	}
+	
+	public CertificateVO searchDetailBB(CertificateVO certificateVO) throws CertificateDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CERTIFICATE_DETAIL_BB(?)}");
+			pstmt.setString(1,certificateVO.getId());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				certificateVO = null;
+				while (resultSet.next()) {
+					certificateVO = new CertificateVO();
+					certificateVO.setId(resultSet.getString("Cert_ID"));
+					certificateVO.setMerchantId(resultSet.getString("Merc_ID"));
+					certificateVO.setBBKeyStore(resultSet.getBlob("Cert_BBKeyStore"));
 				}
 			}
 		} catch (SQLException e) {

@@ -15,6 +15,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -22,11 +23,13 @@ import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.common.objects.SecurityMethods;
 import au.com.billingbuddy.common.objects.Utilities;
+import au.com.billingbuddy.connection.objects.MySQLTransaction;
 import au.com.billingbuddy.dao.objects.CertificateDAO;
 import au.com.billingbuddy.dao.objects.MerchantConfigurationDAO;
 import au.com.billingbuddy.exceptions.objects.CertificateDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantConfigurationDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
+import au.com.billingbuddy.exceptions.objects.MySQLTransactionException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.SecurityMDTRException;
 import au.com.billingbuddy.vo.objects.CertificateVO;
@@ -215,11 +218,40 @@ public class SecurityMDTR {
 	}
 	
 	public CertificateVO updateStatusCertificate(CertificateVO certificateVO) throws SecurityMDTRException {
+		MySQLTransaction mySQLTransaction = null;
 		try {
-			CertificateDAO certificateDAO = new CertificateDAO();
-			if(certificateDAO.updateStatus(certificateVO) == 1){
-				certificateVO.setStatus(ConfigurationApplication.getKey("success"));
-				certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.success");
+			mySQLTransaction = new MySQLTransaction();
+			mySQLTransaction.start();
+			CertificateDAO certificateDAO = new CertificateDAO(mySQLTransaction);
+			if(certificateDAO.updateStatus(certificateVO) == 1) {
+				if(certificateVO.getStatus().equalsIgnoreCase("0")) {//Copiar certificado al repositorio de los certificados activos
+					certificateVO = certificateDAO.searchDetailBB(certificateVO);
+					if(Utilities.configureCertificate(ConfigurationSystem.getKey("urlConfiguredCertificates"), certificateVO, (ConfigurationSystem.getKey("aliasBB")+certificateVO.getMerchantId()+".jks"))){
+						certificateVO.setStatus(ConfigurationApplication.getKey("success"));
+						certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.success");
+						mySQLTransaction.commit();
+					}else{
+						certificateVO.setStatus(ConfigurationApplication.getKey("failure"));
+			        	certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.failure");
+						System.out.println("#################################################################");
+			        	System.out.println("No fue posible actualizar status del certificado .... ");
+			        	System.out.println("#################################################################");
+						mySQLTransaction.rollback();
+					}
+				}else{//Remover el certificado del reositorio de los certificados activos
+					if(Utilities.removeCertificate(ConfigurationSystem.getKey("urlConfiguredCertificates"), (ConfigurationSystem.getKey("aliasBB")+certificateVO.getMerchantId()+".jks"))){
+						certificateVO.setStatus(ConfigurationApplication.getKey("success"));
+						certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.success");
+						mySQLTransaction.commit();
+					}else{
+						certificateVO.setStatus(ConfigurationApplication.getKey("failure"));
+			        	certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.failure");
+						System.out.println("#################################################################");
+			        	System.out.println("No fue posible actualizar status del certificado .... ");
+			        	System.out.println("#################################################################");
+						mySQLTransaction.rollback();
+					}
+				}
 	        }else{
 	        	certificateVO.setStatus(ConfigurationApplication.getKey("failure"));
 	        	certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.failure");
@@ -235,9 +267,46 @@ public class SecurityMDTR {
 			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
 			securityMDTRException.setErrorCode("SecurityMDTR.updateStatusCertificate.CertificateDAOException"+ (!Utilities.isNullOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
 			throw securityMDTRException;
+		} catch (MySQLTransactionException e) {
+			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
+			securityMDTRException.setErrorCode("SecurityMDTR.updateStatusCertificate.MySQLTransactionException");
+			throw securityMDTRException;
+		}finally{
+			try {
+				if(mySQLTransaction != null){
+					mySQLTransaction.close();
+				}
+			} catch (MySQLTransactionException e) {
+				e.printStackTrace();
+			}
 		}
 		return certificateVO;
 	}
-		
+	
+	public CertificateVO downloadCertificate(CertificateVO certificateVO) throws SecurityMDTRException {
+		try {
+			CertificateDAO certificateDAO = new CertificateDAO();
+			certificateVO = certificateDAO.searchDetailMerchant(certificateVO);
+			if(certificateVO != null){
+				certificateVO.setStatus(ConfigurationApplication.getKey("success"));
+				certificateVO.setMessage("ProcessorMDTR.downloadCertificate.success");
+	        }else{
+	        	certificateVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	certificateVO.setMessage("ProcessorMDTR.downloadCertificate.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible actualizar obtener el certificado.... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
+			securityMDTRException.setErrorCode("SecurityMDTR.downloadCertificate.MySQLConnectionException");
+			throw securityMDTRException;
+		} catch (CertificateDAOException e) {
+			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
+			securityMDTRException.setErrorCode("SecurityMDTR.downloadCertificate.CertificateDAOException"+ (!Utilities.isNullOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
+			throw securityMDTRException;
+		}
+		return certificateVO;
+	}
 	
 }

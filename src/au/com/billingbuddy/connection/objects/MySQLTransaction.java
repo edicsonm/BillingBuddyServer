@@ -47,10 +47,37 @@ public class MySQLTransaction implements IMySQLTransaction {
 			throw exception;
 		}
 	}
+	
+	public void rollback() throws MySQLTransactionException {
+		try {
+			this.connection.rollback();
+		} catch (SQLException e) {
+			MySQLTransactionException exception = new MySQLTransactionException(e);
+			throw exception;
+		}
+	}
 
 	public void end() throws MySQLTransactionException {
 		try {
 			this.connection.commit();
+			this.connection.close();
+		} catch (SQLException e) {
+			MySQLTransactionException exception = new MySQLTransactionException(e);
+			throw exception;
+		}
+	}
+	
+	public void commit() throws MySQLTransactionException {
+		try {
+			this.connection.commit();
+		} catch (SQLException e) {
+			MySQLTransactionException exception = new MySQLTransactionException(e);
+			throw exception;
+		}
+	}
+	
+	public void close() throws MySQLTransactionException {
+		try {
 			this.connection.close();
 		} catch (SQLException e) {
 			MySQLTransactionException exception = new MySQLTransactionException(e);
