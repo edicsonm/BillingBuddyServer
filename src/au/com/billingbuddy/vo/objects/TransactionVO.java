@@ -81,10 +81,18 @@ public class TransactionVO  extends VO implements Serializable {
 	private String error;
 	private String cardId;
 	private String processTime;
+	private String creationTime;
+	
+	private String dateReport;
+	private String initialDateReport;
+	private String finalDateReport;
+	private String amountDateReport;
+	private String totalDateReport;
 	
 	private ChargeVO chargeVO;
 	private CardVO cardVO;
 	private MerchantVO merchantVO;
+	private RejectedChargeVO rejectedChargeVO;
 	
 	public TransactionVO(){}
 
@@ -718,6 +726,62 @@ public class TransactionVO  extends VO implements Serializable {
 
 	public void setMerchantVO(MerchantVO merchantVO) {
 		this.merchantVO = merchantVO;
+	}
+
+	public String getDateReport() {
+		return dateReport;
+	}
+
+	public String getAmountDateReport() {
+		return amountDateReport;
+	}
+
+	public String getTotalDateReport() {
+		return totalDateReport;
+	}
+
+	public RejectedChargeVO getRejectedChargeVO() {
+		return rejectedChargeVO;
+	}
+
+	public void setDateReport(String dateReport) {
+		this.dateReport = dateReport;
+	}
+
+	public void setAmountDateReport(String amountDateReport) {
+		this.amountDateReport = amountDateReport;
+	}
+
+	public void setTotalDateReport(String totalDateReport) {
+		this.totalDateReport = totalDateReport;
+	}
+
+	public void setRejectedChargeVO(RejectedChargeVO rejectedChargeVO) {
+		this.rejectedChargeVO = rejectedChargeVO;
+	}
+
+	public String getInitialDateReport() {
+		return initialDateReport;
+	}
+
+	public String getFinalDateReport() {
+		return finalDateReport;
+	}
+
+	public void setInitialDateReport(String initialDateReport) {
+		this.initialDateReport = initialDateReport;
+	}
+
+	public void setFinalDateReport(String finalDateReport) {
+		this.finalDateReport = finalDateReport;
+	}
+
+	public String getCreationTime() {
+		return creationTime;
+	}
+
+	public void setCreationTime(String creationTime) {
+		this.creationTime = creationTime;
 	}
 
 

@@ -18,8 +18,6 @@ import au.com.billingbuddy.vo.objects.TransactionVO;
 public class TransactionMDTR {
 	
 	private static TransactionMDTR instance = null;
-//	private FraudDetectionMDTR fraudDetectionMDTR = FraudDetectionMDTR.getInstance();
-//	private TransactionMDTR processorMDTR = TransactionMDTR.getInstance();
 //	
 	private static ConfigurationApplication instanceConfigurationApplication = ConfigurationApplication.getInstance();
 	

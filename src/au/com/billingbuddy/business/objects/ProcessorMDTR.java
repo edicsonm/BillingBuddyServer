@@ -30,6 +30,7 @@ import au.com.billingbuddy.dao.objects.MerchantDAO;
 import au.com.billingbuddy.dao.objects.MerchantRestrictionDAO;
 import au.com.billingbuddy.dao.objects.PlanDAO;
 import au.com.billingbuddy.dao.objects.RefundDAO;
+import au.com.billingbuddy.dao.objects.RejectedChargeDAO;
 import au.com.billingbuddy.dao.objects.SubscriptionDAO;
 import au.com.billingbuddy.exceptions.objects.CardDAOException;
 import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
@@ -45,6 +46,7 @@ import au.com.billingbuddy.exceptions.objects.MySQLTransactionException;
 import au.com.billingbuddy.exceptions.objects.PlanDAOException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.RefundDAOException;
+import au.com.billingbuddy.exceptions.objects.RejectedChargeDAOException;
 import au.com.billingbuddy.exceptions.objects.SubscriptionDAOException;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
@@ -57,6 +59,7 @@ import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.PlanVO;
 import au.com.billingbuddy.vo.objects.RefundVO;
+import au.com.billingbuddy.vo.objects.RejectedChargeVO;
 import au.com.billingbuddy.vo.objects.SubscriptionVO;
 import au.com.billingbuddy.vo.objects.TransactionVO;
 
@@ -98,10 +101,11 @@ public class ProcessorMDTR {
 			
 			hashMapCharge.put("card", hashMapCard);
 			initialTime = Calendar.getInstance().getTimeInMillis();
+			
 			Charge charge = Charge.create(hashMapCharge);
 			printValues(charge);
-	        printTimes(initialTime, finalTime);
-			
+	        
+			printTimes(initialTime, finalTime);		
 			finalTime = Calendar.getInstance().getTimeInMillis();
 			chargeVO = new ChargeVO();
 			chargeVO.setCardVO(transactionVO.getCardVO());
@@ -159,7 +163,6 @@ public class ProcessorMDTR {
 	        	System.out.println("No fue posible registrar el cliente .... ");
 	        	System.out.println("#################################################################");
 	        }
-			
 		} catch (AuthenticationException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
@@ -177,8 +180,31 @@ public class ProcessorMDTR {
 			throw processorMDTRException;
 		} catch (CardException e) {
 			e.printStackTrace();
+			try {
+				RejectedChargeVO rejectedChargeVO = new RejectedChargeVO();
+				rejectedChargeVO.setTransactionId(transactionVO.getId());
+				rejectedChargeVO.setAmount(Utilities.currencyToStripe(transactionVO.getOrderAmount(), Currency.USD));
+				rejectedChargeVO.setCurrency(transactionVO.getOrderCurrency());
+				rejectedChargeVO.setCardNumber(transactionVO.getCardVO().getNumber());
+				rejectedChargeVO.setExpYear(transactionVO.getCardVO().getExpYear());
+				rejectedChargeVO.setExpMonth(transactionVO.getCardVO().getExpMonth());
+				rejectedChargeVO.setCardHolderName(transactionVO.getCardVO().getName());
+				rejectedChargeVO.setFailureCode(e.getCode());
+				rejectedChargeVO.setFailureMessage(e.getMessage());
+				RejectedChargeDAO rejectedChargeDAO = new RejectedChargeDAO();
+				rejectedChargeDAO.insert(rejectedChargeVO);
+			} catch (MySQLConnectionException ex) {
+				ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(ex);
+				processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.MySQLConnectionException");
+				throw processorMDTRException;
+			} catch (RejectedChargeDAOException ex) {
+				ex.printStackTrace();
+				ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(ex);
+				processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.RejectedChargesDAOException");
+				throw processorMDTRException;
+			}
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.CardException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.CardException." + e.getCode());
 			throw processorMDTRException;
 		} catch (APIException e) {
 			e.printStackTrace();
@@ -216,29 +242,32 @@ public class ProcessorMDTR {
 	}
 	
 	public void printValues(Charge charge){
-		
-		System.out.println("charge.getAmount(): " + charge.getAmount());
-		System.out.println("charge.getAmountRefunded(): " + charge.getAmountRefunded());
-		System.out.println("charge.getBalanceTransaction(): " + charge.getBalanceTransaction());
-		System.out.println("charge.getCaptured(): " + charge.getCaptured());
-		System.out.println("charge.getCard(): " + charge.getCard());
-		System.out.println("charge.getCreated(): " + charge.getCreated());
-		System.out.println("charge.getCurrency(): " + charge.getCurrency());
-		System.out.println("charge.getCustomer(): " + charge.getCustomer());
-		System.out.println("charge.getDescription(): " + charge.getDescription());
-		System.out.println("charge.getDispute(): " + charge.getDispute());
-		System.out.println("charge.getDisputed(): " + charge.getDisputed());
-		System.out.println("charge.getFailureCode(): " + charge.getFailureCode());
-		System.out.println("charge.getFailureMessage(): " + charge.getFailureMessage());
-		System.out.println("charge.getId(): " + charge.getId());
-		System.out.println("charge.getInvoice(): " + charge.getInvoice());
-		System.out.println("charge.getLivemode(): " + charge.getLivemode());
-		System.out.println("charge.getMetadata(): " + charge.getMetadata());
-		System.out.println("charge.getPaid(): " + charge.getPaid());
-		System.out.println("charge.getRefunded(): " + charge.getRefunded());
-		System.out.println("charge.getRefunds(): " + charge.getRefunds());
-		System.out.println("charge.getStatementDescription(): " + charge.getStatementDescription());
-		System.out.println("charge.toString(): " + charge.toString());
+		if(charge != null){
+			System.out.println("charge.getAmount(): " + charge.getAmount());
+			System.out.println("charge.getAmountRefunded(): " + charge.getAmountRefunded());
+			System.out.println("charge.getBalanceTransaction(): " + charge.getBalanceTransaction());
+			System.out.println("charge.getCaptured(): " + charge.getCaptured());
+			System.out.println("charge.getCard(): " + charge.getCard());
+			System.out.println("charge.getCreated(): " + charge.getCreated());
+			System.out.println("charge.getCurrency(): " + charge.getCurrency());
+			System.out.println("charge.getCustomer(): " + charge.getCustomer());
+			System.out.println("charge.getDescription(): " + charge.getDescription());
+			System.out.println("charge.getDispute(): " + charge.getDispute());
+			System.out.println("charge.getDisputed(): " + charge.getDisputed());
+			System.out.println("charge.getFailureCode(): " + charge.getFailureCode());
+			System.out.println("charge.getFailureMessage(): " + charge.getFailureMessage());
+			System.out.println("charge.getId(): " + charge.getId());
+			System.out.println("charge.getInvoice(): " + charge.getInvoice());
+			System.out.println("charge.getLivemode(): " + charge.getLivemode());
+			System.out.println("charge.getMetadata(): " + charge.getMetadata());
+			System.out.println("charge.getPaid(): " + charge.getPaid());
+			System.out.println("charge.getRefunded(): " + charge.getRefunded());
+			System.out.println("charge.getRefunds(): " + charge.getRefunds());
+			System.out.println("charge.getStatementDescription(): " + charge.getStatementDescription());
+			System.out.println("charge.toString(): " + charge.toString());
+		}else{
+			System.out.println(charge);
+		}
 	}
 	
 	public ArrayList<ChargeVO> listCharge(ChargeVO chargeVO) throws ProcessorMDTRException{
@@ -262,23 +291,40 @@ public class ProcessorMDTR {
 	
 	public ChargeVO processRefund(ChargeVO chargeVO) throws ProcessorMDTRException {
 		Map<String, Object> params = new HashMap<String, Object>(); 
+		MySQLTransaction mySQLTransaction = null;
 		try {
+			
+			mySQLTransaction = new MySQLTransaction();
+			mySQLTransaction.start();
+			
 			Charge charge = Charge.retrieve(chargeVO.getStripeId());
 			params.put("amount", Utilities.currencyToStripe(chargeVO.getRefundVO().getAmount(), chargeVO.getCurrency().toUpperCase()));
 			Refund refund = charge.getRefunds().create(params);
-			System.out.println("refund object: " + refund);
 			Utilities.copyRefundToChargeVO(chargeVO, refund);
-			RefundDAO refundDAO = new RefundDAO();
+			RefundDAO refundDAO = new RefundDAO(mySQLTransaction);
 			refundDAO.insert(chargeVO.getRefundVO());
+			
 			if(chargeVO.getRefundVO() != null && chargeVO.getRefundVO().getId() != null){
-				chargeVO.setStatus(instanceConfigurationApplication.getKey("success"));
-				chargeVO.setMessage("ProcessorMDTR.processRefound.success");
+				ChargeDAO chargeDAO = new ChargeDAO(mySQLTransaction);
+				if(chargeDAO.updateStatusRefund(chargeVO) != 0){
+					chargeVO.setStatus(instanceConfigurationApplication.getKey("success"));
+					chargeVO.setMessage("ProcessorMDTR.processRefound.success");
+					mySQLTransaction.commit();
+				}else{
+		        	chargeVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+					chargeVO.setMessage("ProcessorMDTR.processRefound.failure");
+					System.out.println("#################################################################");
+		        	System.out.println("No fue posible registrar el Refund .... ");
+		        	System.out.println("#################################################################");
+		        	mySQLTransaction.rollback();
+		        }
 	        }else{
 	        	chargeVO.setStatus(instanceConfigurationApplication.getKey("failure"));
 				chargeVO.setMessage("ProcessorMDTR.processRefound.failure");
 				System.out.println("#################################################################");
 	        	System.out.println("No fue posible registrar el Refund .... ");
 	        	System.out.println("#################################################################");
+	        	mySQLTransaction.rollback();
 	        }
 		} catch (AuthenticationException e) {
 			e.printStackTrace();
@@ -318,6 +364,24 @@ public class ProcessorMDTR {
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
 			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.RefundDAOException");
 			throw processorMDTRException;
+		} catch (MySQLTransactionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.MySQLTransactionException");
+			throw processorMDTRException;
+		} catch (ChargeDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.ChargeDAOException");
+			throw processorMDTRException;
+		}finally{
+			try {
+				if(mySQLTransaction != null){
+					mySQLTransaction.close();
+				}
+			} catch (MySQLTransactionException e) {
+				e.printStackTrace();
+			}
 		}
 		return chargeVO;
 	}
@@ -999,8 +1063,7 @@ public class ProcessorMDTR {
 	public MerchantConfigurationVO updateMerchantConfiguration(MerchantConfigurationVO merchantConfigurationVO) throws ProcessorMDTRException{
 		try {
 			MerchantConfigurationDAO merchantConfigurationDAO = new MerchantConfigurationDAO();
-			merchantConfigurationDAO.update(merchantConfigurationVO);
-			if(merchantConfigurationVO != null && merchantConfigurationVO.getId() != null){
+			if(merchantConfigurationDAO.update(merchantConfigurationVO) >= 1){
 				merchantConfigurationVO.setStatus(instanceConfigurationApplication.getKey("success"));
 				merchantConfigurationVO.setMessage("ProcessorMDTR.updateMerchantConfiguration.success");
 	        }else{

@@ -90,8 +90,20 @@ public class ChargeDAO extends MySQLConnection implements IChargeDAO {
 		return chargeVO;
 	}
 
-	public int update() throws ChargeDAOException {
-		return 0;
+	public int updateStatusRefund(ChargeVO chargeVO) throws ChargeDAOException {
+		CallableStatement cstmt = null;
+		int status = 0;
+		try {
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_STATUS_REFUND(?)}");
+			cstmt.setString(1,chargeVO.getId());
+			status = cstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ChargeDAOException(e);
+		} finally {
+			Cs(cstmt, getConnection());
+		}
+		return status;
 	}
 
 	public int delete() throws ChargeDAOException {

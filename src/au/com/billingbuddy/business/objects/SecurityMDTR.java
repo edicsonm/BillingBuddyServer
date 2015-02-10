@@ -258,6 +258,7 @@ public class SecurityMDTR {
 				System.out.println("#################################################################");
 	        	System.out.println("No fue posible actualizar status del certificado .... ");
 	        	System.out.println("#################################################################");
+	        	mySQLTransaction.rollback();
 	        }
 		} catch (MySQLConnectionException e) {
 			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);

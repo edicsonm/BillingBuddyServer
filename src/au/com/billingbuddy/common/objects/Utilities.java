@@ -27,14 +27,13 @@ public class Utilities {
 	Currency currency;
 	public static ConfigurationApplication configurationApplication = ConfigurationApplication.getInstance();
 	
-//	public static boolean isNullOrEmpty(String valor) {
-//		if (valor == null)
-//			return true;
-//		if (valor.length() == 0)
-//			return true;
-//		else
-//			return false;
-//	}
+	public static boolean isNullOrEmpty(String value){
+		if(value == null )return true;
+		if(value.length() == 0 )return true;
+		if(value.trim().length() == 0 )return true;
+		if(value.equalsIgnoreCase(""))return true;
+		else return false;
+	}
 	
 	public static String currencyToStripe(String amount, String currency) {
 		int decimalValue = Integer.parseInt(configurationApplication.getKey("currency."+currency));
@@ -73,39 +72,39 @@ public class Utilities {
 	}
 	
 	public static void copyChargeToChargeVO(ChargeVO chargeVO, Charge charge){
-		
-		chargeVO.setAmount(String.valueOf(charge.getAmount()));
-		chargeVO.setAmountRefunded(String.valueOf(charge.getAmountRefunded()));
-		chargeVO.setBalanceTransaction(charge.getBalanceTransaction());
-		chargeVO.setCaptured(booleanToString(charge.getCaptured()));
-		chargeVO.setCurrency(charge.getCurrency());
-		
-		chargeVO.setFailureCode(charge.getFailureCode());
-		chargeVO.setFailureMessage(charge.getFailureMessage());
-		chargeVO.setStripeId(charge.getId());
-		chargeVO.setPaid(booleanToString(charge.getPaid()));
-		chargeVO.setRefunded(booleanToString(charge.getRefunded()));
-		
-		chargeVO.setDescription(charge.getDescription());
-		chargeVO.setStatementDescription(charge.getStatementDescription());
-		chargeVO.setObject("");
-		chargeVO.setCardId(charge.getCard().getId());
-		chargeVO.setInvoice(charge.getInvoice());
-		chargeVO.setLiveMode(booleanToString(charge.getLivemode()));
-		chargeVO.getCardVO().setCardIdStripe(charge.getCard().getId());
-		chargeVO.getCardVO().setLast4(charge.getCard().getLast4());
-		chargeVO.getCardVO().setCountry(charge.getCard().getCountry());
-		chargeVO.getCardVO().setBrand(charge.getCard().getBrand());
-		chargeVO.getCardVO().setFunding(charge.getCard().getFunding());
-		chargeVO.getCardVO().setFingerPrint(charge.getCard().getFingerprint());
-//		charge.getCard();
-//		charge.getCreated();
-//		charge.getCustomer();
-//		charge.getDispute();
-//		charge.getDisputed();
-//		charge.getMetadata()
-//		charge.getRefunds();
-		
+		if(charge != null){
+			chargeVO.setAmount(String.valueOf(charge.getAmount()));
+			chargeVO.setAmountRefunded(String.valueOf(charge.getAmountRefunded()));
+			chargeVO.setBalanceTransaction(charge.getBalanceTransaction());
+			chargeVO.setCaptured(booleanToString(charge.getCaptured()));
+			chargeVO.setCurrency(charge.getCurrency());
+			
+			chargeVO.setFailureCode(charge.getFailureCode());
+			chargeVO.setFailureMessage(charge.getFailureMessage());
+			chargeVO.setStripeId(charge.getId());
+			chargeVO.setPaid(booleanToString(charge.getPaid()));
+			chargeVO.setRefunded(booleanToString(charge.getRefunded()));
+			
+			chargeVO.setDescription(charge.getDescription());
+			chargeVO.setStatementDescription(charge.getStatementDescription());
+			chargeVO.setObject("");
+			chargeVO.setCardId(charge.getCard().getId());
+			chargeVO.setInvoice(charge.getInvoice());
+			chargeVO.setLiveMode(booleanToString(charge.getLivemode()));
+			chargeVO.getCardVO().setCardIdStripe(charge.getCard().getId());
+			chargeVO.getCardVO().setLast4(charge.getCard().getLast4());
+			chargeVO.getCardVO().setCountry(charge.getCard().getCountry());
+			chargeVO.getCardVO().setBrand(charge.getCard().getBrand());
+			chargeVO.getCardVO().setFunding(charge.getCard().getFunding());
+			chargeVO.getCardVO().setFingerPrint(charge.getCard().getFingerprint());
+	//		charge.getCard();
+	//		charge.getCreated();
+	//		charge.getCustomer();
+	//		charge.getDispute();
+	//		charge.getDisputed();
+	//		charge.getMetadata()
+	//		charge.getRefunds();
+		}
 	}
 	
 	public static String booleanToString(boolean val){
@@ -139,14 +138,6 @@ public class Utilities {
 		return date;
 	}
 	
-	public static boolean isNullOrEmpty(String value){
-		if(value == null )return true;
-		if(value.length() == 0 )return true;
-		if(value.trim().length() == 0 )return true;
-		if(value.equalsIgnoreCase(""))return true;
-		else return false;
-	}
-	
 	public static String getCurrentDate(){
 		return getSimpleDateFormat().format(Calendar.getInstance().getTime()); 
 	}
@@ -162,7 +153,6 @@ public class Utilities {
 	public static Calendar getCalendarDateSimple(String stringDate) {
 		Calendar calendar = Calendar.getInstance();
 		try {
-			calendar = Calendar.getInstance();
 			Date date = Utilities.getSimpleDateFormat().parse(stringDate);
 			calendar.setTime(date);
 		} catch (ParseException e) {
@@ -174,7 +164,6 @@ public class Utilities {
 	public static Calendar getCalendarDateSystem(String stringDate) {
 		Calendar calendar = Calendar.getInstance();
 		try {
-			calendar = Calendar.getInstance();
 			Date date = Utilities.getSystemDateFormat().parse(stringDate);
 			calendar.setTime(date);
 			return calendar;
@@ -269,5 +258,45 @@ public class Utilities {
 	public static boolean removeCertificate(String path, String fileName){
 		return new File(path+"/"+fileName).delete();
 	}
+	
+	public static SimpleDateFormat getDateFormat(int format){
+		SimpleDateFormat simpleDateFormat = null;
+		switch (format) {
+		case 1:
+			simpleDateFormat =  new SimpleDateFormat("MM-dd-yyyy");
+			break;
+		case 2:
+			simpleDateFormat =  new SimpleDateFormat("yyyy-MM-dd");
+			break;
+		case 3:
+			simpleDateFormat =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			break;	
+		default:
+			simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+			break;
+		}
+		return simpleDateFormat;
+	}
+	
+	public static String formatDate(String date, int formatInput, int formatOutput){
+		try {
+			return getDateFormat(formatOutput).format(getDateFormat(formatInput).parse(date));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return date;
+	}
+	
+	public static String validateDateReport(String value, int days){
+		String date = null;
+		if(isNullOrEmpty(value)){
+			Calendar calendar = Calendar.getInstance();
+			calendar.add(Calendar.DAY_OF_MONTH, -days);
+			Date now = new Date(calendar.getTimeInMillis());
+			date = getDateFormat(2).format(now);
+		}
+		
+		return date;
+	} 
 	
 }

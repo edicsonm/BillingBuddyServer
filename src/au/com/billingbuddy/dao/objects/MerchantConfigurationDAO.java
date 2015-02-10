@@ -54,12 +54,12 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT_CONFIGURATION(?,?,?,?)}");
-			cstmt.setString(1,merchantConfigurationVO.getMerchantId());
-			cstmt.setString(2,merchantConfigurationVO.getUrlDeny());
-			cstmt.setString(3,merchantConfigurationVO.getUrlApproved());
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT_CONFIGURATION(?,?,?)}");
+			cstmt.setString(1,merchantConfigurationVO.getUrlDeny());
+			cstmt.setString(2,merchantConfigurationVO.getUrlApproved());
+			cstmt.setString(3,merchantConfigurationVO.getId());
 			status = cstmt.executeUpdate();
-			merchantConfigurationVO.setId(cstmt.getString(4));
+			merchantConfigurationVO.setId(cstmt.getString(3));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new MerchantConfigurationDAOException(e);

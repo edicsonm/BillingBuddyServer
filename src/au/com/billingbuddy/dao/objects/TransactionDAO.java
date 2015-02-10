@@ -17,11 +17,15 @@ import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.TransactionDAOException;
 import au.com.billingbuddy.vo.objects.BinVO;
 import au.com.billingbuddy.vo.objects.CardVO;
+import au.com.billingbuddy.vo.objects.ChargeVO;
+import au.com.billingbuddy.vo.objects.RejectedChargeVO;
 import au.com.billingbuddy.vo.objects.TransactionVO;
 import au.com.billingbuddy.vo.objects.VO;
 
 public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
-
+	
+	ConfigurationSystem configurationSystem = ConfigurationSystem.getInstance();
+	
 	public TransactionDAO() throws MySQLConnectionException{
 		super();
 	}
@@ -155,6 +159,102 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 					transactionVO.setCardVO(new CardVO());
 					transactionVO.getCardVO().setNumber(rs.getString("Card_Number"));
 					transactionVO.getCardVO().setName(rs.getString("Card_Name"));
+					listTransactions.add(transactionVO);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new TransactionDAOException(e);
+		} finally {
+			PsRs(pstmt, rs, getConnection());
+		}
+		return listTransactions;
+	}
+
+	public ArrayList<TransactionVO> searchAmountsByDay(TransactionVO transactionVO) throws TransactionDAOException {
+		ArrayList<TransactionVO> listTransactions = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_AMOUNT_BY_DAY( ?, ? )}");
+			pstmt.setString(1, Utilities.validateDateReport(transactionVO.getInitialDateReport(), Integer.parseInt(configurationSystem.getKey("days.PROC_SEARCH_AMOUNT_BY_DAY"))));
+			pstmt.setString(2, Utilities.validateDateReport(transactionVO.getFinalDateReport(), 0));
+			
+			rs = pstmt.executeQuery();
+			if (rs != null) {
+				listTransactions = new ArrayList<TransactionVO>();
+				while (rs.next()) {
+					transactionVO = new TransactionVO();
+					transactionVO.setDateReport(rs.getString("DAY"));
+					transactionVO.setAmountDateReport(rs.getString("TOTAL"));
+					listTransactions.add(transactionVO);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new TransactionDAOException(e);
+		} finally {
+			PsRs(pstmt, rs, getConnection());
+		}
+		return listTransactions;
+	}
+
+	public ArrayList<TransactionVO> searchChargesByDay(TransactionVO transactionVO) throws TransactionDAOException {
+		ArrayList<TransactionVO> listTransactions = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CHARGES_BY_DAY( ?, ? )}");
+			pstmt.setString(1, Utilities.validateDateReport(transactionVO.getInitialDateReport(), Integer.parseInt(configurationSystem.getKey("days.PROC_SEARCH_CHARGES_BY_DAY"))));
+			pstmt.setString(2, Utilities.validateDateReport(transactionVO.getFinalDateReport(), 0));
+			rs = pstmt.executeQuery();
+			if (rs != null) {
+				listTransactions = new ArrayList<TransactionVO>();
+				while (rs.next()) {
+					transactionVO = new TransactionVO();
+					transactionVO.setDateReport(rs.getString("DAY"));
+					transactionVO.setTotalDateReport(rs.getString("TOTAL"));
+					listTransactions.add(transactionVO);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new TransactionDAOException(e);
+		} finally {
+			PsRs(pstmt, rs, getConnection());
+		}
+		return listTransactions;
+	}
+
+	public ArrayList<TransactionVO> searchTransactionsByDay(TransactionVO transactionVO) throws TransactionDAOException {
+		ArrayList<TransactionVO> listTransactions = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_TRANSACTIONS_BY_DAY( ?, ? )}");
+			pstmt.setString(1, Utilities.validateDateReport(transactionVO.getInitialDateReport(), Integer.parseInt(configurationSystem.getKey("days.PROC_SEARCH_CHARGES_BY_DAY"))));
+			pstmt.setString(2, Utilities.validateDateReport(transactionVO.getFinalDateReport(), 0));
+			
+			rs = pstmt.executeQuery();
+			if (rs != null) {
+				listTransactions = new ArrayList<TransactionVO>();
+				while (rs.next()) {
+					
+					transactionVO = new TransactionVO();
+					transactionVO.setId(rs.getString("Tran_ID"));
+					transactionVO.setCreationTime(rs.getString("Tran_CreateTime"));
+					
+					transactionVO.setChargeVO(new ChargeVO());
+					transactionVO.getChargeVO().setId(rs.getString("Char_ID"));
+					transactionVO.getChargeVO().setAmount(rs.getString("Char_Amount"));
+					transactionVO.getChargeVO().setCurrency(rs.getString("Char_Currency"));
+					
+					transactionVO.setCardVO(new CardVO());
+					transactionVO.getCardVO().setId(rs.getString("Card_ID"));
+					transactionVO.getCardVO().setLast4(rs.getString("Card_Last4"));
+					transactionVO.getCardVO().setCustomerId(rs.getString("Cust_ID"));
+					transactionVO.getCardVO().setName(rs.getString("Card_Name"));
+					
 					listTransactions.add(transactionVO);
 				}
 			}
