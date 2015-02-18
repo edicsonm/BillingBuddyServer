@@ -1,5 +1,6 @@
 package au.com.billingbuddy.business.objects;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 
 import au.com.billingbuddy.exceptions.objects.ProcesorFacadeException;
@@ -23,29 +24,41 @@ public class ReportFacade {
 	
 	private ReportFacade() {}
 	
-	public ArrayList<TransactionVO> searchAmountByDay(TransactionVO transactionVO) throws ReportFacadeException{
-		ArrayList<TransactionVO> listAmountByDay = null;
+	public StringWriter searchAmountByDay(TransactionVO transactionVO) throws ReportFacadeException{
+		StringWriter report = null;
 		try {
-			listAmountByDay = reportMDTR.searchAmountByDay(transactionVO);
+			report = reportMDTR.searchAmountByDay(transactionVO);
 		} catch (ReportMDTRException e) {
 			ReportFacadeException reportFacadeException = new ReportFacadeException(e);
 			reportFacadeException.setErrorCode(e.getErrorCode());
 			throw reportFacadeException;
 		}
-		return listAmountByDay;
+		return report;
 	}
 	
-	public ArrayList<TransactionVO> searchChargesByDay(TransactionVO transactionVO) throws ReportFacadeException{
-		ArrayList<TransactionVO> listChargesByDay = null;
+	public StringWriter searchChargesByDay(TransactionVO transactionVO) throws ReportFacadeException{
+		StringWriter report = null;
 		try {
-			listChargesByDay = reportMDTR.searchChargesByDay(transactionVO);
+			report = reportMDTR.searchChargesByDay(transactionVO);
 		} catch (ReportMDTRException e) {
 			ReportFacadeException reportFacadeException = new ReportFacadeException(e);
 			reportFacadeException.setErrorCode(e.getErrorCode());
 			throw reportFacadeException;
 		}
-		return listChargesByDay;
+		return report;
 	}
+
+	public StringWriter searchRejectedByDay(TransactionVO transactionVO) throws ReportFacadeException{
+		StringWriter report = null;
+		try {
+			report = reportMDTR.searchRejectedByDay(transactionVO);
+		} catch (ReportMDTRException e) {
+			ReportFacadeException reportFacadeException = new ReportFacadeException(e);
+			reportFacadeException.setErrorCode(e.getErrorCode());
+			throw reportFacadeException;
+		}
+		return report;
+	}	
 	
 	public ArrayList<TransactionVO> searchTransactionsByDay(TransactionVO transactionVO) throws ReportFacadeException{
 		ArrayList<TransactionVO> listTransactionsByDay = null;

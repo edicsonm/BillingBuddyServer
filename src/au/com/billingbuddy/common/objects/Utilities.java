@@ -161,6 +161,17 @@ public class Utilities {
 		return calendar;
 	}
 	
+	public static Calendar getCalendar(String stringDate, int format) {
+		Calendar calendar = Calendar.getInstance();
+		try {
+			Date date = Utilities.getDateFormat(format).parse(stringDate);
+			calendar.setTime(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return calendar;
+	}
+	
 	public static Calendar getCalendarDateSystem(String stringDate) {
 		Calendar calendar = Calendar.getInstance();
 		try {
@@ -270,7 +281,16 @@ public class Utilities {
 			break;
 		case 3:
 			simpleDateFormat =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			break;	
+			break;
+		case 4:
+			simpleDateFormat =  new SimpleDateFormat("MM-dd");
+			break;
+		case 5:
+			simpleDateFormat =  new SimpleDateFormat("dd-MM-yyyy");
+			break;
+		case 6:
+			simpleDateFormat =  new SimpleDateFormat("MM/dd/yyyy");
+			break;
 		default:
 			simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
 			break;
@@ -294,9 +314,20 @@ public class Utilities {
 			calendar.add(Calendar.DAY_OF_MONTH, -days);
 			Date now = new Date(calendar.getTimeInMillis());
 			date = getDateFormat(2).format(now);
+			return date;
 		}
-		
-		return date;
-	} 
+		return value;
+	}
+	
+	
+	public static Date stringToDate(String stringDate, int format){
+		try {
+			return getDateFormat(format).parse(stringDate);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return new Date(Calendar.getInstance().getTimeInMillis());
+	}
+	
 	
 }
