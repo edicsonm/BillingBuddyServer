@@ -288,17 +288,29 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 					transactionVO = new TransactionVO();
 					transactionVO.setId(rs.getString("Tran_ID"));
 					transactionVO.setCreationTime(rs.getString("Tran_CreateTime"));
+					transactionVO.setIpCity(rs.getString("Tran_IPCity"));
+					transactionVO.setIpRegionName(rs.getString("Tran_IPRegionName"));
+					transactionVO.setCountryCode(rs.getString("Tran_CountryCode"));
+					transactionVO.setIpCountryName(rs.getString("Tran_IPCountryName"));
+					
 					
 					transactionVO.setChargeVO(new ChargeVO());
 					transactionVO.getChargeVO().setId(rs.getString("Char_ID"));
 					transactionVO.getChargeVO().setAmount(rs.getString("Char_Amount"));
 					transactionVO.getChargeVO().setCurrency(rs.getString("Char_Currency"));
+					transactionVO.getChargeVO().setCreationTime(rs.getString("Char_CreateTime"));
 					
 					transactionVO.setCardVO(new CardVO());
 					transactionVO.getCardVO().setId(rs.getString("Card_ID"));
 					transactionVO.getCardVO().setLast4(rs.getString("Card_Last4"));
 					transactionVO.getCardVO().setCustomerId(rs.getString("Cust_ID"));
 					transactionVO.getCardVO().setName(rs.getString("Card_Name"));
+					
+					transactionVO.getCardVO().setBrand(rs.getString("Card_Brand"));
+					transactionVO.getCardVO().setFunding(rs.getString("Card_Funding"));
+					transactionVO.getCardVO().setExpMonth(rs.getString("Card_ExpMonth"));
+					transactionVO.getCardVO().setExpYear(rs.getString("Card_ExpYear"));
+					transactionVO.getCardVO().setCountry(rs.getString("Card_Country"));
 					
 					listTransactions.add(transactionVO);
 				}

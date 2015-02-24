@@ -243,7 +243,8 @@ public class ReporteRejectedByDay {
 				
 				/* Finish LessReference */
 				
-				positionY = scaleYFactor - scaleValue(longYGrahic, minorY) + 20;
+//				positionY = scaleYFactor - scaleValue(longYGrahic, minorY) + 20;
+				positionY = scaleYFactor + 10;
 				Element scaleXReference = document.createElement("scaleXReference");
 				rootElement.appendChild(scaleXReference);
 				value = document.createElement("value");
