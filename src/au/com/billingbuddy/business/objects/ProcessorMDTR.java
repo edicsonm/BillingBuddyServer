@@ -21,6 +21,7 @@ import au.com.billingbuddy.common.objects.Utilities;
 import au.com.billingbuddy.connection.objects.MySQLTransaction;
 import au.com.billingbuddy.dao.objects.CardDAO;
 import au.com.billingbuddy.dao.objects.ChargeDAO;
+import au.com.billingbuddy.dao.objects.CountryBlockListDAO;
 import au.com.billingbuddy.dao.objects.CountryDAO;
 import au.com.billingbuddy.dao.objects.CountryRestrictionDAO;
 import au.com.billingbuddy.dao.objects.CreditCardRestrictionDAO;
@@ -34,6 +35,7 @@ import au.com.billingbuddy.dao.objects.RejectedChargeDAO;
 import au.com.billingbuddy.dao.objects.SubscriptionDAO;
 import au.com.billingbuddy.exceptions.objects.CardDAOException;
 import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
+import au.com.billingbuddy.exceptions.objects.CountryBlockListDAOException;
 import au.com.billingbuddy.exceptions.objects.CountryDAOException;
 import au.com.billingbuddy.exceptions.objects.CountryRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.CreditCardRestrictionDAOException;
@@ -50,6 +52,7 @@ import au.com.billingbuddy.exceptions.objects.RejectedChargeDAOException;
 import au.com.billingbuddy.exceptions.objects.SubscriptionDAOException;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
+import au.com.billingbuddy.vo.objects.CountryBlockListVO;
 import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
 import au.com.billingbuddy.vo.objects.CreditCardRestrictionVO;
@@ -1269,7 +1272,29 @@ public class ProcessorMDTR {
 			throw processorMDTRException;
 		}
 		return creditCardRestrictionVO;
-	}	
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<CountryBlockListVO> listCountryBlockList() throws ProcessorMDTRException {
+		ArrayList<CountryBlockListVO> listCountryBlockList = null;
+		try {
+			CountryBlockListDAO countryBlockListDAO = new CountryBlockListDAO();
+			listCountryBlockList = countryBlockListDAO.search();
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCountryBlockList.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CountryBlockListDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCountryBlockList.CountryBlockListDAOException");
+			throw processorMDTRException;
+		}
+		return listCountryBlockList;
+	}
 	
 }
 

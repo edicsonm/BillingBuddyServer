@@ -6,6 +6,7 @@ import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.exceptions.objects.ProcesorFacadeException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.vo.objects.ChargeVO;
+import au.com.billingbuddy.vo.objects.CountryBlockListVO;
 import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
 import au.com.billingbuddy.vo.objects.CreditCardRestrictionVO;
@@ -445,6 +446,22 @@ public class ProcesorFacade {
 			throw procesorFacadeException;
 		}
 		return creditCardRestrictionVO;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
+	public ArrayList<CountryBlockListVO> listCountryBlockList() throws ProcesorFacadeException{
+		ArrayList<CountryBlockListVO> listCountryBlockList = null;
+		try {
+			listCountryBlockList = processorMDTR.listCountryBlockList();
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listCountryBlockList;
 	}
 	
 	
