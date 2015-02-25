@@ -15,6 +15,14 @@ public class CountryBlockListVO extends VO implements Serializable {
 	
 	private CountryVO countryVO;
 	
+	public CountryBlockListVO(){
+	}
+	
+	public CountryBlockListVO(String numeric){
+		this.setCountryVO(new CountryVO());
+		this.getCountryVO().setNumeric(numeric);
+	}
+	
 	public String getId() {
 		return id;
 	}
@@ -64,19 +72,17 @@ public class CountryBlockListVO extends VO implements Serializable {
 		this.countryVO = countryVO;
 	}
 	
-//	@Override
-//    public boolean equals(Object obj) {
-//        if (this.getCountryVO().getNumeric() == ((CountryBlockListVO) obj).getCountryVO().getNumeric())
-//            return true;
-//        return false;
-//    }
-	
 	@Override
     public boolean equals(Object obj) {
-		System.out.println("CountryBlockListVO: " + obj);
-        if (this.getCountryVO().getNumeric().equalsIgnoreCase((String)obj))
-            return true;
-        return false;
+		if (!(obj instanceof CountryBlockListVO))
+			return false;
+		CountryBlockListVO objetoVO = (CountryBlockListVO) obj;
+		return (this.getCountryVO().getNumeric().equalsIgnoreCase(objetoVO.getCountryVO().getNumeric()));
     }
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
 
 }
