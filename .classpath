@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.7.0_55"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/stripe-java-latest.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/mysql-connector-java-5.1.26-bin.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/minfraud-api-1.60.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/minfraud-api-1.60-sources.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/minfraud-api-1.60-javadoc.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/json-simple-1.1.1.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/httpmime-4.3.5.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/httpcore-4.3.2.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/httpclient-cache-4.3.5.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/httpclient-4.3.5.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/gson-2.2.4.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/gson-2.2.4-sources.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/gson-2.2.4-javadoc.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/fluent-hc-4.3.5.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/commons-logging-1.1.3.jar"/>
-	<classpathentry kind="lib" path="/run/media/Edicson/git/skyepac/edicson_code/BillingBuddyServer/lib/commons-codec-1.6.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/stripe-java-latest.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/mysql-connector-java-5.1.26-bin.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/minfraud-api-1.60.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/minfraud-api-1.60-sources.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/minfraud-api-1.60-javadoc.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/httpmime-4.3.5.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/httpcore-4.3.2.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/httpclient-cache-4.3.5.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/httpclient-4.3.5.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/gson-2.2.4.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/gson-2.2.4-sources.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/gson-2.2.4-javadoc.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/fluent-hc-4.3.5.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/commons-logging-1.1.3.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/Informacion IPG/workspaceBillingBuddy/BillingBuddyServer/lib/commons-codec-1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

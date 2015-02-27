@@ -464,5 +464,16 @@ public class ProcesorFacade {
 		return listCountryBlockList;
 	}
 	
+	public ArrayList<CountryBlockListVO> updateCountryBlockList(ArrayList<CountryBlockListVO> listCountryBlockListOriginal, ArrayList<CountryBlockListVO> listCountryBlockList) throws ProcesorFacadeException{
+		try {
+			listCountryBlockList = processorMDTR.updateCountryBlockList(listCountryBlockListOriginal, listCountryBlockList);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listCountryBlockList;
+	}
+	
 	
 }

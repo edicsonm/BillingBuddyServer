@@ -31,7 +31,7 @@ public class CountryBlockListDAO extends MySQLConnection implements ICountryBloc
 		int status = 0;
 		try {
 			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_COUNTRYBLOCKLIST(?,?,?,?,?,?,?)}");
-			cstmt.setString(1,countryBlockListVO.getCountryId());
+			cstmt.setString(1,countryBlockListVO.getCountryVO().getNumeric());
 			cstmt.setString(2,countryBlockListVO.getTransaction());
 			cstmt.setString(3,countryBlockListVO.getMerchantServerLocation());
 			cstmt.setString(4,countryBlockListVO.getMerchantRegistrationLocation());
@@ -54,13 +54,13 @@ public class CountryBlockListDAO extends MySQLConnection implements ICountryBloc
 		int status = 0;
 		try {
 			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_COUNTRYBLOCKLIST(?,?,?,?,?,?,?)}");
-			cstmt.setString(1,countryBlockListVO.getCountryId());
+			cstmt.setString(1,countryBlockListVO.getCountryVO().getNumeric());
 			cstmt.setString(2,countryBlockListVO.getTransaction());
 			cstmt.setString(3,countryBlockListVO.getMerchantServerLocation());
 			cstmt.setString(4,countryBlockListVO.getMerchantRegistrationLocation());
 			cstmt.setString(5,countryBlockListVO.getCreditCardIssueLocation());
 			cstmt.setString(6,countryBlockListVO.getCreditCardHolderLocation());
-			cstmt.setString(7,"0");
+			cstmt.setString(7,countryBlockListVO.getId());
 			status = cstmt.executeUpdate();
 			countryBlockListVO.setId(cstmt.getString(7));
 		} catch (SQLException e) {

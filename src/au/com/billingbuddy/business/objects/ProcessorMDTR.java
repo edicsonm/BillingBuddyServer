@@ -1296,5 +1296,73 @@ public class ProcessorMDTR {
 		return listCountryBlockList;
 	}
 	
+	public ArrayList<CountryBlockListVO> updateCountryBlockList(ArrayList<CountryBlockListVO> listCountryBlockListOriginal, ArrayList<CountryBlockListVO> listCountryBlockList) throws ProcessorMDTRException {
+		MySQLTransaction mySQLTransaction = null;
+		try {
+			mySQLTransaction = new MySQLTransaction();
+			mySQLTransaction.start();
+			CountryBlockListDAO countryBlockListDAO = new CountryBlockListDAO(mySQLTransaction);
+			for (int i = 0; i < listCountryBlockList.size(); i++) {
+				/*CountryBlockListVO countryBlockListVOOriginal = (CountryBlockListVO)listCountryBlockListOriginal.get(i);*/
+				CountryBlockListVO countryBlockListVO = (CountryBlockListVO)listCountryBlockList.get(i);
+					
+				if(countryBlockListVO.getId() == null){
+					//Insert
+					countryBlockListDAO.insert(countryBlockListVO);
+				}else{
+					//Update
+					countryBlockListDAO.update(countryBlockListVO);
+				}
+				
+				/*if( !countryBlockListVOOriginal.getTransaction().equalsIgnoreCase(countryBlockListVO.getTransaction())||
+				    !countryBlockListVOOriginal.getMerchantServerLocation().equalsIgnoreCase(countryBlockListVO.getMerchantServerLocation())||
+				    !countryBlockListVOOriginal.getMerchantRegistrationLocation().equalsIgnoreCase(countryBlockListVO.getMerchantRegistrationLocation())||
+				    !countryBlockListVOOriginal.getCreditCardIssueLocation().equalsIgnoreCase(countryBlockListVO.getCreditCardIssueLocation())||
+				    !countryBlockListVOOriginal.getCreditCardHolderLocation().equalsIgnoreCase(countryBlockListVO.getCreditCardHolderLocation())){
+					//Existe un elemento diferente
+					if(countryBlockListVO.getId().equalsIgnoreCase("null")){
+						//Insert
+						countryBlockListDAO.insert(countryBlockListVO);
+					}else{
+						//Update
+						countryBlockListDAO.update(countryBlockListVO);
+					}
+				}*/
+				
+				/*countryBlockListVO.getTransaction();
+				countryBlockListVO.getMerchantServerLocation();
+				countryBlockListVO.getMerchantRegistrationLocation();
+				countryBlockListVO.getCreditCardIssueLocation();
+				countryBlockListVO.getCreditCardHolderLocation();*/
+			}
+			listCountryBlockList = countryBlockListDAO.search();
+			mySQLTransaction.commit();
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateCountryBlockList.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CountryBlockListDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateCountryBlockList.CountryBlockListDAOException");
+			throw processorMDTRException;
+		} catch (MySQLTransactionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateCountryBlockList.MySQLTransactionException");
+			throw processorMDTRException;
+		}finally{
+			try {
+				if(mySQLTransaction != null){
+					mySQLTransaction.end();
+				}
+			} catch (MySQLTransactionException e) {
+				e.printStackTrace();
+			}
+		}
+		return listCountryBlockList;
+	}
+	
 }
 
