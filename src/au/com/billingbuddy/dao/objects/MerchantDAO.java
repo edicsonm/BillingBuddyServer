@@ -30,12 +30,33 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_MERCHANT(?,?,?)}");
-			cstmt.setString(1,merchantVO.getCountryNumeric());
-			cstmt.setString(2,merchantVO.getName());
-			cstmt.setString(3,"0");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_MERCHANT(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+			cstmt.setString(1,merchantVO.getBusinessTypeId());
+			cstmt.setString(2,merchantVO.getIndustryId());
+			cstmt.setString(3,merchantVO.getCountryNumericMerchant());
+			cstmt.setString(4,merchantVO.getCountryNumericPersonalInformation());
+			cstmt.setString(5,merchantVO.getName());
+			cstmt.setString(6,merchantVO.getTradingName());
+			cstmt.setString(7,merchantVO.getLegalPhysicalAddress());
+			cstmt.setString(8,merchantVO.getStatementAddress());
+			cstmt.setString(9,merchantVO.getTaxFileNumber());
+			cstmt.setString(10,merchantVO.getCityBusinessInformation());
+			cstmt.setString(11,merchantVO.getPostCodeBusinessInformation());
+			cstmt.setString(12,merchantVO.getIssuedBusinessID());
+			cstmt.setString(13,merchantVO.getIssuedPersonalID());
+			cstmt.setString(14,merchantVO.getTypeAccountApplication());
+			cstmt.setString(15,merchantVO.getEstimatedAnnualSales());
+			cstmt.setString(16,merchantVO.getFirstName());
+			cstmt.setString(17,merchantVO.getLastName());
+			cstmt.setString(18,merchantVO.getPhoneNumber());
+			cstmt.setString(19,merchantVO.getFaxNumber());
+			cstmt.setString(20,merchantVO.getEmailAddress());
+			cstmt.setString(21,merchantVO.getAlternateEmailAddress());
+			cstmt.setString(22,merchantVO.getCityPersonalInformation());
+			cstmt.setString(23,merchantVO.getPostCodePersonalInformation());
+			cstmt.setString(24,"0");
 			status = cstmt.executeUpdate();
-			merchantVO.setId(cstmt.getString(3));
+			merchantVO.setId(cstmt.getString(24));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new MerchantDAOException(e);
@@ -49,12 +70,33 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT(?,?,?)}");
-			cstmt.setString(1,merchantVO.getCountryNumeric());
-			cstmt.setString(2,merchantVO.getName());
-			cstmt.setString(3,merchantVO.getId());
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+			cstmt.setString(1,merchantVO.getBusinessTypeId());
+			cstmt.setString(2,merchantVO.getIndustryId());
+			cstmt.setString(3,merchantVO.getCountryNumericMerchant());
+			cstmt.setString(4,merchantVO.getCountryNumericPersonalInformation());
+			cstmt.setString(5,merchantVO.getName());
+			cstmt.setString(6,merchantVO.getTradingName());
+			cstmt.setString(7,merchantVO.getLegalPhysicalAddress());
+			cstmt.setString(8,merchantVO.getStatementAddress());
+			cstmt.setString(9,merchantVO.getTaxFileNumber());
+			cstmt.setString(10,merchantVO.getCityBusinessInformation());
+			cstmt.setString(11,merchantVO.getPostCodeBusinessInformation());
+			cstmt.setString(12,merchantVO.getIssuedBusinessID());
+			cstmt.setString(13,merchantVO.getIssuedPersonalID());
+			cstmt.setString(14,merchantVO.getTypeAccountApplication());
+			cstmt.setString(15,merchantVO.getEstimatedAnnualSales());
+			cstmt.setString(16,merchantVO.getFirstName());
+			cstmt.setString(17,merchantVO.getLastName());
+			cstmt.setString(18,merchantVO.getPhoneNumber());
+			cstmt.setString(19,merchantVO.getFaxNumber());
+			cstmt.setString(20,merchantVO.getEmailAddress());
+			cstmt.setString(21,merchantVO.getAlternateEmailAddress());
+			cstmt.setString(22,merchantVO.getCityPersonalInformation());
+			cstmt.setString(23,merchantVO.getPostCodePersonalInformation());
+			cstmt.setString(24,merchantVO.getId());
 			status = cstmt.executeUpdate();
-			merchantVO.setId(cstmt.getString(3));
+			merchantVO.setId(cstmt.getString(24));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new MerchantDAOException(e);
@@ -93,9 +135,9 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 				while (resultSet.next()) {
 					merchantVO = new MerchantVO();
 					merchantVO.setId(resultSet.getString("Merc_ID"));
-					merchantVO.setCountryNumeric(resultSet.getString("Coun_Numeric"));
-					merchantVO.setCountryVO(new CountryVO());
-					merchantVO.getCountryVO().setName(resultSet.getString("Coun_Name"));
+					merchantVO.setCountryNumericMerchant(resultSet.getString("Coun_NumericMerchant"));
+					merchantVO.setCountryVOBusiness(new CountryVO());
+					merchantVO.getCountryVOBusiness().setName(resultSet.getString("Coun_Name"));
 					merchantVO.setName(resultSet.getString("Merc_Name"));
 				}
 			}else{
@@ -123,10 +165,38 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 				while (resultSet.next()) {
 					MerchantVO merchantVO = new MerchantVO();
 					merchantVO.setId(resultSet.getString("Merc_ID"));
-					merchantVO.setCountryNumeric(resultSet.getString("Coun_Numeric"));
-					merchantVO.setCountryVO(new CountryVO());
-					merchantVO.getCountryVO().setName(resultSet.getString("Coun_Name"));
+					merchantVO.setBusinessTypeId(resultSet.getString("Buty_ID"));
+					merchantVO.setIndustryId(resultSet.getString("Indu_ID"));
+					merchantVO.setCountryNumericMerchant(resultSet.getString("Coun_NumericMerchant"));
+					merchantVO.setCountryNumericPersonalInformation(resultSet.getString("Coun_NumericPersonalInformation"));
+					
+					merchantVO.setCountryVOBusiness(new CountryVO());
+					merchantVO.getCountryVOBusiness().setName(resultSet.getString("CountryBusiness"));
+					
+					merchantVO.setCountryVOPersonalInformation(new CountryVO());
+					merchantVO.getCountryVOPersonalInformation().setName(resultSet.getString("CountryPersonalInformation"));
+					
 					merchantVO.setName(resultSet.getString("Merc_Name"));
+					merchantVO.setStatus(resultSet.getString("Merc_Status"));
+					merchantVO.setCreateTime(resultSet.getString("Merc_CreateTime"));
+					merchantVO.setTradingName(resultSet.getString("Merc_TradingName"));
+					merchantVO.setLegalPhysicalAddress(resultSet.getString("Merc_LegalPhysicalAddress"));
+					merchantVO.setStatementAddress(resultSet.getString("Merc_StatementAddress"));
+					merchantVO.setTaxFileNumber(resultSet.getString("Merc_TaxFileNumber"));
+					merchantVO.setCityBusinessInformation(resultSet.getString("Merc_CityBusinessInformation"));
+					merchantVO.setPostCodeBusinessInformation(resultSet.getString("Merc_PostCodeBusinessInformation"));
+					merchantVO.setIssuedBusinessID(resultSet.getString("Merc_IssuedBusinessID"));
+					merchantVO.setIssuedPersonalID(resultSet.getString("Merc_IssuedPersonalID"));
+					merchantVO.setTypeAccountApplication(resultSet.getString("Merc_TypeAccountApplication"));
+					merchantVO.setEstimatedAnnualSales(resultSet.getString("Merc_EstimatedAnnualSales"));
+					merchantVO.setFirstName(resultSet.getString("Merc_FirstName"));
+					merchantVO.setLastName(resultSet.getString("Merc_LastName"));
+					merchantVO.setPhoneNumber(resultSet.getString("Merc_PhoneNumber"));
+					merchantVO.setFaxNumber(resultSet.getString("Merc_FaxNumber"));
+					merchantVO.setEmailAddress(resultSet.getString("Merc_EmailAddress"));
+					merchantVO.setAlternateEmailAddress(resultSet.getString("Merc_AlternateEmailAddress"));
+					merchantVO.setCityPersonalInformation(resultSet.getString("Merc_CityPersonalInformation"));
+					merchantVO.setPostCodePersonalInformation(resultSet.getString("Merc_PostCodePersonalInformation"));
 					list.add(merchantVO);
 				}
 			}
@@ -152,9 +222,9 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 				while (resultSet.next()) {
 					merchantVO = new MerchantVO();
 					merchantVO.setId(resultSet.getString("Merc_ID"));
-					merchantVO.setCountryNumeric(resultSet.getString("Coun_Numeric"));
-					merchantVO.setCountryVO(new CountryVO());
-					merchantVO.getCountryVO().setName(resultSet.getString("Coun_Name"));
+					merchantVO.setCountryNumericMerchant(resultSet.getString("Coun_NumericMerchant"));
+					merchantVO.setCountryVOBusiness(new CountryVO());
+					merchantVO.getCountryVOBusiness().setName(resultSet.getString("Coun_Name"));
 					merchantVO.setName(resultSet.getString("Merc_Name"));
 					list.add(merchantVO);
 				}

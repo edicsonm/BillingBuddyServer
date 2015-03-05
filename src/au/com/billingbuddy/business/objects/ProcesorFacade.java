@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.exceptions.objects.ProcesorFacadeException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
+import au.com.billingbuddy.vo.objects.BusinessTypeVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
 import au.com.billingbuddy.vo.objects.CountryBlockListVO;
 import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
 import au.com.billingbuddy.vo.objects.CreditCardRestrictionVO;
+import au.com.billingbuddy.vo.objects.IndustryVO;
 import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
 import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
@@ -475,5 +477,110 @@ public class ProcesorFacade {
 		return listCountryBlockList;
 	}
 	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
+	public ArrayList<BusinessTypeVO> listBusinessTypes() throws ProcesorFacadeException{
+		ArrayList<BusinessTypeVO> listBusinessTypes = null;
+		try {
+			listBusinessTypes = processorMDTR.listBusinessTypes();
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listBusinessTypes;
+	}
+	
+	public BusinessTypeVO listBusinessTypeDetails(BusinessTypeVO businessTypeVO) throws ProcesorFacadeException{
+		return null;
+	}
+	
+	public BusinessTypeVO saveBusinessType(BusinessTypeVO businessTypeVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.saveBusinessType(businessTypeVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return businessTypeVO;
+	}
+	
+	public BusinessTypeVO updateBusinessType(BusinessTypeVO businessTypeVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.updateBusinessType(businessTypeVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return businessTypeVO;
+	}
+	
+	public BusinessTypeVO deleteBusinessType(BusinessTypeVO businessTypeVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.deleteBusinessType(businessTypeVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return businessTypeVO;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
+	public ArrayList<IndustryVO> listIndustries() throws ProcesorFacadeException{
+		ArrayList<IndustryVO> listIndustries = null;
+		try {
+			listIndustries = processorMDTR.listIndustries();
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listIndustries;
+	}
+	
+	public IndustryVO listIndustryDetails(IndustryVO industryVO) throws ProcesorFacadeException{
+		return null;
+	}
+	
+	public IndustryVO saveIndustry(IndustryVO industryVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.saveIndustry(industryVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return industryVO;
+	}
+	
+	public IndustryVO updateIndustry(IndustryVO industryVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.updateIndustry(industryVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return industryVO;
+	}
+	
+	public IndustryVO deleteIndustry(IndustryVO industryVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.deleteIndustry(industryVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return industryVO;
+	}
 	
 }

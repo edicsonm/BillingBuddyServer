@@ -19,6 +19,7 @@ import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.common.objects.Currency;
 import au.com.billingbuddy.common.objects.Utilities;
 import au.com.billingbuddy.connection.objects.MySQLTransaction;
+import au.com.billingbuddy.dao.objects.BusinessTypeDAO;
 import au.com.billingbuddy.dao.objects.CardDAO;
 import au.com.billingbuddy.dao.objects.ChargeDAO;
 import au.com.billingbuddy.dao.objects.CountryBlockListDAO;
@@ -26,6 +27,7 @@ import au.com.billingbuddy.dao.objects.CountryDAO;
 import au.com.billingbuddy.dao.objects.CountryRestrictionDAO;
 import au.com.billingbuddy.dao.objects.CreditCardRestrictionDAO;
 import au.com.billingbuddy.dao.objects.CustomerDAO;
+import au.com.billingbuddy.dao.objects.IndustryDAO;
 import au.com.billingbuddy.dao.objects.MerchantConfigurationDAO;
 import au.com.billingbuddy.dao.objects.MerchantDAO;
 import au.com.billingbuddy.dao.objects.MerchantRestrictionDAO;
@@ -33,6 +35,7 @@ import au.com.billingbuddy.dao.objects.PlanDAO;
 import au.com.billingbuddy.dao.objects.RefundDAO;
 import au.com.billingbuddy.dao.objects.RejectedChargeDAO;
 import au.com.billingbuddy.dao.objects.SubscriptionDAO;
+import au.com.billingbuddy.exceptions.objects.BusinessTypeDAOException;
 import au.com.billingbuddy.exceptions.objects.CardDAOException;
 import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
 import au.com.billingbuddy.exceptions.objects.CountryBlockListDAOException;
@@ -40,6 +43,7 @@ import au.com.billingbuddy.exceptions.objects.CountryDAOException;
 import au.com.billingbuddy.exceptions.objects.CountryRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.CreditCardRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.CustomerDAOException;
+import au.com.billingbuddy.exceptions.objects.IndustryDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantConfigurationDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantRestrictionDAOException;
@@ -50,6 +54,7 @@ import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.RefundDAOException;
 import au.com.billingbuddy.exceptions.objects.RejectedChargeDAOException;
 import au.com.billingbuddy.exceptions.objects.SubscriptionDAOException;
+import au.com.billingbuddy.vo.objects.BusinessTypeVO;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
 import au.com.billingbuddy.vo.objects.CountryBlockListVO;
@@ -57,6 +62,7 @@ import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
 import au.com.billingbuddy.vo.objects.CreditCardRestrictionVO;
 import au.com.billingbuddy.vo.objects.CustomerVO;
+import au.com.billingbuddy.vo.objects.IndustryVO;
 import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
 import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
@@ -1363,6 +1369,167 @@ public class ProcessorMDTR {
 		}
 		return listCountryBlockList;
 	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<BusinessTypeVO> listBusinessTypes() throws ProcessorMDTRException {
+		ArrayList<BusinessTypeVO> listBusinessTypes = null;
+		try {
+			BusinessTypeDAO businessTypeDAO = new BusinessTypeDAO();
+			listBusinessTypes = businessTypeDAO.search();
+		} catch (MySQLConnectionException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listBusinessTypes.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (BusinessTypeDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listBusinessTypes.BusinessTypeDAOException");
+			throw processorMDTRException;
+		}
+		return listBusinessTypes;
+	}	
+	
+	public MerchantVO listBusinessTypeDetails(BusinessTypeVO businessTypeVO) throws ProcessorMDTRException{
+		return null;
+	}
+	
+	public BusinessTypeVO saveBusinessType(BusinessTypeVO businessTypeVO) throws ProcessorMDTRException{
+		try {
+			BusinessTypeDAO businessTypeDAO = new BusinessTypeDAO();
+			businessTypeDAO.insert(businessTypeVO);
+			if(businessTypeVO != null && businessTypeVO.getId() != null){
+				businessTypeVO.setStatus(ConfigurationApplication.getKey("success"));
+				businessTypeVO.setMessage("ProcessorMDTR.saveBusinessType.success");
+	        }else{
+	        	businessTypeVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	businessTypeVO.setMessage("ProcessorMDTR.saveBusinessType.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar el Business Type.... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveBusinessType.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (BusinessTypeDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveBusinessType.BusinessTypeDAOException");
+			throw processorMDTRException;
+		}
+		return businessTypeVO;
+	}
+	
+	public BusinessTypeVO updateBusinessType(BusinessTypeVO businessTypeVO) throws ProcessorMDTRException{
+		try {
+			BusinessTypeDAO businessTypeDAO = new BusinessTypeDAO();
+			businessTypeDAO.update(businessTypeVO);
+			if(businessTypeVO != null && businessTypeVO.getId() != null){
+				businessTypeVO.setStatus(ConfigurationApplication.getKey("success"));
+				businessTypeVO.setMessage("ProcessorMDTR.updateBusinessType.success");
+	        }else{
+	        	businessTypeVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	businessTypeVO.setMessage("ProcessorMDTR.updateBusinessType.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible actualizar el Business Type .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateBusinessType.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (BusinessTypeDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateBusinessType.BusinessTypeDAOException");
+			throw processorMDTRException;
+		}
+		return businessTypeVO;
+	}
+	
+	public BusinessTypeVO deleteBusinessType(BusinessTypeVO businessTypeVO) throws ProcessorMDTRException{
+		return null;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<IndustryVO> listIndustries() throws ProcessorMDTRException {
+		ArrayList<IndustryVO> listIndustries = null;
+		try {
+			IndustryDAO industryDAO = new IndustryDAO();
+			listIndustries = industryDAO.search();
+		} catch (MySQLConnectionException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listIndustries.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (IndustryDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listIndustries.IndustryDAOException");
+			throw processorMDTRException;
+		}
+		return listIndustries;
+	}	
+	
+	public IndustryVO listIndustryDetails(IndustryVO industryVO) throws ProcessorMDTRException{
+		return null;
+	}
+	
+	public IndustryVO saveIndustry(IndustryVO industryVO) throws ProcessorMDTRException{
+		try {
+			IndustryDAO industryDAO = new IndustryDAO();
+			industryDAO.insert(industryVO);
+			if(industryVO != null && industryVO.getId() != null){
+				industryVO.setStatus(ConfigurationApplication.getKey("success"));
+				industryVO.setMessage("ProcessorMDTR.saveIndustry.success");
+	        }else{
+	        	industryVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	industryVO.setMessage("ProcessorMDTR.saveIndustry.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar la Industry .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveIndustry.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (IndustryDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveIndustry.IndustryDAOException");
+			throw processorMDTRException;
+		}
+		return industryVO;
+	}
+	
+	public IndustryVO updateIndustry(IndustryVO industryVO) throws ProcessorMDTRException{
+		try {
+			IndustryDAO industryDAO = new IndustryDAO();
+			industryDAO.update(industryVO);
+			if(industryVO != null && industryVO.getId() != null){
+				industryVO.setStatus(ConfigurationApplication.getKey("success"));
+				industryVO.setMessage("ProcessorMDTR.updateIndustry.success");
+	        }else{
+	        	industryVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	industryVO.setMessage("ProcessorMDTR.updateIndustry.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible actualizar la Industry .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateIndustry.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (IndustryDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateIndustry.IndustryDAOException");
+			throw processorMDTRException;
+		}
+		return industryVO;
+	}
+	
+	public IndustryVO deleteIndustry(IndustryVO industryVO) throws ProcessorMDTRException{
+		return null;
+	}
+	
 	
 }
 
