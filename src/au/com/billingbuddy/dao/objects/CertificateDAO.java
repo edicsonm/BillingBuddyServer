@@ -20,6 +20,7 @@ import au.com.billingbuddy.dao.interfaces.ICertificateDAO;
 import au.com.billingbuddy.exceptions.objects.CertificateDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.vo.objects.CertificateVO;
+import au.com.billingbuddy.vo.objects.MerchantVO;
 
 public class CertificateDAO extends MySQLConnection implements ICertificateDAO {
 
@@ -97,6 +98,8 @@ public class CertificateDAO extends MySQLConnection implements ICertificateDAO {
 					CertificateVO certificateVO = new CertificateVO();
 					certificateVO.setId(resultSet.getString("Cert_ID"));
 					certificateVO.setMerchantId(resultSet.getString("Merc_ID"));
+					certificateVO.setMerchantVO(new MerchantVO());
+					certificateVO.getMerchantVO().setName(resultSet.getString("Merc_Name"));					
 					certificateVO.setCommonName(resultSet.getString("Cert_Name"));
 					certificateVO.setStatus(resultSet.getString("Cert_Status"));
 					certificateVO.setCreationTime(resultSet.getString("Cert_CreateTime"));

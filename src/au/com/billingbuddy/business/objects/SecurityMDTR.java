@@ -234,11 +234,11 @@ public class SecurityMDTR {
 						certificateVO.setStatus(ConfigurationApplication.getKey("failure"));
 			        	certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.failure");
 						System.out.println("#################################################################");
-			        	System.out.println("No fue posible actualizar status del certificado .... ");
+			        	System.out.println("No fue posible actualizar status del certificado, copy to repository action failure .... ");
 			        	System.out.println("#################################################################");
 						mySQLTransaction.rollback();
 					}
-				}else{//Remover el certificado del reositorio de los certificados activos
+				}else{//Remover el certificado del repositorio de los certificados activos
 					if(Utilities.removeCertificate(ConfigurationSystem.getKey("urlConfiguredCertificates"), (ConfigurationSystem.getKey("aliasBB")+certificateVO.getMerchantId()+".jks"))){
 						certificateVO.setStatus(ConfigurationApplication.getKey("success"));
 						certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.success");
@@ -247,7 +247,7 @@ public class SecurityMDTR {
 						certificateVO.setStatus(ConfigurationApplication.getKey("failure"));
 			        	certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.failure");
 						System.out.println("#################################################################");
-			        	System.out.println("No fue posible actualizar status del certificado .... ");
+			        	System.out.println("No fue posible actualizar status del certificado, delete repository action failure .... ");
 			        	System.out.println("#################################################################");
 						mySQLTransaction.rollback();
 					}
@@ -256,7 +256,7 @@ public class SecurityMDTR {
 	        	certificateVO.setStatus(ConfigurationApplication.getKey("failure"));
 	        	certificateVO.setMessage("ProcessorMDTR.updateStatusCertificate.failure");
 				System.out.println("#################################################################");
-	        	System.out.println("No fue posible actualizar status del certificado .... ");
+	        	System.out.println("No fue posible actualizar status del certificado, update action failure .... ");
 	        	System.out.println("#################################################################");
 	        	mySQLTransaction.rollback();
 	        }

@@ -29,6 +29,8 @@ public class CertificateVO extends VO implements Serializable {
 	
 	private StringBuffer log;
 	
+	private MerchantVO merchantVO;
+	
 	public String getMerchantId() {
 		return merchantId;
 	}
@@ -179,6 +181,14 @@ public class CertificateVO extends VO implements Serializable {
 
 	public void setInfoCertificateMerchant(String infoCertificateMerchant) {
 		this.infoCertificateMerchant = infoCertificateMerchant;
+	}
+
+	public MerchantVO getMerchantVO() {
+		return merchantVO;
+	}
+
+	public void setMerchantVO(MerchantVO merchantVO) {
+		this.merchantVO = merchantVO;
 	}
 
 }

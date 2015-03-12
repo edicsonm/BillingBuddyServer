@@ -39,6 +39,9 @@ public class MerchantVO extends VO implements Serializable {
 	private CountryVO countryVOBusiness;
 	private CountryVO countryVOPersonalInformation;
 	
+	private BusinessTypeVO businessTypeVO;
+	private IndustryVO industryVO;
+	
 	private MerchantConfigurationVO merchantConfigurationVO;
 	private ArrayList<MerchantRestrictionVO> listMerchantRestrictionsVO;
 	
@@ -330,6 +333,22 @@ public class MerchantVO extends VO implements Serializable {
 	public void setCountryVOPersonalInformation(
 			CountryVO countryVOPersonalInformation) {
 		this.countryVOPersonalInformation = countryVOPersonalInformation;
+	}
+
+	public BusinessTypeVO getBusinessTypeVO() {
+		return businessTypeVO;
+	}
+
+	public void setBusinessTypeVO(BusinessTypeVO businessTypeVO) {
+		this.businessTypeVO = businessTypeVO;
+	}
+
+	public IndustryVO getIndustryVO() {
+		return industryVO;
+	}
+
+	public void setIndustryVO(IndustryVO industryVO) {
+		this.industryVO = industryVO;
 	}
 
 
