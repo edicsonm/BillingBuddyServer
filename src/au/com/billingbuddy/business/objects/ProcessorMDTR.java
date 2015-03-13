@@ -1,9 +1,12 @@
 package au.com.billingbuddy.business.objects;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.transform.stream.StreamSource;
 
 import com.stripe.Stripe;
 import com.stripe.exception.APIConnectionException;
@@ -14,6 +17,7 @@ import com.stripe.exception.InvalidRequestException;
 import com.stripe.model.Charge;
 import com.stripe.model.Refund;
 
+import au.com.billingbuddy.business.objects.reports.ReporteAmountByDay;
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.common.objects.Currency;
@@ -35,6 +39,7 @@ import au.com.billingbuddy.dao.objects.PlanDAO;
 import au.com.billingbuddy.dao.objects.RefundDAO;
 import au.com.billingbuddy.dao.objects.RejectedChargeDAO;
 import au.com.billingbuddy.dao.objects.SubscriptionDAO;
+import au.com.billingbuddy.dao.objects.TransactionDAO;
 import au.com.billingbuddy.exceptions.objects.BusinessTypeDAOException;
 import au.com.billingbuddy.exceptions.objects.CardDAOException;
 import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
@@ -53,7 +58,10 @@ import au.com.billingbuddy.exceptions.objects.PlanDAOException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.RefundDAOException;
 import au.com.billingbuddy.exceptions.objects.RejectedChargeDAOException;
+import au.com.billingbuddy.exceptions.objects.ReportMDTRException;
+import au.com.billingbuddy.exceptions.objects.ReporteAmountByDayException;
 import au.com.billingbuddy.exceptions.objects.SubscriptionDAOException;
+import au.com.billingbuddy.exceptions.objects.TransactionDAOException;
 import au.com.billingbuddy.vo.objects.BusinessTypeVO;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
@@ -1530,6 +1538,28 @@ public class ProcessorMDTR {
 		return null;
 	}
 	
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<TransactionVO> searchAmountByDay(TransactionVO transactionVO) throws ProcessorMDTRException{
+		ArrayList<TransactionVO> listAmountsByDay = null;
+		try {
+			TransactionDAO transactionDAO = new TransactionDAO();
+			listAmountsByDay = transactionDAO.searchAmountsByDay(transactionVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchAmountByDay.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (TransactionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchAmountByDay.TransactionDAOException");
+			throw processorMDTRException;
+		}
+		return listAmountsByDay;
+	}
 	
 }
 

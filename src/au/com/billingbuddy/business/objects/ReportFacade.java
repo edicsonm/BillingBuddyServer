@@ -2,6 +2,9 @@ package au.com.billingbuddy.business.objects;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Map;
+
+import javax.xml.transform.stream.StreamSource;
 
 import au.com.billingbuddy.exceptions.objects.ProcesorFacadeException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
@@ -24,10 +27,10 @@ public class ReportFacade {
 	
 	private ReportFacade() {}
 	
-	public StringWriter searchAmountByDay(TransactionVO transactionVO) throws ReportFacadeException{
+	public StringWriter searchAmountByDay(TransactionVO transactionVO, StreamSource xslStream, Map<String, String> mapConfiguration) throws ReportFacadeException{
 		StringWriter report = null;
 		try {
-			report = reportMDTR.searchAmountByDay(transactionVO);
+			report = reportMDTR.searchAmountByDay(transactionVO, xslStream, mapConfiguration);
 		} catch (ReportMDTRException e) {
 			ReportFacadeException reportFacadeException = new ReportFacadeException(e);
 			reportFacadeException.setErrorCode(e.getErrorCode());

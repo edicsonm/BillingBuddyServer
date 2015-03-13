@@ -13,7 +13,9 @@ import au.com.billingbuddy.connection.objects.MySQLTransaction;
 import au.com.billingbuddy.dao.interfaces.IMerchantDAO;
 import au.com.billingbuddy.exceptions.objects.MerchantDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
+import au.com.billingbuddy.vo.objects.BusinessTypeVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
+import au.com.billingbuddy.vo.objects.IndustryVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
 
 public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
@@ -165,8 +167,15 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 				while (resultSet.next()) {
 					MerchantVO merchantVO = new MerchantVO();
 					merchantVO.setId(resultSet.getString("Merc_ID"));
+					
 					merchantVO.setBusinessTypeId(resultSet.getString("Buty_ID"));
+					merchantVO.setBusinessTypeVO(new BusinessTypeVO());
+					merchantVO.getBusinessTypeVO().setDescription(resultSet.getString("Buty_Description"));
+					
 					merchantVO.setIndustryId(resultSet.getString("Indu_ID"));
+					merchantVO.setIndustryVO(new IndustryVO());
+					merchantVO.getIndustryVO().setDescription(resultSet.getString("Indu_Description"));
+					
 					merchantVO.setCountryNumericMerchant(resultSet.getString("Coun_NumericMerchant"));
 					merchantVO.setCountryNumericPersonalInformation(resultSet.getString("Coun_NumericPersonalInformation"));
 					

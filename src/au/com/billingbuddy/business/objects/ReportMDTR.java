@@ -2,6 +2,9 @@ package au.com.billingbuddy.business.objects;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Map;
+
+import javax.xml.transform.stream.StreamSource;
 
 import au.com.billingbuddy.business.objects.reports.ReporteAmountByDay;
 import au.com.billingbuddy.business.objects.reports.ReporteChargesByDay;
@@ -32,11 +35,12 @@ public class ReportMDTR {
 	
 	private ReportMDTR() {}
 	
-	public StringWriter searchAmountByDay(TransactionVO transactionVO) throws ReportMDTRException{
+	public StringWriter searchAmountByDay(TransactionVO transactionVO, StreamSource xslStream, Map<String, String> mapConfiguration) throws ReportMDTRException{
 		StringWriter report = null;
 		try {
 			TransactionDAO transactionDAO = new TransactionDAO();
-			ReporteAmountByDay reporteAmountByDay = ReporteAmountByDay.getInstance();
+//			ReporteAmountByDay reporteAmountByDay = ReporteAmountByDay.getInstance();
+			ReporteAmountByDay reporteAmountByDay = new ReporteAmountByDay(xslStream, mapConfiguration);
 			report = reporteAmountByDay.CreateXml(transactionDAO.searchAmountsByDay(transactionVO));
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();

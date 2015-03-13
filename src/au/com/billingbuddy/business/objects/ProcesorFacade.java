@@ -18,6 +18,7 @@ import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.PlanVO;
 import au.com.billingbuddy.vo.objects.RefundVO;
 import au.com.billingbuddy.vo.objects.SubscriptionVO;
+import au.com.billingbuddy.vo.objects.TransactionVO;
 
 public class ProcesorFacade {
 	
@@ -581,6 +582,18 @@ public class ProcesorFacade {
 			throw procesorFacadeException;
 		}
 		return industryVO;
+	}
+	
+	public ArrayList<TransactionVO> searchAmountByDay(TransactionVO transactionVO) throws ProcesorFacadeException{
+		ArrayList<TransactionVO> listAmountsByDay = null;
+		try {
+			listAmountsByDay = processorMDTR.searchAmountByDay(transactionVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listAmountsByDay;
 	}
 	
 }
