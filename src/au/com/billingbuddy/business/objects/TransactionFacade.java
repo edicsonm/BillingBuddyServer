@@ -1,5 +1,6 @@
 package au.com.billingbuddy.business.objects;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
@@ -12,6 +13,7 @@ public class TransactionFacade {
 	
 	ProcessorMDTR processorMDTR = ProcessorMDTR.getInstance();
 	FraudDetectionMDTR fraudDetectionMDTR = FraudDetectionMDTR.getInstance();
+	TransactionMDTR transactionMDTR = TransactionMDTR.getInstance();
 	
 	private static TransactionFacade instance = null;
 	private static ConfigurationApplication instanceConfigurationApplication = ConfigurationApplication.getInstance();
@@ -114,9 +116,9 @@ public class TransactionFacade {
 		return transactionVO;
 	}
 	
-//	public ArrayList<TransactionVO> listTransaction(TransactionVO transactionVO){
-//		ArrayList<TransactionVO> listTransaction = transactionMDTR.listTransaction(transactionVO);
-//		return listTransaction;
-//	}
+	public ArrayList<TransactionVO> listTransaction(TransactionVO transactionVO){
+		ArrayList<TransactionVO> listTransaction = transactionMDTR.listTransaction(transactionVO);
+		return listTransaction;
+	}
 	
 }
