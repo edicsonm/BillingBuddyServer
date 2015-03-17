@@ -30,6 +30,7 @@ import au.com.billingbuddy.dao.objects.CountryBlockListDAO;
 import au.com.billingbuddy.dao.objects.CountryDAO;
 import au.com.billingbuddy.dao.objects.CountryRestrictionDAO;
 import au.com.billingbuddy.dao.objects.CreditCardRestrictionDAO;
+import au.com.billingbuddy.dao.objects.CurrencyDAO;
 import au.com.billingbuddy.dao.objects.CustomerDAO;
 import au.com.billingbuddy.dao.objects.IndustryDAO;
 import au.com.billingbuddy.dao.objects.MerchantConfigurationDAO;
@@ -47,6 +48,7 @@ import au.com.billingbuddy.exceptions.objects.CountryBlockListDAOException;
 import au.com.billingbuddy.exceptions.objects.CountryDAOException;
 import au.com.billingbuddy.exceptions.objects.CountryRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.CreditCardRestrictionDAOException;
+import au.com.billingbuddy.exceptions.objects.CurrencyDAOException;
 import au.com.billingbuddy.exceptions.objects.CustomerDAOException;
 import au.com.billingbuddy.exceptions.objects.IndustryDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantConfigurationDAOException;
@@ -69,6 +71,7 @@ import au.com.billingbuddy.vo.objects.CountryBlockListVO;
 import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
 import au.com.billingbuddy.vo.objects.CreditCardRestrictionVO;
+import au.com.billingbuddy.vo.objects.CurrencyVO;
 import au.com.billingbuddy.vo.objects.CustomerVO;
 import au.com.billingbuddy.vo.objects.IndustryVO;
 import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
@@ -1561,5 +1564,31 @@ public class ProcessorMDTR {
 		return listAmountsByDay;
 	}
 	
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<CurrencyVO> listCurrencies() throws ProcessorMDTRException{
+		ArrayList<CurrencyVO> listCurrencies = null;
+		try {
+			CurrencyDAO currencyDAO = new CurrencyDAO();
+			listCurrencies = currencyDAO.search();
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCurrencies.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CurrencyDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCurrencies.CurrencyDAOException");
+			throw processorMDTRException;
+		}
+		return listCurrencies;
+	}
+	
+	public ArrayList<CurrencyVO> searchCurrency(CurrencyVO currencyVO) throws ProcessorMDTRException{
+		return null;
+	}
 }
 

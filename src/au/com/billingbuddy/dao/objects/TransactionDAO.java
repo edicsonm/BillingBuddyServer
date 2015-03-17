@@ -303,6 +303,8 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 					transactionVO.setCardVO(new CardVO());
 					transactionVO.getCardVO().setId(rs.getString("Card_ID"));
 					transactionVO.getCardVO().setLast4(rs.getString("Card_Last4"));
+					transactionVO.getCardVO().setNumber(rs.getString("Card_Number"));
+					
 					transactionVO.getCardVO().setCustomerId(rs.getString("Cust_ID"));
 					transactionVO.getCardVO().setName(rs.getString("Card_Name"));
 					

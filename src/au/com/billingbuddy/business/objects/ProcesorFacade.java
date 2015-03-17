@@ -11,6 +11,7 @@ import au.com.billingbuddy.vo.objects.CountryBlockListVO;
 import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
 import au.com.billingbuddy.vo.objects.CreditCardRestrictionVO;
+import au.com.billingbuddy.vo.objects.CurrencyVO;
 import au.com.billingbuddy.vo.objects.IndustryVO;
 import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
 import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
@@ -594,6 +595,18 @@ public class ProcesorFacade {
 			throw procesorFacadeException;
 		}
 		return listAmountsByDay;
+	}
+	
+	public ArrayList<CurrencyVO> listCurrencies() throws ProcesorFacadeException{
+		ArrayList<CurrencyVO> listCurrencies = null;
+		try {
+			listCurrencies = processorMDTR.listCurrencies();
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listCurrencies;
 	}
 	
 }
