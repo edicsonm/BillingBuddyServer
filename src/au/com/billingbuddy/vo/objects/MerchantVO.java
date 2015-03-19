@@ -51,6 +51,15 @@ public class MerchantVO extends VO implements Serializable {
 	private String since;
 	private String to;
 	
+	public MerchantVO() {
+	}
+	
+	public MerchantVO(String userId) {
+		setUserId(userId);
+	}
+	
+	
+	
 	public String getId() {
 		return id;
 	}

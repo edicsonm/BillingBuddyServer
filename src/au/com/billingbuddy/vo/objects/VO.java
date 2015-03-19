@@ -2,9 +2,10 @@ package au.com.billingbuddy.vo.objects;
 
 public class VO {
 	
-	public String status;
-	public String message;
-	public String data;
+	private String userId;
+	private String status;
+	private String message;
+	private String data;
 
 	public String getStatus() {
 		return status;
@@ -28,5 +29,13 @@ public class VO {
 
 	public void setData(String data) {
 		this.data = data;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 }

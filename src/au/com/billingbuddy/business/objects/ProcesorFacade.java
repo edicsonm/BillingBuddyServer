@@ -20,6 +20,7 @@ import au.com.billingbuddy.vo.objects.PlanVO;
 import au.com.billingbuddy.vo.objects.RefundVO;
 import au.com.billingbuddy.vo.objects.SubscriptionVO;
 import au.com.billingbuddy.vo.objects.TransactionVO;
+import au.com.billingbuddy.vo.objects.UserMerchantVO;
 
 public class ProcesorFacade {
 	
@@ -287,10 +288,10 @@ public class ProcesorFacade {
 /**********************************************************************************************************************************/
 /**********************************************************************************************************************************/
 	
-	public ArrayList<MerchantVO> listMerchants() throws ProcesorFacadeException{
+	public ArrayList<MerchantVO> listMerchants(MerchantVO merchantVO) throws ProcesorFacadeException{
 		ArrayList<MerchantVO> listMerchants = null;
 		try {
-			listMerchants = processorMDTR.listMerchants();
+			listMerchants = processorMDTR.listMerchants(merchantVO);
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
@@ -585,6 +586,10 @@ public class ProcesorFacade {
 		return industryVO;
 	}
 	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
 	public ArrayList<TransactionVO> searchAmountByDay(TransactionVO transactionVO) throws ProcesorFacadeException{
 		ArrayList<TransactionVO> listAmountsByDay = null;
 		try {
@@ -597,6 +602,10 @@ public class ProcesorFacade {
 		return listAmountsByDay;
 	}
 	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
 	public ArrayList<CurrencyVO> listCurrencies() throws ProcesorFacadeException{
 		ArrayList<CurrencyVO> listCurrencies = null;
 		try {
@@ -607,6 +616,44 @@ public class ProcesorFacade {
 			throw procesorFacadeException;
 		}
 		return listCurrencies;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
+	public UserMerchantVO saveUserMerchant(UserMerchantVO userMerchantVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.saveUserMerchant(userMerchantVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return userMerchantVO;
+	}
+	
+	public ArrayList<UserMerchantVO> listUserMerchants(UserMerchantVO userMerchantVO) throws ProcesorFacadeException{
+		ArrayList<UserMerchantVO> listUserMerchants = null;
+		try {
+			listUserMerchants = processorMDTR.listUserMerchants(userMerchantVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listUserMerchants;
+	}
+	
+	public UserMerchantVO rechargeAdministratorAccess(UserMerchantVO userMerchantVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.rechargeAdministratorAccess(userMerchantVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return userMerchantVO;
 	}
 	
 }

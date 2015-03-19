@@ -41,6 +41,7 @@ import au.com.billingbuddy.dao.objects.RefundDAO;
 import au.com.billingbuddy.dao.objects.RejectedChargeDAO;
 import au.com.billingbuddy.dao.objects.SubscriptionDAO;
 import au.com.billingbuddy.dao.objects.TransactionDAO;
+import au.com.billingbuddy.dao.objects.UserMerchantDAO;
 import au.com.billingbuddy.exceptions.objects.BusinessTypeDAOException;
 import au.com.billingbuddy.exceptions.objects.CardDAOException;
 import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
@@ -64,6 +65,7 @@ import au.com.billingbuddy.exceptions.objects.ReportMDTRException;
 import au.com.billingbuddy.exceptions.objects.ReporteAmountByDayException;
 import au.com.billingbuddy.exceptions.objects.SubscriptionDAOException;
 import au.com.billingbuddy.exceptions.objects.TransactionDAOException;
+import au.com.billingbuddy.exceptions.objects.UserMerchantDAOException;
 import au.com.billingbuddy.vo.objects.BusinessTypeVO;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
@@ -82,6 +84,7 @@ import au.com.billingbuddy.vo.objects.RefundVO;
 import au.com.billingbuddy.vo.objects.RejectedChargeVO;
 import au.com.billingbuddy.vo.objects.SubscriptionVO;
 import au.com.billingbuddy.vo.objects.TransactionVO;
+import au.com.billingbuddy.vo.objects.UserMerchantVO;
 
 public class ProcessorMDTR {
 	
@@ -872,11 +875,11 @@ public class ProcessorMDTR {
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
-	public ArrayList<MerchantVO> listMerchants() throws ProcessorMDTRException {
+	public ArrayList<MerchantVO> listMerchants(MerchantVO merchantVO) throws ProcessorMDTRException {
 		ArrayList<MerchantVO> listMerchants = null;
 		try {
 			MerchantDAO merchantDAO = new MerchantDAO();
-			listMerchants = merchantDAO.search();
+			listMerchants = merchantDAO.search(merchantVO);
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
@@ -1590,5 +1593,114 @@ public class ProcessorMDTR {
 	public ArrayList<CurrencyVO> searchCurrency(CurrencyVO currencyVO) throws ProcessorMDTRException{
 		return null;
 	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public UserMerchantVO saveUserMerchant(UserMerchantVO userMerchantVO) throws ProcessorMDTRException{
+		MySQLTransaction mySQLTransaction = null;
+		try {
+			mySQLTransaction = new MySQLTransaction();
+			mySQLTransaction.start();
+			
+			MerchantDAO merchantDAO = new MerchantDAO(mySQLTransaction);
+			if(merchantDAO.insertBasicInformation(userMerchantVO.getMerchantVO()) != 0){
+				userMerchantVO.setMerchantId(userMerchantVO.getMerchantVO().getId());
+				UserMerchantDAO userMerchantDAO = new UserMerchantDAO(mySQLTransaction);
+				if(userMerchantDAO.insert(userMerchantVO) != 0){
+					mySQLTransaction.commit();
+					userMerchantVO.setStatus(ConfigurationApplication.getKey("success"));
+					userMerchantVO.setMessage("ProcessorMDTR.saveUserMerchant.success");
+				} else {
+					mySQLTransaction.rollback();
+					userMerchantVO.setStatus(ConfigurationApplication.getKey("failure"));
+					userMerchantVO.setMessage("ProcessorMDTR.saveUserMerchant.failure");
+					System.out.println("#################################################################");
+		        	System.out.println("No fue posible registrar el merchant para el usuario .... ");
+		        	System.out.println("#################################################################");
+				}
+			} else {
+				mySQLTransaction.rollback();
+				userMerchantVO.setStatus(ConfigurationApplication.getKey("failure"));
+				userMerchantVO.setMessage("ProcessorMDTR.saveUserMerchant.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar el merchant para el usuario .... ");
+	        	System.out.println("#################################################################");
+			}
+		} catch (MySQLConnectionException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveIndustry.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveUserMerchant.MerchantDAOException");
+			throw processorMDTRException;
+		} catch (UserMerchantDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveUserMerchant.UserMerchantDAOException");
+			throw processorMDTRException;
+		} catch (MySQLTransactionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveUserMerchant.MySQLTransactionException");
+			throw processorMDTRException;
+		}finally{
+			try {
+				if(mySQLTransaction != null){
+					mySQLTransaction.close();
+				}
+			} catch (MySQLTransactionException e) {
+				e.printStackTrace();
+			}
+		}
+		return userMerchantVO;
+	}
+	
+	public ArrayList<UserMerchantVO> listUserMerchants(UserMerchantVO userMerchantVO) throws ProcessorMDTRException{
+		ArrayList<UserMerchantVO> listUserMerchants = null;
+		try {
+			UserMerchantDAO userMerchantDAO = new UserMerchantDAO();
+			listUserMerchants = userMerchantDAO.search(userMerchantVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listUserMerchants.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (UserMerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listUserMerchants.UserMerchantDAOException");
+			throw processorMDTRException;
+		}
+		return listUserMerchants;
+	}
+	
+	public UserMerchantVO rechargeAdministratorAccess(UserMerchantVO userMerchantVO) throws ProcessorMDTRException{
+		try {
+			UserMerchantDAO userMerchantDAO = new UserMerchantDAO();
+			if(userMerchantDAO.rechargeAdministratorAccess(userMerchantVO) != 0){
+				userMerchantVO.setStatus(ConfigurationApplication.getKey("success"));
+				userMerchantVO.setMessage("ProcessorMDTR.rechargeAdministratorAccess.success");
+			} else {
+				userMerchantVO.setStatus(ConfigurationApplication.getKey("failure"));
+				userMerchantVO.setMessage("ProcessorMDTR.rechargeAdministratorAccess.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible recargar los accesos para el usuario administrador .... ");
+	        	System.out.println("#################################################################");
+			}
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.rechargeAdministratorAccess.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (UserMerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.rechargeAdministratorAccess.UserMerchantDAOException");
+			throw processorMDTRException;
+		}
+		return userMerchantVO;
+	}
+	
 }
 
