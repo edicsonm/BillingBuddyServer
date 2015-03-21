@@ -46,10 +46,10 @@ public class SecurityFacade {
 		return certificateVO;	
 	}
 	
-	public ArrayList<CertificateVO> listCertificates() throws SecurityFacadeException {
+	public ArrayList<CertificateVO> listCertificates(CertificateVO certificateVO) throws SecurityFacadeException {
 		ArrayList<CertificateVO> listCertificates = null;
 		try {
-			listCertificates = securityMDTR.listCertificates();
+			listCertificates = securityMDTR.listCertificates(certificateVO);
 		} catch (SecurityMDTRException e) {
 			SecurityFacadeException securityFacadeException = new SecurityFacadeException(e);
 			securityFacadeException.setErrorCode(e.getErrorCode());

@@ -2,7 +2,6 @@ package au.com.billingbuddy.vo.objects;
 
 import java.io.File;
 import java.io.Serializable;
-
 import java.sql.Blob;
 
 public class CertificateVO extends VO implements Serializable {
@@ -30,6 +29,13 @@ public class CertificateVO extends VO implements Serializable {
 	private StringBuffer log;
 	
 	private MerchantVO merchantVO;
+	
+	public CertificateVO() {
+	}
+	
+	public CertificateVO(String userId) {
+		setUserId(userId);
+	}
 	
 	public String getMerchantId() {
 		return merchantId;

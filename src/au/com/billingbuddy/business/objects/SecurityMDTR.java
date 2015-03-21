@@ -198,11 +198,11 @@ public class SecurityMDTR {
 		return certificateVO;	
 	}
 	
-	public ArrayList<CertificateVO> listCertificates() throws SecurityMDTRException {
+	public ArrayList<CertificateVO> listCertificates(CertificateVO certificateVO) throws SecurityMDTRException {
 		ArrayList<CertificateVO> listCertificates = null;
 		try {
 			CertificateDAO certificateDAO = new CertificateDAO();
-			listCertificates = certificateDAO.search();
+			listCertificates = certificateDAO.search(certificateVO);
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);

@@ -79,18 +79,14 @@ public class CertificateDAO extends MySQLConnection implements ICertificateDAO {
 		return status;
 	}
 
-	public int delete(CertificateVO CertificateVO) throws CertificateDAOException {
-		return 0;
-	}
-
-
-	public ArrayList<CertificateVO> search() throws CertificateDAOException {
+	public ArrayList<CertificateVO> search(CertificateVO CertificateVO) throws CertificateDAOException {
 		Connection connection = this.connection;
 		ResultSet resultSet = null; 
 		PreparedStatement pstmt = null;
 		ArrayList<CertificateVO> list = null;
 		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CERTIFICATE()}");
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CERTIFICATE(?)}");
+			pstmt.setString(1, CertificateVO.getUserId());
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				list = new ArrayList<CertificateVO>();
@@ -119,9 +115,9 @@ public class CertificateDAO extends MySQLConnection implements ICertificateDAO {
 		
 	}
 
-	public ArrayList<CertificateVO> search(CertificateVO CertificateVO) throws CertificateDAOException {
-		return null;
-	}
+//	public ArrayList<CertificateVO> search(CertificateVO CertificateVO) throws CertificateDAOException {
+//		return null;
+//	}
 
 	public CertificateVO searchDetailMerchant(CertificateVO certificateVO) throws CertificateDAOException {
 		Connection connection = this.connection;

@@ -58,8 +58,6 @@ public class MerchantVO extends VO implements Serializable {
 		setUserId(userId);
 	}
 	
-	
-	
 	public String getId() {
 		return id;
 	}
