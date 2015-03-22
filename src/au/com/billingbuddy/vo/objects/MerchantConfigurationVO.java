@@ -10,7 +10,16 @@ public class MerchantConfigurationVO extends VO implements Serializable {
 	private String merchantId;
 	private String urlApproved;
 	private String urlDeny;
+	
+	private MerchantVO merchantVO;
 
+	public MerchantConfigurationVO() {
+	}
+	
+	public MerchantConfigurationVO(String userId) {
+		setUserId(userId);
+	}
+	
 	public String getId() {
 		return id;
 	}
@@ -41,6 +50,14 @@ public class MerchantConfigurationVO extends VO implements Serializable {
 
 	public void setUrlDeny(String urlDeny) {
 		this.urlDeny = urlDeny;
+	}
+
+	public MerchantVO getMerchantVO() {
+		return merchantVO;
+	}
+
+	public void setMerchantVO(MerchantVO merchantVO) {
+		this.merchantVO = merchantVO;
 	}
 
 }

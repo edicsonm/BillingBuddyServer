@@ -10,14 +10,13 @@ import java.util.ArrayList;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
-import au.com.billingbuddy.common.objects.MySQLError;
-import au.com.billingbuddy.common.objects.Utilities;
 import au.com.billingbuddy.connection.objects.MySQLConnection;
 import au.com.billingbuddy.connection.objects.MySQLTransaction;
 import au.com.billingbuddy.dao.interfaces.IMerchantConfigurationDAO;
 import au.com.billingbuddy.exceptions.objects.MerchantConfigurationDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
+import au.com.billingbuddy.vo.objects.MerchantVO;
 
 public class MerchantConfigurationDAO extends MySQLConnection implements IMerchantConfigurationDAO {
 
@@ -101,26 +100,27 @@ public class MerchantConfigurationDAO extends MySQLConnection implements IMercha
 		return merchantConfigurationVO;
 	}
 
-	public ArrayList<MerchantConfigurationVO> search() throws MerchantConfigurationDAOException {
+	public ArrayList<MerchantConfigurationVO> searchByUserID(MerchantConfigurationVO merchantConfigurationVO) throws MerchantConfigurationDAOException {
 		Connection connection = this.connection;
 		ResultSet resultSet = null; 
 		PreparedStatement pstmt = null;
 		ArrayList<MerchantConfigurationVO> list = null;
 		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_CONFIGURATION()}");
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_CONFIGURATION( ? )}");
+			pstmt.setString(1,merchantConfigurationVO.getUserId());
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				list = new ArrayList<MerchantConfigurationVO>();
 				while (resultSet.next()) {
-					MerchantConfigurationVO merchantConfigurationVO = new MerchantConfigurationVO();
-					merchantConfigurationVO.setId(resultSet.getString("Meco_ID"));
-					merchantConfigurationVO.setMerchantId(resultSet.getString("Merc_ID"));
-					merchantConfigurationVO.setUrlDeny(resultSet.getString("Meco_UrlDeny"));
-					merchantConfigurationVO.setUrlApproved(resultSet.getString("Meco_UrlApproved"));
-					list.add(merchantConfigurationVO);
+					MerchantConfigurationVO merchantConfigurationVOAUX = new MerchantConfigurationVO();
+					merchantConfigurationVOAUX.setId(resultSet.getString("Meco_ID"));
+					merchantConfigurationVOAUX.setMerchantVO(new MerchantVO());
+					merchantConfigurationVOAUX.getMerchantVO().setName(resultSet.getString("Merc_Name"));
+					merchantConfigurationVOAUX.setMerchantId(resultSet.getString("Merc_ID"));
+					merchantConfigurationVOAUX.setUrlDeny(resultSet.getString("Meco_UrlDeny"));
+					merchantConfigurationVOAUX.setUrlApproved(resultSet.getString("Meco_UrlApproved"));
+					list.add(merchantConfigurationVOAUX);
 				}
-			}else{
-				System.out.println("Lista vacia");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

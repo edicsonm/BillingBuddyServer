@@ -319,5 +319,70 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		return merchantVO;
 	}
 
+	public ArrayList<MerchantVO> searchMerchantsToConfigure(MerchantVO merchantVO) throws MerchantDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		ArrayList<MerchantVO> list = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_TO_CONFIGURE( ? )}");
+			pstmt.setString(1,merchantVO.getUserId());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				list = new ArrayList<MerchantVO>();
+				while (resultSet.next()) {
+					MerchantVO merchantVOAUX = new MerchantVO();
+					merchantVOAUX.setId(resultSet.getString("Merc_ID"));
+					
+					merchantVOAUX.setBusinessTypeId(resultSet.getString("Buty_ID"));
+					merchantVOAUX.setBusinessTypeVO(new BusinessTypeVO());
+					merchantVOAUX.getBusinessTypeVO().setDescription(resultSet.getString("Buty_Description"));
+					
+					merchantVOAUX.setIndustryId(resultSet.getString("Indu_ID"));
+					merchantVOAUX.setIndustryVO(new IndustryVO());
+					merchantVOAUX.getIndustryVO().setDescription(resultSet.getString("Indu_Description"));
+					
+					merchantVOAUX.setCountryNumericMerchant(resultSet.getString("Coun_NumericMerchant"));
+					merchantVOAUX.setCountryNumericPersonalInformation(resultSet.getString("Coun_NumericPersonalInformation"));
+					
+					merchantVOAUX.setCountryVOBusiness(new CountryVO());
+					merchantVOAUX.getCountryVOBusiness().setName(resultSet.getString("CountryBusiness"));
+					
+					merchantVOAUX.setCountryVOPersonalInformation(new CountryVO());
+					merchantVOAUX.getCountryVOPersonalInformation().setName(resultSet.getString("CountryPersonalInformation"));
+					
+					merchantVOAUX.setName(resultSet.getString("Merc_Name"));
+					merchantVOAUX.setStatus(resultSet.getString("Merc_Status"));
+					merchantVOAUX.setCreateTime(resultSet.getString("Merc_CreateTime"));
+					merchantVOAUX.setTradingName(resultSet.getString("Merc_TradingName"));
+					merchantVOAUX.setLegalPhysicalAddress(resultSet.getString("Merc_LegalPhysicalAddress"));
+					merchantVOAUX.setStatementAddress(resultSet.getString("Merc_StatementAddress"));
+					merchantVOAUX.setTaxFileNumber(resultSet.getString("Merc_TaxFileNumber"));
+					merchantVOAUX.setCityBusinessInformation(resultSet.getString("Merc_CityBusinessInformation"));
+					merchantVOAUX.setPostCodeBusinessInformation(resultSet.getString("Merc_PostCodeBusinessInformation"));
+					merchantVOAUX.setIssuedBusinessID(resultSet.getString("Merc_IssuedBusinessID"));
+					merchantVOAUX.setIssuedPersonalID(resultSet.getString("Merc_IssuedPersonalID"));
+					merchantVOAUX.setTypeAccountApplication(resultSet.getString("Merc_TypeAccountApplication"));
+					merchantVOAUX.setEstimatedAnnualSales(resultSet.getString("Merc_EstimatedAnnualSales"));
+					merchantVOAUX.setFirstName(resultSet.getString("Merc_FirstName"));
+					merchantVOAUX.setLastName(resultSet.getString("Merc_LastName"));
+					merchantVOAUX.setPhoneNumber(resultSet.getString("Merc_PhoneNumber"));
+					merchantVOAUX.setFaxNumber(resultSet.getString("Merc_FaxNumber"));
+					merchantVOAUX.setEmailAddress(resultSet.getString("Merc_EmailAddress"));
+					merchantVOAUX.setAlternateEmailAddress(resultSet.getString("Merc_AlternateEmailAddress"));
+					merchantVOAUX.setCityPersonalInformation(resultSet.getString("Merc_CityPersonalInformation"));
+					merchantVOAUX.setPostCodePersonalInformation(resultSet.getString("Merc_PostCodePersonalInformation"));
+					list.add(merchantVOAUX);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new MerchantDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return list;
+	}
+
 
 }

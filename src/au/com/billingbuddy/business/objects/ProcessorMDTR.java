@@ -892,7 +892,26 @@ public class ProcessorMDTR {
 			throw processorMDTRException;
 		}
 		return listMerchants;
-	}	
+	}
+	
+	public ArrayList<MerchantVO> searchMerchantsToConfigure(MerchantVO merchantVO) throws ProcessorMDTRException {
+		ArrayList<MerchantVO> listMerchants = null;
+		try {
+			MerchantDAO merchantDAO = new MerchantDAO();
+			listMerchants = merchantDAO.searchMerchantsToConfigure(merchantVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchMerchantsToConfigure.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchMerchantsToConfigure.MerchantDAOException");
+			throw processorMDTRException;
+		}
+		return listMerchants;
+	}
 	
 	public MerchantVO listMerchantDetails(MerchantVO merchantVO) throws ProcessorMDTRException{
 		try {
@@ -1016,14 +1035,15 @@ public class ProcessorMDTR {
 	}
 
 
-/**********************************************************************************************************************************/
-/**********************************************************************************************************************************/
-/**********************************************************************************************************************************/
-	public ArrayList<MerchantConfigurationVO> listMerchantConfigurations() throws ProcessorMDTRException {
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
+	public ArrayList<MerchantConfigurationVO> listMerchantConfigurations(MerchantConfigurationVO merchantConfigurationVO) throws ProcessorMDTRException {
 		ArrayList<MerchantConfigurationVO> listMerchantConfigurations = null;
 		try {
 			MerchantConfigurationDAO merchantConfigurationDAO = new MerchantConfigurationDAO();
-			listMerchantConfigurations = merchantConfigurationDAO.search();
+			listMerchantConfigurations = merchantConfigurationDAO.searchByUserID(merchantConfigurationVO);
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
