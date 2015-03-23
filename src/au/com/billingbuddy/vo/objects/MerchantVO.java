@@ -41,6 +41,7 @@ public class MerchantVO extends VO implements Serializable {
 	
 	private BusinessTypeVO businessTypeVO;
 	private IndustryVO industryVO;
+	private CertificateVO certificateVO;
 	
 	private MerchantConfigurationVO merchantConfigurationVO;
 	private ArrayList<MerchantRestrictionVO> listMerchantRestrictionsVO;
@@ -356,6 +357,14 @@ public class MerchantVO extends VO implements Serializable {
 
 	public void setIndustryVO(IndustryVO industryVO) {
 		this.industryVO = industryVO;
+	}
+
+	public CertificateVO getCertificateVO() {
+		return certificateVO;
+	}
+
+	public void setCertificateVO(CertificateVO certificateVO) {
+		this.certificateVO = certificateVO;
 	}
 
 

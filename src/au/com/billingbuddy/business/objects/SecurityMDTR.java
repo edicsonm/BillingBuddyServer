@@ -51,15 +51,26 @@ public class SecurityMDTR {
 	private SecurityMDTR() {}
 	
 	
-	public boolean validateSignature(String originalMessage, String originalMessageSigned) throws SecurityMDTRException {
+	public boolean validateSignature(CertificateVO certificateVO, String originalMessage, String originalMessageSigned) throws SecurityMDTRException {
 		try {
 			KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-			char[] password = instanceConfigurationSystem.getKey("passwordKeyStore").toCharArray();//Key Store Password
-			java.io.FileInputStream fis = new java.io.FileInputStream(instanceConfigurationSystem.getKey("privacyKeyStore"));
+			char[] password = certificateVO.getPasswordBBKeyStore().toCharArray();//Key Store Password
+//			char[] password = instanceConfigurationSystem.getKey("passwordKeyStore").toCharArray();//Key Store Password
+			
+			String pathCertificate = ConfigurationSystem.getKey("urlConfiguredCertificates") +"/"+(ConfigurationSystem.getKey("aliasBB")+certificateVO.getMerchantId()+".jks");
+			
+			System.out.println("pathCertificate: " + pathCertificate);
+			System.out.println("certificateVO.getPasswordBBKeyStore(): " + certificateVO.getPasswordBBKeyStore());
+			System.out.println("certificateVO.getAliasBB(): " + certificateVO.getAliasBB());
+			
+			
+			java.io.FileInputStream fis = new java.io.FileInputStream(pathCertificate);
+//			java.io.FileInputStream fis = new java.io.FileInputStream(instanceConfigurationSystem.getKey("privacyKeyStore"));
 			ks.load(fis, password);
 			fis.close();
 			// 6. Validar la firma, extraer la clave pública de su certificado de remitentes
-			X509Certificate sendercert = (X509Certificate)ks.getCertificate("testsender");
+			X509Certificate sendercert = (X509Certificate)ks.getCertificate(certificateVO.getAliasBB());
+//			X509Certificate sendercert = (X509Certificate)ks.getCertificate("testsender");
 		    PublicKey pubKeySender = sendercert.getPublicKey();
 		    
 		    // 6.2 Verificar la Firma
@@ -75,6 +86,11 @@ public class SecurityMDTR {
 		    	System.out.println(" Successfully validated Signature ");
 		    	return true;
 		    }
+
+		} catch (NullPointerException e) {
+			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
+			securityMDTRException.setErrorCode("SecurityMDTR.validateSignature.NullPointerException");
+			throw securityMDTRException;
 		} catch (KeyStoreException e) {
 			e.printStackTrace();
 			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
@@ -117,16 +133,22 @@ public class SecurityMDTR {
 		HashMap<String , String> infoCertificates = new HashMap<String , String>();
 		try {
 			certificateVO.setAliasMerchant(ConfigurationSystem.getKey("aliasMerchant")+certificateVO.getMerchantId());
-			ProcessBuilder pb = new ProcessBuilder(ConfigurationSystem.getKey("urlScriptCertificateGeneration"),
-					(System.getProperty("java.home") + "/bin"),
-					"cn="+certificateVO.getCommonName() +",ou= "+ certificateVO.getOrganizationUnit() + ",o= " + certificateVO.getOrganization() + ",c= " + certificateVO.getCountry(), 
-					certificateVO.getAliasMerchant(),
-					certificateVO.getPasswordKeyStore(),
-					certificateVO.getPasswordkey(), 
-					ConfigurationSystem.getKey("dnaBB"),
-					(ConfigurationSystem.getKey("aliasBB")+certificateVO.getMerchantId()), 
-					ConfigurationSystem.getKey("passwordBBKeyStore"),
-					ConfigurationSystem.getKey("passwordBBKey"));
+			
+			certificateVO.setPasswordBBKeyStore(ConfigurationSystem.getKey("passwordBBKeyStore"));
+			certificateVO.setPasswordBBKey(ConfigurationSystem.getKey("passwordBBKey"));
+			certificateVO.setAliasBB(ConfigurationSystem.getKey("aliasBB"));
+			
+			ProcessBuilder pb = new ProcessBuilder(
+			/*0*/		ConfigurationSystem.getKey("urlScriptCertificateGeneration"),
+			/*1*/		(System.getProperty("java.home") + "/bin"),
+			/*2*/		"cn="+certificateVO.getCommonName() +",ou= "+ certificateVO.getOrganizationUnit() + ",o= " + certificateVO.getOrganization() + ",c= " + certificateVO.getCountry(), 
+			/*3*/		certificateVO.getAliasMerchant(),
+			/*4*/		certificateVO.getPasswordKeyStore(),
+			/*5*/		certificateVO.getPasswordkey(),
+			/*6*/		ConfigurationSystem.getKey("dnaBB"),
+			/*7*/		(certificateVO.getAliasBB()+certificateVO.getMerchantId()),
+			/*8*/		certificateVO.getPasswordBBKeyStore(),
+			/*9*/		certificateVO.getPasswordBBKey());
 			Process p = pb.start();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line = null;

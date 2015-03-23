@@ -39,19 +39,22 @@ public class CertificateDAO extends MySQLConnection implements ICertificateDAO {
 			
 			FileInputStream fileInputStreamKeyStoreBB = new FileInputStream(certificateVO.getFileKeyStoreBB());
 			FileInputStream fileInputStreamKeyStoreMerchant = new FileInputStream(certificateVO.getFileKeyStoreMerchant());
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_CERTIFICATE(?,?,?,?,?,?,?,?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_CERTIFICATE(?,?,?,?,?,?,?,?,?,?,?)}");
 			cstmt.setString(1,certificateVO.getMerchantId());
 			cstmt.setString(2,certificateVO.getCommonName());
-//			cstmt.setBlob(3,certificateVO.getBBKeyStore());
-//			cstmt.setBlob(4,certificateVO.getMerchantKeyStore());
 			cstmt.setBinaryStream(3,fileInputStreamKeyStoreBB,(int)certificateVO.getFileKeyStoreBB().length());
 			cstmt.setBinaryStream(4,fileInputStreamKeyStoreMerchant,(int)certificateVO.getFileKeyStoreMerchant().length());
 			cstmt.setString(5,certificateVO.getLog().toString());
 			cstmt.setString(6,certificateVO.getInfoCertificateBB());
 			cstmt.setString(7,certificateVO.getInfoCertificateMerchant());
-			cstmt.setString(8,"0");
+			cstmt.setString(8,certificateVO.getPasswordBBKeyStore());
+			cstmt.setString(9,certificateVO.getPasswordBBKey());
+			cstmt.setString(10,certificateVO.getAliasBB());
+			
+			cstmt.setString(11,"0");
+			
 			status = cstmt.executeUpdate();
-			certificateVO.setId(cstmt.getString(8));
+			certificateVO.setId(cstmt.getString(11));
 		} catch (SQLException e) {
 			throw new CertificateDAOException(e);
 		} catch (FileNotFoundException e) {

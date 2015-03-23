@@ -26,6 +26,10 @@ public class CertificateVO extends VO implements Serializable {
 	private String infoCertificateBB;
 	private String infoCertificateMerchant;
 	
+	private String passwordBBKeyStore;
+	private String passwordBBKey;
+	private String aliasBB;
+	
 	private StringBuffer log;
 	
 	private MerchantVO merchantVO;
@@ -195,6 +199,30 @@ public class CertificateVO extends VO implements Serializable {
 
 	public void setMerchantVO(MerchantVO merchantVO) {
 		this.merchantVO = merchantVO;
+	}
+
+	public String getPasswordBBKeyStore() {
+		return passwordBBKeyStore;
+	}
+
+	public void setPasswordBBKeyStore(String passwordBBKeyStore) {
+		this.passwordBBKeyStore = passwordBBKeyStore;
+	}
+
+	public String getPasswordBBKey() {
+		return passwordBBKey;
+	}
+
+	public void setPasswordBBKey(String passwordBBKey) {
+		this.passwordBBKey = passwordBBKey;
+	}
+
+	public String getAliasBB() {
+		return aliasBB;
+	}
+
+	public void setAliasBB(String aliasBB) {
+		this.aliasBB = aliasBB;
 	}
 
 }

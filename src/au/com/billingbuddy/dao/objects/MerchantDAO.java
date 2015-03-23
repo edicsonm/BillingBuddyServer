@@ -14,6 +14,7 @@ import au.com.billingbuddy.dao.interfaces.IMerchantDAO;
 import au.com.billingbuddy.exceptions.objects.MerchantDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.vo.objects.BusinessTypeVO;
+import au.com.billingbuddy.vo.objects.CertificateVO;
 import au.com.billingbuddy.vo.objects.CountryVO;
 import au.com.billingbuddy.vo.objects.IndustryVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
@@ -151,9 +152,10 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		ResultSet resultSet = null; 
 		PreparedStatement pstmt = null;
 		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_DETAIL(?)}");
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_DETAIL( ? )}");
 			pstmt.setString(1,merchantVO.getId());
 			resultSet = (ResultSet)pstmt.executeQuery();
+			merchantVO = null;
 			if (resultSet != null) {
 				while (resultSet.next()) {
 					merchantVO = new MerchantVO();
@@ -162,9 +164,12 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 					merchantVO.setCountryVOBusiness(new CountryVO());
 					merchantVO.getCountryVOBusiness().setName(resultSet.getString("Coun_Name"));
 					merchantVO.setName(resultSet.getString("Merc_Name"));
+					merchantVO.setCertificateVO(new CertificateVO());
+					merchantVO.getCertificateVO().setId(resultSet.getString("Cert_ID"));
+					merchantVO.getCertificateVO().setPasswordBBKeyStore(resultSet.getString("Cert_PasswordBBKeyStore"));
+					merchantVO.getCertificateVO().setPasswordBBKey(resultSet.getString("Cert_PasswordBBKey"));
+					merchantVO.getCertificateVO().setAliasBB(resultSet.getString("Cert_AliasBB"));
 				}
-			}else{
-				merchantVO = null;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -172,6 +177,7 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		} finally {
 			PsRs(pstmt, resultSet,connection);
 		}
+		System.out.println("DAO merchantVO: " + merchantVO);
 		return merchantVO;
 	}
 

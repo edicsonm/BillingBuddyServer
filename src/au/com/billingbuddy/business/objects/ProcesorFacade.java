@@ -407,7 +407,7 @@ public class ProcesorFacade {
 	
 	public MerchantVO validateMerchant(MerchantVO merchantVO) throws ProcesorFacadeException{
 		try {
-			processorMDTR.validateMerchant(merchantVO);
+			merchantVO = processorMDTR.validateMerchant(merchantVO);
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());

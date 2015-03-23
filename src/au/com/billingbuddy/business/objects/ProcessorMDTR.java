@@ -1136,7 +1136,7 @@ public class ProcessorMDTR {
 			mySQLTransaction = new MySQLTransaction();
 			mySQLTransaction.start();
 			MerchantDAO merchantDAO = new MerchantDAO(mySQLTransaction);
-			merchantDAO.searchDetail(merchantVO);
+			merchantVO = merchantDAO.searchDetail(merchantVO);
 			if(merchantVO != null && !Utilities.isNullOrEmpty(merchantVO.getId())){
 				MerchantRestrictionVO merchantRestrictionVO = new MerchantRestrictionVO();
 				merchantRestrictionVO.setMerchantId(merchantVO.getId());

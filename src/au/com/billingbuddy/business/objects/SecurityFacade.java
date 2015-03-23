@@ -23,10 +23,10 @@ public class SecurityFacade {
 	private SecurityFacade() {}
 	
 	
-	public boolean validateSignature(String originalMessage, String originalMessageSigned) throws SecurityFacadeException {
+	public boolean validateSignature(CertificateVO certificateVO, String originalMessage, String originalMessageSigned) throws SecurityFacadeException {
 		boolean answer = false;
 		try {
-			answer = securityMDTR.validateSignature(originalMessage, originalMessageSigned);
+			answer = securityMDTR.validateSignature(certificateVO, originalMessage, originalMessageSigned);
 		} catch (SecurityMDTRException e) {
 			SecurityFacadeException securityFacadeException = new SecurityFacadeException(e);
 			securityFacadeException.setErrorCode(e.getErrorCode());
