@@ -1169,9 +1169,12 @@ public class ProcessorMDTR {
 				if(merchantConfigurationVO != null) {
 					merchantVO.setMerchantConfigurationVO(merchantConfigurationVO);
 				}else{
-					ProcessorMDTRException processorMDTRException = new ProcessorMDTRException("");
-					processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MerchantRestrictionDAOException.MisconfigureMerchant");
-					throw processorMDTRException;
+					merchantVO.setMerchantConfigurationVO(null);
+					merchantVO.setStatus(instanceConfigurationApplication.getKey("failure"));
+					merchantVO.setMessage("ProcessorMDTR.validateMerchant.MerchantRestrictionDAOException.MisconfigureMerchant");
+//					ProcessorMDTRException processorMDTRException = new ProcessorMDTRException("");
+//					processorMDTRException.setErrorCode("ProcessorMDTR.validateMerchant.MerchantRestrictionDAOException.MisconfigureMerchant");
+//					throw processorMDTRException;
 				}
 			}
 		} catch (MySQLConnectionException e) {

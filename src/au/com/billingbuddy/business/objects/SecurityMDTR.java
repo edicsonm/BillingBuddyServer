@@ -19,6 +19,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.commons.codec.DecoderException;
+
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.common.objects.SecurityMethods;
@@ -55,29 +57,17 @@ public class SecurityMDTR {
 		try {
 			KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 			char[] password = certificateVO.getPasswordBBKeyStore().toCharArray();//Key Store Password
-//			char[] password = instanceConfigurationSystem.getKey("passwordKeyStore").toCharArray();//Key Store Password
-			
-			String pathCertificate = ConfigurationSystem.getKey("urlConfiguredCertificates") +"/"+(ConfigurationSystem.getKey("aliasBB")+certificateVO.getMerchantId()+".jks");
-			
-			System.out.println("pathCertificate: " + pathCertificate);
-			System.out.println("certificateVO.getPasswordBBKeyStore(): " + certificateVO.getPasswordBBKeyStore());
-			System.out.println("certificateVO.getAliasBB(): " + certificateVO.getAliasBB());
-			
-			
+			String pathCertificate = ConfigurationSystem.getKey("urlConfiguredCertificates") + (ConfigurationSystem.getKey("aliasBB")+certificateVO.getMerchantId()+".jks");
 			java.io.FileInputStream fis = new java.io.FileInputStream(pathCertificate);
-//			java.io.FileInputStream fis = new java.io.FileInputStream(instanceConfigurationSystem.getKey("privacyKeyStore"));
 			ks.load(fis, password);
 			fis.close();
 			// 6. Validar la firma, extraer la clave pública de su certificado de remitentes
-			X509Certificate sendercert = (X509Certificate)ks.getCertificate(certificateVO.getAliasBB());
-//			X509Certificate sendercert = (X509Certificate)ks.getCertificate("testsender");
+			X509Certificate sendercert = (X509Certificate)ks.getCertificate(certificateVO.getAliasMerchant());
 		    PublicKey pubKeySender = sendercert.getPublicKey();
-		    
 		    // 6.2 Verificar la Firma
 		    Signature myVerifySign = Signature.getInstance("MD5withRSA");
 		    myVerifySign.initVerify(pubKeySender);
 		    myVerifySign.update(originalMessage.getBytes());
-		    
 		    boolean verifySign = myVerifySign.verify(SecurityMethods.hexaToBytes(originalMessageSigned));
 		    if (verifySign == false) {
 		    	System.out.println(" Error in validating Signature ");
@@ -86,8 +76,12 @@ public class SecurityMDTR {
 		    	System.out.println(" Successfully validated Signature ");
 		    	return true;
 		    }
-
+		} catch (DecoderException e) {
+			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
+			securityMDTRException.setErrorCode("SecurityMDTR.validateSignature.DecoderException");
+			throw securityMDTRException;
 		} catch (NullPointerException e) {
+			e.printStackTrace();
 			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
 			securityMDTRException.setErrorCode("SecurityMDTR.validateSignature.NullPointerException");
 			throw securityMDTRException;
@@ -112,7 +106,6 @@ public class SecurityMDTR {
 			securityMDTRException.setErrorCode("SecurityMDTR.validateSignature.SignatureException");
 			throw securityMDTRException;
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 			SecurityMDTRException securityMDTRException = new SecurityMDTRException(e);
 			securityMDTRException.setErrorCode("SecurityMDTR.validateSignature.FileNotFoundException");
 			throw securityMDTRException;
@@ -132,21 +125,20 @@ public class SecurityMDTR {
 	public CertificateVO certificateGeneration(CertificateVO certificateVO) throws SecurityMDTRException {
 		HashMap<String , String> infoCertificates = new HashMap<String , String>();
 		try {
-			certificateVO.setAliasMerchant(ConfigurationSystem.getKey("aliasMerchant")+certificateVO.getMerchantId());
-			
 			certificateVO.setPasswordBBKeyStore(ConfigurationSystem.getKey("passwordBBKeyStore"));
 			certificateVO.setPasswordBBKey(ConfigurationSystem.getKey("passwordBBKey"));
-			certificateVO.setAliasBB(ConfigurationSystem.getKey("aliasBB"));
+			certificateVO.setAliasBB(ConfigurationSystem.getKey("aliasBB")+certificateVO.getMerchantId());
+			certificateVO.setAliasMerchant(certificateVO.getKeyName());
 			
 			ProcessBuilder pb = new ProcessBuilder(
 			/*0*/		ConfigurationSystem.getKey("urlScriptCertificateGeneration"),
 			/*1*/		(System.getProperty("java.home") + "/bin"),
 			/*2*/		"cn="+certificateVO.getCommonName() +",ou= "+ certificateVO.getOrganizationUnit() + ",o= " + certificateVO.getOrganization() + ",c= " + certificateVO.getCountry(), 
-			/*3*/		certificateVO.getAliasMerchant(),
+			/*3*/		certificateVO.getKeyName(),
 			/*4*/		certificateVO.getPasswordKeyStore(),
 			/*5*/		certificateVO.getPasswordkey(),
 			/*6*/		ConfigurationSystem.getKey("dnaBB"),
-			/*7*/		(certificateVO.getAliasBB()+certificateVO.getMerchantId()),
+			/*7*/		(certificateVO.getAliasBB()),
 			/*8*/		certificateVO.getPasswordBBKeyStore(),
 			/*9*/		certificateVO.getPasswordBBKey());
 			Process p = pb.start();
@@ -176,9 +168,8 @@ public class SecurityMDTR {
 				}
 				certificateVO.getLog().append(line+"\n");
 			}
-			
-			System.out.println("KEYSTOREBB: " +infoCertificates.get("FOLDER")+"/"+infoCertificates.get("KEYSTOREBB"));
-			System.out.println("KEYSTOREMERCHANT: " + infoCertificates.get("FOLDER")+"/"+infoCertificates.get("KEYSTOREMERCHANT"));
+//			System.out.println("KEYSTOREBB: " +infoCertificates.get("FOLDER")+"/"+infoCertificates.get("KEYSTOREBB"));
+//			System.out.println("KEYSTOREMERCHANT: " + infoCertificates.get("FOLDER")+"/"+infoCertificates.get("KEYSTOREMERCHANT"));
 			
 			File fileKeyStoreBB = new File(infoCertificates.get("FOLDER")+"/"+infoCertificates.get("KEYSTOREBB"));
 			certificateVO.setFileKeyStoreBB(fileKeyStoreBB);

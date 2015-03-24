@@ -164,11 +164,19 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 					merchantVO.setCountryVOBusiness(new CountryVO());
 					merchantVO.getCountryVOBusiness().setName(resultSet.getString("Coun_Name"));
 					merchantVO.setName(resultSet.getString("Merc_Name"));
+					
+					merchantVO.setFirstName(resultSet.getString("Merc_FirstName"));
+					merchantVO.setLastName(resultSet.getString("Merc_LastName"));
+					merchantVO.setEmailAddress(resultSet.getString("Merc_EmailAddress"));
+					
 					merchantVO.setCertificateVO(new CertificateVO());
+					merchantVO.getCertificateVO().setMerchantId(resultSet.getString("Merc_ID"));
 					merchantVO.getCertificateVO().setId(resultSet.getString("Cert_ID"));
 					merchantVO.getCertificateVO().setPasswordBBKeyStore(resultSet.getString("Cert_PasswordBBKeyStore"));
 					merchantVO.getCertificateVO().setPasswordBBKey(resultSet.getString("Cert_PasswordBBKey"));
 					merchantVO.getCertificateVO().setAliasBB(resultSet.getString("Cert_AliasBB"));
+					merchantVO.getCertificateVO().setAliasMerchant(resultSet.getString("Cert_AliasMerchant"));
+					
 				}
 			}
 		} catch (SQLException e) {
@@ -177,7 +185,6 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		} finally {
 			PsRs(pstmt, resultSet,connection);
 		}
-		System.out.println("DAO merchantVO: " + merchantVO);
 		return merchantVO;
 	}
 

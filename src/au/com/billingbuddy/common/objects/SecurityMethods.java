@@ -42,12 +42,12 @@ public class SecurityMethods {
 		return Hex.encodeHexString(bytes);
 	}
 	
-	public static byte[] hexaToBytes(String hexa){
+	public static byte[] hexaToBytes(String hexa) throws DecoderException{
 		byte[] bytes = null;
 		try {
 			bytes = Hex.decodeHex(hexa.toCharArray());
 		} catch (DecoderException e) {
-			e.printStackTrace();
+			throw e;
 		}
 		return bytes;
 	}
