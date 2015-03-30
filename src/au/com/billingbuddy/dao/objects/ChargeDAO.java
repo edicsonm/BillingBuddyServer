@@ -17,6 +17,7 @@ import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
+import au.com.billingbuddy.vo.objects.CustomerVO;
 import au.com.billingbuddy.vo.objects.RefundVO;
 import au.com.billingbuddy.vo.objects.StripeChargeVO;
 import au.com.billingbuddy.vo.objects.VO;
@@ -124,8 +125,8 @@ public class ChargeDAO extends MySQLConnection implements IChargeDAO {
 		PreparedStatement pstmt = null;
 		ArrayList<ChargeVO> list = null;
 		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CHARGE()}");
-//			pstmt.setString(1, stripeChargeVO.getBin());
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CHARGE(?)}");
+			pstmt.setString(1, chargeVO.getUserId());
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				list = new ArrayList<ChargeVO>();
@@ -165,6 +166,57 @@ public class ChargeDAO extends MySQLConnection implements IChargeDAO {
 			PsRs(pstmt, resultSet,connection);
 		}
 		return list;
+	}
+
+	public ChargeVO searchDetail(ChargeVO chargeVO) throws ChargeDAOException {
+		
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CHARGE_DETAIL(?)}");
+			pstmt.setString(1, chargeVO.getId());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				while (resultSet.next()) {
+					chargeVO = new ChargeVO();
+					chargeVO.setId(resultSet.getString("Char_ID"));
+					chargeVO.setCardId(resultSet.getString("Card_ID"));
+					chargeVO.setTransactionId(resultSet.getString("Tran_ID"));
+					chargeVO.setStripeId(resultSet.getString("Char_IDStripe"));
+					
+					chargeVO.setCardVO(new CardVO());
+					chargeVO.getCardVO().setName(resultSet.getString("Card_Name"));
+					chargeVO.getCardVO().setBrand(resultSet.getString("Card_Brand"));
+					chargeVO.getCardVO().setFunding(resultSet.getString("Card_Funding"));
+					chargeVO.getCardVO().setNumber(resultSet.getString("Card_Number"));
+					chargeVO.getCardVO().setLast4(resultSet.getString("Card_Last4"));
+					chargeVO.getCardVO().setCustomerVO(new CustomerVO());
+					chargeVO.getCardVO().getCustomerVO().setEmail(resultSet.getString("Cust_Email"));
+					
+					chargeVO.setInvoice(resultSet.getString("Invo_ID"));
+					chargeVO.setAddressId(resultSet.getString("Addr_ID"));
+					chargeVO.setAmount(resultSet.getString("Char_Amount"));
+					chargeVO.setCaptured(resultSet.getString("Char_Captured"));
+					chargeVO.setCreationTime(resultSet.getString("Char_CreateTime"));
+					chargeVO.setCurrency(resultSet.getString("Char_Currency"));
+					chargeVO.setPaid(resultSet.getString("Char_Paid"));
+					chargeVO.setRefunded(resultSet.getString("Char_Refunded"));
+					chargeVO.setFailureCode(resultSet.getString("Char_FailureCode"));
+					chargeVO.setFailureMessage(resultSet.getString("Char_FailureMessage"));
+					chargeVO.setReceiptMail(resultSet.getString("Char_ReceiptEmail"));
+					chargeVO.setReceiptNumber(resultSet.getString("Char_ReceiptNumber"));
+					chargeVO.setProcessTime(resultSet.getString("Char_ProcessTime"));
+					chargeVO.setAmountRefunded(resultSet.getString("REFUND"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ChargeDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return chargeVO;
 	}
 
 }

@@ -34,6 +34,13 @@ public class ChargeVO extends VO implements Serializable {
 	private CardVO cardVO;
 	private RefundVO refundVO;
 
+	public ChargeVO() {
+	}
+	
+	public ChargeVO(String userId) {
+		setUserId(userId);
+	}
+	
 	public String getId() {
 		return id;
 	}

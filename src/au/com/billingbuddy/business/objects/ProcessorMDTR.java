@@ -312,6 +312,24 @@ public class ProcessorMDTR {
 		return listCharge;
 	}
 	
+	public ChargeVO listChargeDetail(ChargeVO chargeVO) throws ProcessorMDTRException{
+		try {
+			ChargeDAO chargeDAO = new ChargeDAO();
+			chargeVO = chargeDAO.searchDetail(chargeVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listChargeDetail.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (ChargeDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listChargeDetail.ChargeDAOException");
+			throw processorMDTRException;
+		}
+		return chargeVO;
+	}
+	
 	public ChargeVO processRefund(ChargeVO chargeVO) throws ProcessorMDTRException {
 		Map<String, Object> params = new HashMap<String, Object>(); 
 		MySQLTransaction mySQLTransaction = null;
@@ -355,8 +373,6 @@ public class ProcessorMDTR {
 			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.AuthenticationException");
 			throw processorMDTRException;
 		} catch (InvalidRequestException e) {
-			System.out.println("e.getParam(): " + e.getParam());
-			System.out.println("e.getParam(): " + e.getMessage());
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
 			processorMDTRException.setErrorCode(Utilities.searchStripeError(e.getMessage()));
 			throw processorMDTRException;
@@ -366,8 +382,6 @@ public class ProcessorMDTR {
 			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.APIConnectionException");
 			throw processorMDTRException;
 		} catch (CardException e) {
-			System.out.println("Status is: " + e.getCode());
-			System.out.println("Message is: " + e.getParam());
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
 			processorMDTRException.setErrorCode("ProcessorMDTR.processRefound.CardException");
@@ -719,29 +733,28 @@ public class ProcessorMDTR {
 		return countryRestrictionVO;
 	}
 	
-	public CountryRestrictionVO deleteCountryRestriction(CountryRestrictionVO countryRestrictionVO) throws ProcessorMDTRException{
+	public CountryRestrictionVO changeStatusCountryRestriction(CountryRestrictionVO countryRestrictionVO) throws ProcessorMDTRException{
 		try {
 			CountryRestrictionDAO countryRestrictionDAO = new CountryRestrictionDAO();
-			countryRestrictionDAO.delete(countryRestrictionVO);
-			if(countryRestrictionVO != null && countryRestrictionVO.getId() != null){
+			if(countryRestrictionDAO.changeStatusCountryRestriction(countryRestrictionVO) != 0){
 				countryRestrictionVO.setStatus(instanceConfigurationApplication.getKey("success"));
-				countryRestrictionVO.setMessage("ProcessorMDTR.deleteCountryRestriction.success");
+				countryRestrictionVO.setMessage("ProcessorMDTR.changeStatusCountryRestriction.success");
 	        }else{
 	        	countryRestrictionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
-	        	countryRestrictionVO.setMessage("ProcessorMDTR.deleteCountryRestriction.failure");
+	        	countryRestrictionVO.setMessage("ProcessorMDTR.changeStatusCountryRestriction.failure");
 				System.out.println("#################################################################");
-	        	System.out.println("No fue posible eliminar la Restriccion por Pais .... ");
+	        	System.out.println("No fue posible actualizar el status de  la Restriccion por Pais .... ");
 	        	System.out.println("#################################################################");
 	        }
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.deleteCountryRestriction.MySQLConnectionException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.changeStatusCountryRestriction.MySQLConnectionException");
 			throw processorMDTRException;
 		} catch (CountryRestrictionDAOException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.deleteCountryRestriction.CountryRestrictionDAOException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.changeStatusCountryRestriction.CountryRestrictionDAOException");
 			throw processorMDTRException;
 		}
 		return countryRestrictionVO;
@@ -894,6 +907,25 @@ public class ProcessorMDTR {
 		return listMerchants;
 	}
 	
+	public ArrayList<MerchantVO> listAllMerchants(MerchantVO merchantVO) throws ProcessorMDTRException {
+		ArrayList<MerchantVO> listMerchants = null;
+		try {
+			MerchantDAO merchantDAO = new MerchantDAO();
+			listMerchants = merchantDAO.searchAll(merchantVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerhants.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerhants.MerchantDAOException");
+			throw processorMDTRException;
+		}
+		return listMerchants;
+	}
+	
 	public ArrayList<MerchantVO> searchMerchantsToConfigure(MerchantVO merchantVO) throws ProcessorMDTRException {
 		ArrayList<MerchantVO> listMerchants = null;
 		try {
@@ -1006,16 +1038,15 @@ public class ProcessorMDTR {
 		return merchantVO;
 	}
 	
-	public MerchantVO deleteMerchant(MerchantVO merchantVO) throws ProcessorMDTRException{
+	public MerchantVO changeStatusMerchant(MerchantVO merchantVO) throws ProcessorMDTRException{
 		try {
 			MerchantDAO merchantDAO = new MerchantDAO();
-			merchantDAO.delete(merchantVO);
-			if(merchantVO != null && merchantVO.getId() != null){
+			if(merchantDAO.changeStatusMerchant(merchantVO) != 0){
 				merchantVO.setStatus(instanceConfigurationApplication.getKey("success"));
-				merchantVO.setMessage("ProcessorMDTR.deleteMerchant.success");
+				merchantVO.setMessage("ProcessorMDTR.changeStatusMerchant.success");
 	        }else{
 	        	merchantVO.setStatus(instanceConfigurationApplication.getKey("failure"));
-	        	merchantVO.setMessage("ProcessorMDTR.deleteMerchant.failure");
+	        	merchantVO.setMessage("ProcessorMDTR.changeStatusMerchant.failure");
 				System.out.println("#################################################################");
 	        	System.out.println("No fue posible eliminar el Merchant .... ");
 	        	System.out.println("#################################################################");
@@ -1023,12 +1054,12 @@ public class ProcessorMDTR {
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchant.MySQLConnectionException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.changeStatusMerchant.MySQLConnectionException");
 			throw processorMDTRException;
 		} catch (MerchantDAOException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchant.MerchantDAOException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.changeStatusMerchant.MerchantDAOException");
 			throw processorMDTRException;
 		}
 		return merchantVO;

@@ -85,6 +85,23 @@ public class CountryRestrictionDAO extends MySQLConnection implements ICountryRe
 		}
 		return status;
 	}
+	
+	public int changeStatusCountryRestriction(CountryRestrictionVO countryRestrictionVO) throws CountryRestrictionDAOException {
+		CallableStatement cstmt = null;
+		int status = 0;
+		try {
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_CHANGE_STATUS_COUNTRY_RESTRICTION(?, ?)}");
+			cstmt.setString(1,countryRestrictionVO.getStatus());
+			cstmt.setString(2,countryRestrictionVO.getId());
+			status = cstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CountryRestrictionDAOException(e);
+		} finally {
+			Cs(cstmt, getConnection());
+		}
+		return status;
+	}
 
 	public CountryRestrictionVO searchByID(String ID) throws CountryRestrictionDAOException {
 		return null;
@@ -111,6 +128,7 @@ public class CountryRestrictionDAO extends MySQLConnection implements ICountryRe
 					countryRestrictionVO.setValue(resultSet.getString("Core_Value"));
 					countryRestrictionVO.setConcept(resultSet.getString("Core_Concept"));
 					countryRestrictionVO.setTimeUnit(resultSet.getString("Core_TimeUnit"));
+					countryRestrictionVO.setStatus(resultSet.getString("Core_Status"));
 					countryRestrictionVO.setCountryVO(new CountryVO());
 					countryRestrictionVO.getCountryVO().setName(resultSet.getString("Coun_Name"));
 					list.add(countryRestrictionVO);

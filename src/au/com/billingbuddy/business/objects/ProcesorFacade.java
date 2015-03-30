@@ -71,6 +71,17 @@ public class ProcesorFacade {
 		}
 		return listCharges;
 	}
+	
+	public ChargeVO listChargeDetail(ChargeVO chargeVO) throws ProcesorFacadeException{
+		try {
+			chargeVO = processorMDTR.listChargeDetail(chargeVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return chargeVO;
+	}
 
 /**********************************************************************************************************************************/
 /**********************************************************************************************************************************/
@@ -208,9 +219,9 @@ public class ProcesorFacade {
 		return countryRestrictionVO;
 	}
 	
-	public CountryRestrictionVO deleteCountryRestriction(CountryRestrictionVO countryRestrictionVO) throws ProcesorFacadeException{
+	public CountryRestrictionVO changeStatusCountryRestriction(CountryRestrictionVO countryRestrictionVO) throws ProcesorFacadeException{
 		try {
-			processorMDTR.deleteCountryRestriction(countryRestrictionVO);
+			processorMDTR.changeStatusCountryRestriction(countryRestrictionVO);
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
@@ -300,6 +311,18 @@ public class ProcesorFacade {
 		return listMerchants;
 	}
 	
+	public ArrayList<MerchantVO> listAllMerchants(MerchantVO merchantVO) throws ProcesorFacadeException{
+		ArrayList<MerchantVO> listMerchants = null;
+		try {
+			listMerchants = processorMDTR.listAllMerchants(merchantVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listMerchants;
+	}
+	
 	public ArrayList<MerchantVO> searchMerchantsToConfigure(MerchantVO merchantVO) throws ProcesorFacadeException{
 		ArrayList<MerchantVO> listMerchants = null;
 		try {
@@ -345,9 +368,9 @@ public class ProcesorFacade {
 		return merchantVO;
 	}
 	
-	public MerchantVO deleteMerchant(MerchantVO merchantVO) throws ProcesorFacadeException{
+	public MerchantVO changeStatusMerchant(MerchantVO merchantVO) throws ProcesorFacadeException{
 		try {
-			processorMDTR.deleteMerchant(merchantVO);
+			processorMDTR.changeStatusMerchant(merchantVO);
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());

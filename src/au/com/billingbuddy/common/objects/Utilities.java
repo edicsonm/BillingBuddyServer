@@ -126,6 +126,7 @@ public class Utilities {
 		if(Pattern.compile("Charge.*has already been refunded.*").matcher(message).matches()) return "ProcessorMDTR.processRefound.InvalidRequestException.1";
 		if(Pattern.compile("Amount must be no more than than .*").matcher(message).matches()) return "ProcessorMDTR.processRefound.InvalidRequestException.2";
 		if(Pattern.compile("Refund amount.*is greater than unrefunded amount on charge.*").matcher(message).matches()) return "ProcessorMDTR.processRefound.InvalidRequestException.3";
+		if(Pattern.compile("There is no payment with ID.*").matcher(message).matches()) return "ProcessorMDTR.processRefound.InvalidRequestException.4";
 		return "";
 	}
 	

@@ -14,4 +14,5 @@ public interface IChargeDAO {
 	public VO searchByID(String ID) throws ChargeDAOException;
 	public ArrayList<ChargeVO> search() throws ChargeDAOException;
 	public ArrayList<ChargeVO> search(ChargeVO chargeVO) throws ChargeDAOException;
+	public ChargeVO searchDetail(ChargeVO chargeVO) throws ChargeDAOException;
 }

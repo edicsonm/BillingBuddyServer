@@ -18,6 +18,7 @@ import au.com.billingbuddy.exceptions.objects.TransactionDAOException;
 import au.com.billingbuddy.vo.objects.BinVO;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
+import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.RejectedChargeVO;
 import au.com.billingbuddy.vo.objects.TransactionVO;
 import au.com.billingbuddy.vo.objects.VO;
@@ -315,6 +316,10 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 					transactionVO.getCardVO().setExpMonth(rs.getString("Card_ExpMonth"));
 					transactionVO.getCardVO().setExpYear(rs.getString("Card_ExpYear"));
 					transactionVO.getCardVO().setCountry(rs.getString("Card_Country"));
+					
+					transactionVO.setMerchantVO(new MerchantVO());
+					transactionVO.getMerchantVO().setId(rs.getString("Merc_ID"));
+					transactionVO.getMerchantVO().setName(rs.getString("Merc_Name"));
 					
 					listTransactions.add(transactionVO);
 				}
