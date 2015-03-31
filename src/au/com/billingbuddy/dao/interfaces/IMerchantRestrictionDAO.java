@@ -11,6 +11,7 @@ public interface IMerchantRestrictionDAO {
 	public int insert(MerchantRestrictionVO merchantRestrictionVO) throws MerchantRestrictionDAOException;
 	public int update(MerchantRestrictionVO merchantRestrictionVO) throws MerchantRestrictionDAOException;
 	public int delete(MerchantRestrictionVO merchantRestrictionVO) throws MerchantRestrictionDAOException;
+	public int changeStatusMerchantRestriction(MerchantRestrictionVO merchantRestrictionVO) throws MerchantRestrictionDAOException;
 	public ArrayList<MerchantRestrictionVO> searchDetails(MerchantRestrictionVO merchantRestrictionVO) throws MerchantRestrictionDAOException;
 	public MerchantRestrictionVO searchByID(String ID) throws MerchantRestrictionDAOException;
 	public ArrayList<MerchantRestrictionVO> search() throws MerchantRestrictionDAOException;

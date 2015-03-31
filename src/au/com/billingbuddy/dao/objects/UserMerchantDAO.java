@@ -15,6 +15,7 @@ import au.com.billingbuddy.exceptions.objects.MerchantRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.TransactionDAOException;
 import au.com.billingbuddy.exceptions.objects.UserMerchantDAOException;
+import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.UserMerchantVO;
 
 public class UserMerchantDAO extends MySQLConnection implements IUserMerchantDAO {
@@ -93,6 +94,8 @@ public class UserMerchantDAO extends MySQLConnection implements IUserMerchantDAO
 				while (resultSet.next()) {
 					UserMerchantVO userMerchantVOAUX = new UserMerchantVO();
 					userMerchantVOAUX.setMerchantId(resultSet.getString("Merc_ID"));
+					userMerchantVOAUX.setMerchantVO(new MerchantVO());
+					userMerchantVOAUX.getMerchantVO().setName(resultSet.getString("Merc_Name"));
 					list.add(userMerchantVOAUX);
 				}
 			}

@@ -180,10 +180,11 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 			transactionVO.setInitialDateReport(Utilities.validateDateReport(transactionVO.getInitialDateReport(), Integer.parseInt(configurationSystem.getKey("days.PROC_SEARCH_AMOUNT_BY_DAY"))));
 			transactionVO.setFinalDateReport(Utilities.validateDateReport(transactionVO.getFinalDateReport(), 0));
 			
-			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_AMOUNT_BY_DAY( ?, ? , ?)}");
+			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_AMOUNT_BY_DAY( ?, ? , ?, ?)}");
 			pstmt.setString(1, transactionVO.getInitialDateReport());
 			pstmt.setString(2, transactionVO.getFinalDateReport());
-			pstmt.setString(3, transactionVO.getUserId());
+			pstmt.setString(3, transactionVO.getMerchantId());
+			pstmt.setString(4, transactionVO.getUserId());
 			
 			rs = pstmt.executeQuery();
 			if (rs != null) {
@@ -213,9 +214,11 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 			transactionVO.setInitialDateReport(Utilities.validateDateReport(transactionVO.getInitialDateReport(), Integer.parseInt(configurationSystem.getKey("days.PROC_SEARCH_AMOUNT_BY_DAY"))));
 			transactionVO.setFinalDateReport(Utilities.validateDateReport(transactionVO.getFinalDateReport(), 0));
 			
-			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CHARGES_BY_DAY( ?, ? )}");
+			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CHARGES_BY_DAY( ? ,? ,? ,? )}");
 			pstmt.setString(1, transactionVO.getInitialDateReport());
 			pstmt.setString(2, transactionVO.getFinalDateReport());
+			pstmt.setString(3, transactionVO.getMerchantId());
+			pstmt.setString(4, transactionVO.getUserId());
 			
 			rs = pstmt.executeQuery();
 			if (rs != null) {
@@ -245,10 +248,12 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 			transactionVO.setInitialDateReport(Utilities.validateDateReport(transactionVO.getInitialDateReport(), Integer.parseInt(configurationSystem.getKey("days.PROC_SEARCH_AMOUNT_BY_DAY"))));
 			transactionVO.setFinalDateReport(Utilities.validateDateReport(transactionVO.getFinalDateReport(), 0));
 			
-			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_REJECTEDS_BY_DAY( ?, ? )}");
+			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_REJECTEDS_BY_DAY( ?, ? , ? , ?)}");
 			
 			pstmt.setString(1, transactionVO.getInitialDateReport());
 			pstmt.setString(2, transactionVO.getFinalDateReport());
+			pstmt.setString(3, transactionVO.getMerchantId());
+			pstmt.setString(4, transactionVO.getUserId());
 			
 			rs = pstmt.executeQuery();
 			if (rs != null) {

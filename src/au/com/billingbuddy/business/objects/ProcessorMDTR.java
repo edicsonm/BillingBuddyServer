@@ -699,7 +699,7 @@ public class ProcessorMDTR {
 		} catch (CountryRestrictionDAOException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.saveCountryRestriction.CountryRestrictionDAOException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveCountryRestriction.CountryRestrictionDAOException"+ (!Utilities.isNullOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
 			throw processorMDTRException;
 		}
 		return countryRestrictionVO;
@@ -727,7 +727,7 @@ public class ProcessorMDTR {
 		} catch (CountryRestrictionDAOException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.updateCountryRestriction.CountryRestrictionDAOException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateCountryRestriction.CountryRestrictionDAOException"+ (!Utilities.isNullOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
 			throw processorMDTRException;
 		}
 		return countryRestrictionVO;
@@ -858,28 +858,28 @@ public class ProcessorMDTR {
 		return merchantRestrictionVO;
 	}
 	
-	public MerchantRestrictionVO deleteMerchantRestriction(MerchantRestrictionVO merchantRestrictionVO) throws ProcessorMDTRException{
+	public MerchantRestrictionVO changeStatusMerchantRestriction(MerchantRestrictionVO merchantRestrictionVO) throws ProcessorMDTRException{
 		try {
 			MerchantRestrictionDAO merchantRestrictionDAO = new MerchantRestrictionDAO();
-			merchantRestrictionDAO.delete(merchantRestrictionVO);
+			merchantRestrictionDAO.changeStatusMerchantRestriction(merchantRestrictionVO);
 			if(merchantRestrictionVO != null && merchantRestrictionVO.getId() != null){
 				merchantRestrictionVO.setStatus(instanceConfigurationApplication.getKey("success"));
-				merchantRestrictionVO.setMessage("ProcessorMDTR.deleteMerchantRestriction.success");
+				merchantRestrictionVO.setMessage("ProcessorMDTR.changeStatusMerchantRestriction.success");
 	        }else{
 	        	merchantRestrictionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
-	        	merchantRestrictionVO.setMessage("ProcessorMDTR.deleteMerchantRestriction.failure");
+	        	merchantRestrictionVO.setMessage("ProcessorMDTR.changeStatusMerchantRestriction.failure");
 				System.out.println("#################################################################");
-	        	System.out.println("No fue posible eliminar la Restriccion por Merchant .... ");
+	        	System.out.println("No fue posible actualizar el status de la Restriccion del Merchant .... ");
 	        	System.out.println("#################################################################");
 	        }
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchantRestriction.MySQLConnectionException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.changeStatusMerchantRestriction.MySQLConnectionException");
 			throw processorMDTRException;
 		} catch (MerchantRestrictionDAOException e) {
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchantRestriction.MerchantRestrictionDAOException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.changeStatusMerchantRestriction.MerchantRestrictionDAOException");
 			throw processorMDTRException;
 		}
 		return merchantRestrictionVO;
@@ -1619,6 +1619,50 @@ public class ProcessorMDTR {
 			throw processorMDTRException;
 		}
 		return listAmountsByDay;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<TransactionVO> searchRejectedByDay(TransactionVO transactionVO) throws ProcessorMDTRException{
+		ArrayList<TransactionVO> listRejectedsByDay = null;
+		try {
+			TransactionDAO transactionDAO = new TransactionDAO();
+			listRejectedsByDay = transactionDAO.searchRejectedByDay(transactionVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchRejectedByDay.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (TransactionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchRejectedByDay.TransactionDAOException");
+			throw processorMDTRException;
+		}
+		return listRejectedsByDay;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<TransactionVO> searchChargesByDay(TransactionVO transactionVO) throws ProcessorMDTRException{
+		ArrayList<TransactionVO> listChargesByDay = null;
+		try {
+			TransactionDAO transactionDAO = new TransactionDAO();
+			listChargesByDay = transactionDAO.searchChargesByDay(transactionVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchChargesByDay.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (TransactionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchChargesByDay.TransactionDAOException");
+			throw processorMDTRException;
+		}
+		return listChargesByDay;
 	}
 	
 	

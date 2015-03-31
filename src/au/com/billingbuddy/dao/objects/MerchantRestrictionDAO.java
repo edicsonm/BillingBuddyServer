@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import com.sun.crypto.provider.RSACipher;
+
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.connection.objects.MySQLConnection;
 import au.com.billingbuddy.connection.objects.MySQLTransaction;
@@ -107,6 +109,7 @@ public class MerchantRestrictionDAO extends MySQLConnection implements IMerchant
 					merchantRestrictionVO.setValue(resultSet.getString("Mere_Value"));
 					merchantRestrictionVO.setConcept(resultSet.getString("Mere_Concept"));
 					merchantRestrictionVO.setTimeUnit(resultSet.getString("Mere_TimeUnit"));
+					merchantRestrictionVO.setStatus(resultSet.getString("Mere_Status"));
 					merchantRestrictionVO.setMerchantVO(new MerchantVO());
 					merchantRestrictionVO.getMerchantVO().setName(resultSet.getString("Merc_Name"));
 					list.add(merchantRestrictionVO);
@@ -147,6 +150,23 @@ public class MerchantRestrictionDAO extends MySQLConnection implements IMerchant
 			PsRs(pstmt, resultSet,connection);
 		}
 		return list;
+	}
+
+	public int changeStatusMerchantRestriction(MerchantRestrictionVO merchantRestrictionVO) throws MerchantRestrictionDAOException {
+		CallableStatement cstmt = null;
+		int status = 0;
+		try {
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_CHANGE_STATUS_MERCHANT_RESTRICTION(?, ?)}");
+			cstmt.setString(1,merchantRestrictionVO.getStatus());
+			cstmt.setString(2,merchantRestrictionVO.getId());
+			status = cstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new MerchantRestrictionDAOException(e);
+		} finally {
+			Cs(cstmt, getConnection());
+		}
+		return status;
 	}
 
 

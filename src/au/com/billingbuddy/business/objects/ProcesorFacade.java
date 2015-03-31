@@ -284,9 +284,9 @@ public class ProcesorFacade {
 		return merchantRestrictionVO;
 	}
 	
-	public MerchantRestrictionVO deleteMerchantRestriction(MerchantRestrictionVO merchantRestrictionVO) throws ProcesorFacadeException{
+	public MerchantRestrictionVO changeStatusMerchantRestriction(MerchantRestrictionVO merchantRestrictionVO) throws ProcesorFacadeException{
 		try {
-			processorMDTR.deleteMerchantRestriction(merchantRestrictionVO);
+			processorMDTR.changeStatusMerchantRestriction(merchantRestrictionVO);
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
@@ -629,6 +629,38 @@ public class ProcesorFacade {
 		ArrayList<TransactionVO> listAmountsByDay = null;
 		try {
 			listAmountsByDay = processorMDTR.searchAmountByDay(transactionVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listAmountsByDay;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
+	public ArrayList<TransactionVO> searchRejectedByDay(TransactionVO transactionVO) throws ProcesorFacadeException{
+		ArrayList<TransactionVO> listRejectedsByDay = null;
+		try {
+			listRejectedsByDay = processorMDTR.searchRejectedByDay(transactionVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listRejectedsByDay;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
+	public ArrayList<TransactionVO> searchChargesByDay(TransactionVO transactionVO) throws ProcesorFacadeException{
+		ArrayList<TransactionVO> listAmountsByDay = null;
+		try {
+			listAmountsByDay = processorMDTR.searchChargesByDay(transactionVO);
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
