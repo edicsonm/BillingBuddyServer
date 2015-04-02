@@ -15,7 +15,13 @@ public class PlanVO extends VO implements Serializable {
 	private String name;
 	private String trialPeriodDays;
 	private String statementDescriptor;
-
+	
+	public PlanVO(){}
+	
+	public PlanVO(String id){
+		this.id= id;
+	}
+	
 	public String getId() {
 		return id;
 	}
@@ -87,9 +93,18 @@ public class PlanVO extends VO implements Serializable {
 	public void setStatementDescriptor(String statementDescriptor) {
 		this.statementDescriptor = statementDescriptor;
 	}
+	
+	@Override
+    public boolean equals(Object obj) {
+		if (!(obj instanceof PlanVO))
+			return false;
+		PlanVO objetoVO = (PlanVO) obj;
+		return (this.getId().equalsIgnoreCase(objetoVO.getId()));
+    }
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	@Override
+	public int hashCode() {
+		return super.hashCode();
 	}
 
 }
