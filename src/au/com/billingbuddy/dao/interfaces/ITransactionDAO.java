@@ -18,6 +18,7 @@ public interface ITransactionDAO {
 	public ArrayList<TransactionVO> searchAmountsByDay(TransactionVO transactionVO) throws TransactionDAOException;
 	public ArrayList<TransactionVO> searchChargesByDay(TransactionVO transactionVO) throws TransactionDAOException;
 	public ArrayList<TransactionVO> searchTransactionsByDay(TransactionVO transactionVO) throws TransactionDAOException;
+	public ArrayList<TransactionVO> searchTransactionsByDayFilter(TransactionVO transactionVO) throws TransactionDAOException;
 	
 	
 }

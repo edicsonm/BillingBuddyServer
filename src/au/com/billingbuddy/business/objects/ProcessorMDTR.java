@@ -926,6 +926,25 @@ public class ProcessorMDTR {
 		return listMerchants;
 	}
 	
+	public ArrayList<MerchantVO> listAllMerchantsFilter(MerchantVO merchantVO) throws ProcessorMDTRException {
+		ArrayList<MerchantVO> listMerchants = null;
+		try {
+			MerchantDAO merchantDAO = new MerchantDAO();
+			listMerchants = merchantDAO.searchAllFilter(merchantVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerhants.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerhants.MerchantDAOException");
+			throw processorMDTRException;
+		}
+		return listMerchants;
+	}
+	
 	public ArrayList<MerchantVO> searchMerchantsToConfigure(MerchantVO merchantVO) throws ProcessorMDTRException {
 		ArrayList<MerchantVO> listMerchants = null;
 		try {

@@ -6,6 +6,7 @@ public class VO {
 	private String status;
 	private String message;
 	private String data;
+	private String match;
 
 	public String getStatus() {
 		return status;
@@ -37,5 +38,13 @@ public class VO {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public String getMatch() {
+		return match;
+	}
+
+	public void setMatch(String match) {
+		this.match = match;
 	}
 }

@@ -129,5 +129,24 @@ public class ReportMDTR {
 		}
 		return listTransactionsByDay;
 	}
+	
+	public ArrayList<TransactionVO> searchTransactionsByDayFilter(TransactionVO transactionVO) throws ReportMDTRException{
+		ArrayList<TransactionVO> listTransactionsByDay = null;
+		try {
+			TransactionDAO transactionDAO = new TransactionDAO();
+			listTransactionsByDay = transactionDAO.searchTransactionsByDayFilter(transactionVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ReportMDTRException reportMDTRException = new ReportMDTRException(e);
+			reportMDTRException.setErrorCode("ReportMDTR.searchTransactionsByDay.MySQLConnectionException");
+			throw reportMDTRException;
+		} catch (TransactionDAOException e) {
+			e.printStackTrace();
+			ReportMDTRException reportMDTRException = new ReportMDTRException(e);
+			reportMDTRException.setErrorCode("ReportMDTR.searchTransactionsByDay.TransactionDAOException");
+			throw reportMDTRException;
+		}
+		return listTransactionsByDay;
+	}
 
 }

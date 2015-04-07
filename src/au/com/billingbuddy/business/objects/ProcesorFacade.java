@@ -323,6 +323,18 @@ public class ProcesorFacade {
 		return listMerchants;
 	}
 	
+	public ArrayList<MerchantVO> listAllMerchantsFilter(MerchantVO merchantVO) throws ProcesorFacadeException{
+		ArrayList<MerchantVO> listMerchants = null;
+		try {
+			listMerchants = processorMDTR.listAllMerchantsFilter(merchantVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listMerchants;
+	}
+	
 	public ArrayList<MerchantVO> searchMerchantsToConfigure(MerchantVO merchantVO) throws ProcesorFacadeException{
 		ArrayList<MerchantVO> listMerchants = null;
 		try {

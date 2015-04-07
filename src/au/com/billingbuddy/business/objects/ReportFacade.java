@@ -74,5 +74,17 @@ public class ReportFacade {
 		}
 		return listTransactionsByDay;
 	}
+	
+	public ArrayList<TransactionVO> searchTransactionsByDayFilter(TransactionVO transactionVO) throws ReportFacadeException{
+		ArrayList<TransactionVO> listTransactionsByDay = null;
+		try {
+			listTransactionsByDay = reportMDTR.searchTransactionsByDayFilter(transactionVO);
+		} catch (ReportMDTRException e) {
+			ReportFacadeException reportFacadeException = new ReportFacadeException(e);
+			reportFacadeException.setErrorCode(e.getErrorCode());
+			throw reportFacadeException;
+		}
+		return listTransactionsByDay;
+	}
 
 }

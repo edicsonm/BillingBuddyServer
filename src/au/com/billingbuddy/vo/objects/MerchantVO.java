@@ -367,5 +367,20 @@ public class MerchantVO extends VO implements Serializable {
 		this.certificateVO = certificateVO;
 	}
 
+	/*@Override
+    public boolean equals(Object obj) { 
+		if (!(obj instanceof MerchantVO))
+			return false;
+		MerchantVO objetoVO = (MerchantVO) obj;
+		
+		
+		return (this.getCountryVO().getNumeric().equalsIgnoreCase(objetoVO.getCountryVO().getNumeric()));
+    }
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}*/
+	
 
 }
