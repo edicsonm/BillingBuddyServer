@@ -346,7 +346,19 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 			transactionVO.setInitialDateReport(Utilities.validateDateReport(transactionVO.getInitialDateReport(), Integer.parseInt(configurationSystem.getKey("days.PROC_SEARCH_AMOUNT_BY_DAY"))));
 			transactionVO.setFinalDateReport(Utilities.validateDateReport(transactionVO.getFinalDateReport(), 0));
 			
-			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_TRANSACTIONS_BY_DAY( ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_TRANSACTIONS_BY_DAY_FILTER( ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+			
+			System.out.println("transactionVO.getCardVO().getNumber(): " + transactionVO.getCardVO().getNumber());
+			System.out.println("transactionVO.getMerchantId(): " + transactionVO.getMerchantId());
+			System.out.println("transactionVO.getCardVO().getBrand(): " + transactionVO.getCardVO().getBrand());
+			
+			System.out.println("transactionVO.getCardVO().getCountry(): " + transactionVO.getCardVO().getCountry());
+			System.out.println("transactionVO.getChargeVO().getCurrency(): " + transactionVO.getChargeVO().getCurrency());
+			System.out.println("transactionVO.getMatch(): " + transactionVO.getMatch());
+			
+			System.out.println("transactionVO.getInitialDateReport(): " + transactionVO.getInitialDateReport());
+			System.out.println("transactionVO.getFinalDateReport(): " + transactionVO.getFinalDateReport());
+			System.out.println("transactionVO.getUserId(): " + transactionVO.getUserId());
 			
 			pstmt.setString(1, transactionVO.getCardVO().getNumber());
 			pstmt.setString(2, transactionVO.getMerchantId());
@@ -359,6 +371,11 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 			pstmt.setString(7, transactionVO.getInitialDateReport());
 			pstmt.setString(8, transactionVO.getFinalDateReport());
 			pstmt.setString(9, transactionVO.getUserId());
+			
+
+			
+			
+			
 			
 			rs = pstmt.executeQuery();
 			if (rs != null) {
