@@ -138,6 +138,7 @@ public class ChargeDAO extends MySQLConnection implements IChargeDAO {
 					chargeVO.setStripeId(resultSet.getString("Char_IDStripe"));
 					
 					chargeVO.setCardVO(new CardVO());
+					chargeVO.getCardVO().setNumber(resultSet.getString("Card_Number"));
 					chargeVO.getCardVO().setBrand(resultSet.getString("Card_Brand"));
 					chargeVO.getCardVO().setFunding(resultSet.getString("Card_Funding"));
 					chargeVO.getCardVO().setLast4(resultSet.getString("Card_Last4"));

@@ -3,6 +3,7 @@ package au.com.billingbuddy.vo.objects;
 public class VO {
 	
 	private String userId;
+	private String errorCode;
 	private String status;
 	private String message;
 	private String data;
@@ -46,5 +47,13 @@ public class VO {
 
 	public void setMatch(String match) {
 		this.match = match;
+	}
+
+	public String getErrorCode() {
+		return errorCode;
+	}
+
+	public void setErrorCode(String errorCode) {
+		this.errorCode = errorCode;
 	}
 }

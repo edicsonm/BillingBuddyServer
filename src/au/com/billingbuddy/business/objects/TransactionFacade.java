@@ -73,6 +73,7 @@ public class TransactionFacade {
 				if(transactionVO != null && transactionVO.getChargeVO() != null && transactionVO.getChargeVO().getId() != null){
 					transactionVO.setStatus(instanceConfigurationApplication.getKey("success"));
 					transactionVO.setMessage(instanceConfigurationApplication.getKey("TransactionFacade.0"));
+					transactionVO.setErrorCode("TransactionFacade.1");
 		        }else{
 		        	if(transactionVO != null && transactionVO.getChargeVO()!= null && transactionVO.getChargeVO().getStripeId() != null){
 		        		
@@ -81,10 +82,12 @@ public class TransactionFacade {
 		        	}
 		        	transactionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
 					transactionVO.setMessage(instanceConfigurationApplication.getKey("TransactionFacade.1"));
+					transactionVO.setErrorCode("TransactionFacade.1");
 		        }
 			} else {
 				transactionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
 				transactionVO.setMessage(instanceConfigurationApplication.getKey("TransactionFacade.2"));
+				transactionVO.setErrorCode("TransactionFacade.2");
 			}
 //		try {
 //			transactionMDTR.proccesPayment(transactionVO);
