@@ -7,6 +7,10 @@ public class VO {
 	private String status;
 	private String message;
 	private String data;
+	
+	private String initialDateReport;
+	private String finalDateReport;
+	
 	private String match;
 
 	public String getStatus() {
@@ -55,5 +59,21 @@ public class VO {
 
 	public void setErrorCode(String errorCode) {
 		this.errorCode = errorCode;
+	}
+
+	public String getInitialDateReport() {
+		return initialDateReport;
+	}
+
+	public void setInitialDateReport(String initialDateReport) {
+		this.initialDateReport = initialDateReport;
+	}
+
+	public String getFinalDateReport() {
+		return finalDateReport;
+	}
+
+	public void setFinalDateReport(String finalDateReport) {
+		this.finalDateReport = finalDateReport;
 	}
 }

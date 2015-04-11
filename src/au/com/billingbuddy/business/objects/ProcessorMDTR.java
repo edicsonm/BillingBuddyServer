@@ -312,6 +312,25 @@ public class ProcessorMDTR {
 		return listCharge;
 	}
 	
+	public ArrayList<ChargeVO> listChargeByDayFiter(ChargeVO chargeVO) throws ProcessorMDTRException{
+		ArrayList<ChargeVO> listCharge = null;
+		try {
+			ChargeDAO chargeDAO = new ChargeDAO();
+			listCharge = chargeDAO.searchChargesByDayFilter(chargeVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listChargeByDayFiter.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (ChargeDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listChargeByDayFiter.ChargeDAOException");
+			throw processorMDTRException;
+		}
+		return listCharge;
+	}
+	
 	public ChargeVO listChargeDetail(ChargeVO chargeVO) throws ProcessorMDTRException{
 		try {
 			ChargeDAO chargeDAO = new ChargeDAO();

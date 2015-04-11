@@ -33,6 +33,7 @@ public class ChargeVO extends VO implements Serializable {
 	
 	private CardVO cardVO;
 	private RefundVO refundVO;
+	private TransactionVO transactionVO;
 
 	public ChargeVO() {
 	}
@@ -249,4 +250,25 @@ public class ChargeVO extends VO implements Serializable {
 		this.refundVO = refundVO;
 	}
 
+	@Override
+    public boolean equals(Object obj) {
+		if (!(obj instanceof ChargeVO))
+			return false;
+		ChargeVO objetoVO = (ChargeVO) obj;
+		return (this.getId().equalsIgnoreCase(objetoVO.getId()));
+    }
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+
+	public TransactionVO getTransactionVO() {
+		return transactionVO;
+	}
+
+	public void setTransactionVO(TransactionVO transactionVO) {
+		this.transactionVO = transactionVO;
+	}
+	
 }

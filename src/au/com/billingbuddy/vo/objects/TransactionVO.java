@@ -84,8 +84,8 @@ public class TransactionVO  extends VO implements Serializable {
 	private String creationTime;
 	
 	private String dateReport;
-	private String initialDateReport;
-	private String finalDateReport;
+//	private String initialDateReport;
+//	private String finalDateReport;
 	private String amountDateReport;
 	private String totalDateReport;
 	
@@ -760,21 +760,21 @@ public class TransactionVO  extends VO implements Serializable {
 		this.rejectedChargeVO = rejectedChargeVO;
 	}
 
-	public String getInitialDateReport() {
-		return initialDateReport;
-	}
-
-	public String getFinalDateReport() {
-		return finalDateReport;
-	}
-
-	public void setInitialDateReport(String initialDateReport) {
-		this.initialDateReport = initialDateReport;
-	}
-
-	public void setFinalDateReport(String finalDateReport) {
-		this.finalDateReport = finalDateReport;
-	}
+//	public String getInitialDateReport() {
+//		return initialDateReport;
+//	}
+//
+//	public String getFinalDateReport() {
+//		return finalDateReport;
+//	}
+//
+//	public void setInitialDateReport(String initialDateReport) {
+//		this.initialDateReport = initialDateReport;
+//	}
+//
+//	public void setFinalDateReport(String finalDateReport) {
+//		this.finalDateReport = finalDateReport;
+//	}
 
 	public String getCreationTime() {
 		return creationTime;

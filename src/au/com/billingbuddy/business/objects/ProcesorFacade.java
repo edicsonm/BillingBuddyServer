@@ -72,6 +72,18 @@ public class ProcesorFacade {
 		return listCharges;
 	}
 	
+	public ArrayList<ChargeVO> listChargeByDayFiter(ChargeVO chargeVO) throws ProcesorFacadeException{
+		ArrayList<ChargeVO> listCharges = null;
+		try {
+			listCharges = processorMDTR.listChargeByDayFiter(chargeVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listCharges;
+	}
+	
 	public ChargeVO listChargeDetail(ChargeVO chargeVO) throws ProcesorFacadeException{
 		try {
 			chargeVO = processorMDTR.listChargeDetail(chargeVO);
