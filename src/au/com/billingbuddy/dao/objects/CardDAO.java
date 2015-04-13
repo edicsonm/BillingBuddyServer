@@ -103,5 +103,31 @@ public class CardDAO extends MySQLConnection implements ICardDAO {
 		}
 		return cardVO;
 	}
+	
+	public CardVO searchCardByNumber(CardVO cardVO) throws CardDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CARD_BY_NUMBER( ? )}");
+			pstmt.setString(1, cardVO.getNumber());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				cardVO = null;
+				while (resultSet.next()) {
+					cardVO = new CardVO();
+					cardVO.setId(resultSet.getString("Card_ID"));
+					cardVO.setCustomerId(resultSet.getString("Cust_ID"));
+				}
+			}
+		} catch (SQLException e) {
+			CardDAOException cardDAOException =  new CardDAOException(e);
+			throw cardDAOException;
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return cardVO;
+	}
+	
 
 }

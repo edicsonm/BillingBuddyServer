@@ -5,8 +5,10 @@ import java.util.Calendar;
 
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.exceptions.objects.FraudDetectionMDTRException;
+import au.com.billingbuddy.exceptions.objects.ProcesorFacadeException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.exceptions.objects.TransactionFacadeException;
+import au.com.billingbuddy.exceptions.objects.TransactionMDTRException;
 import au.com.billingbuddy.vo.objects.TransactionVO;
 
 public class TransactionFacade {
@@ -52,6 +54,17 @@ public class TransactionFacade {
 //		return messageResponse;
 //	}
 	
+	public TransactionVO proccesPaymentFinal(TransactionVO transactionVO) throws TransactionFacadeException {
+		try {
+			transactionMDTR.proccesPaymentFinal(transactionVO);
+		} catch (TransactionMDTRException e) {
+			TransactionFacadeException transactionFacadeException = new TransactionFacadeException(e);
+			transactionFacadeException.setErrorCode(e.getErrorCode());
+			throw transactionFacadeException;
+		}
+		return transactionVO;
+	}
+	
 	public TransactionVO proccesPayment(TransactionVO transactionVO) throws TransactionFacadeException {
 		try {/*1.- Registrar la tarjeta.*/
 			/*2.- Registrar la transaccion.*/
@@ -66,7 +79,7 @@ public class TransactionFacade {
 //			transactionVO.setHighRiskScore(false);
 			
 			if(!transactionVO.isHighRiskScore()) {
-				initialTime = Calendar.getInstance().getTimeInMillis();	
+				initialTime = Calendar.getInstance().getTimeInMillis();
 				processorMDTR.chargePayment(transactionVO);
 				finalTime = Calendar.getInstance().getTimeInMillis();
 				System.out.println("Tiempo total de procesamiento para Stripe: " + (finalTime-initialTime) + " ms.");
@@ -75,11 +88,6 @@ public class TransactionFacade {
 					transactionVO.setMessage(instanceConfigurationApplication.getKey("TransactionFacade.0"));
 					transactionVO.setErrorCode("TransactionFacade.1");
 		        }else{
-		        	if(transactionVO != null && transactionVO.getChargeVO()!= null && transactionVO.getChargeVO().getStripeId() != null){
-		        		
-		        	}else{
-		        		
-		        	}
 		        	transactionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
 					transactionVO.setMessage(instanceConfigurationApplication.getKey("TransactionFacade.1"));
 					transactionVO.setErrorCode("TransactionFacade.1");
@@ -89,27 +97,11 @@ public class TransactionFacade {
 				transactionVO.setMessage(instanceConfigurationApplication.getKey("TransactionFacade.2"));
 				transactionVO.setErrorCode("TransactionFacade.2");
 			}
-//		try {
-//			transactionMDTR.proccesPayment(transactionVO);
-//			transactionVO = fraudDetectionMDRT.CreditCardFraudDetection(transactionVO);
-////			if(!transactionVO.isRiskScore()){
-////				return transactionMDTR.proccesPayment(transactionVO);
-////			}else{
-////				return transactionVO;
-////			}
-//		} catch (TransactionMDTRException e) {
-//			e.printStackTrace();
-//		}
 		} catch (ProcessorMDTRException e) {
-//			e.printStackTrace();
-//			TransactionFacadeException transactionFacadeException = new TransactionFacadeException(e);
-//			transactionFacadeException.setErrorCode("TransactionFacade.proccesPayment.ProcessorMDTRException");
-//			throw transactionFacadeException;
-			
+			e.printStackTrace();
 			TransactionFacadeException transactionFacadeException = new TransactionFacadeException(e);
 			transactionFacadeException.setErrorCode(e.getErrorCode());
 			throw transactionFacadeException;
-			
 		} catch (FraudDetectionMDTRException e) {
 			e.printStackTrace();
 			TransactionFacadeException transactionFacadeException = new TransactionFacadeException(e);

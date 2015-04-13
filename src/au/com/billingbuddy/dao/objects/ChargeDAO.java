@@ -19,6 +19,7 @@ import au.com.billingbuddy.exceptions.objects.TransactionDAOException;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
 import au.com.billingbuddy.vo.objects.CustomerVO;
+import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.RefundVO;
 import au.com.billingbuddy.vo.objects.StripeChargeVO;
 import au.com.billingbuddy.vo.objects.TransactionVO;
@@ -211,6 +212,12 @@ public class ChargeDAO extends MySQLConnection implements IChargeDAO {
 					chargeVO.setReceiptNumber(resultSet.getString("Char_ReceiptNumber"));
 					chargeVO.setProcessTime(resultSet.getString("Char_ProcessTime"));
 					chargeVO.setAmountRefunded(resultSet.getString("REFUND"));
+					
+					chargeVO.setTransactionVO(new TransactionVO());
+					chargeVO.getTransactionVO().setMerchantVO(new MerchantVO());
+					chargeVO.getTransactionVO().setMerchantId(resultSet.getString("Merc_ID"));
+					chargeVO.getTransactionVO().getMerchantVO().setName(resultSet.getString("Merc_Name"));
+					
 				}
 			}
 		} catch (SQLException e) {
@@ -241,8 +248,7 @@ public class ChargeDAO extends MySQLConnection implements IChargeDAO {
 			pstmt.setString(7, chargeVO.getInitialDateReport());
 			pstmt.setString(8, chargeVO.getFinalDateReport());
 			pstmt.setString(9, chargeVO.getUserId());
-			
-			
+						
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				list = new ArrayList<ChargeVO>();
@@ -274,6 +280,12 @@ public class ChargeDAO extends MySQLConnection implements IChargeDAO {
 					chargeVO.setReceiptNumber(resultSet.getString("Char_ReceiptNumber"));
 					chargeVO.setProcessTime(resultSet.getString("Char_ProcessTime"));
 					chargeVO.setAmountRefunded(resultSet.getString("REFUND"));
+					
+					chargeVO.setTransactionVO(new TransactionVO());
+					chargeVO.getTransactionVO().setMerchantVO(new MerchantVO());
+					chargeVO.getTransactionVO().setMerchantId(resultSet.getString("Merc_ID"));
+					chargeVO.getTransactionVO().getMerchantVO().setName(resultSet.getString("Merc_Name"));
+					
 					list.add(chargeVO);
 				}
 			}

@@ -5,6 +5,7 @@ public class VO {
 	private String userId;
 	private String errorCode;
 	private String status;
+	private String creationTime;
 	private String message;
 	private String data;
 	
@@ -75,5 +76,13 @@ public class VO {
 
 	public void setFinalDateReport(String finalDateReport) {
 		this.finalDateReport = finalDateReport;
+	}
+
+	public String getCreationTime() {
+		return creationTime;
+	}
+
+	public void setCreationTime(String creationTime) {
+		this.creationTime = creationTime;
 	}
 }

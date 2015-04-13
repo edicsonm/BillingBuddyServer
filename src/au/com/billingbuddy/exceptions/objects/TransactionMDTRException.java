@@ -1,9 +1,16 @@
 package au.com.billingbuddy.exceptions.objects;
 
+import au.com.billigbuddy.utils.ErrorManager;
+
 public class TransactionMDTRException extends BillingBuddyException {
 
 	private static final long serialVersionUID = -7547774623502489923L;
 
+	public TransactionMDTRException(Exception e, String location, String error) {
+		super(e);
+		ErrorManager.manageErrorPaymentPage(location, error);
+	}
+	
 	public TransactionMDTRException(Exception e) {
 		super(e);
 	}

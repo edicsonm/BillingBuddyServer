@@ -31,25 +31,26 @@ public class SubscriptionDAO extends MySQLConnection implements ISubscriptionDAO
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_SUBSCRIPTION(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_SUBSCRIPTION(?, ?, ?, ?, ?, ?, ?, ?, ?)}");
 			cstmt.setString(1,subscriptionVO.getPlanId());
 			cstmt.setString(2,subscriptionVO.getCustomerId());
 			cstmt.setString(3,subscriptionVO.getDiscountId());
-			cstmt.setString(4,subscriptionVO.getCancelAtPeriodEnd());
-			cstmt.setString(5,subscriptionVO.getQuantity());
-			cstmt.setDate(6,Utilities.stringToSqlDate(subscriptionVO.getStart()));
-			cstmt.setString(7,subscriptionVO.getStatus());
-			cstmt.setString(8,subscriptionVO.getApplicationFeePercent());
-			cstmt.setDate(9,Utilities.stringToSqlDate(subscriptionVO.getCanceledAt()));
-			cstmt.setDate(10,Utilities.stringToSqlDate(subscriptionVO.getCurrentPeriodStart()));
-			cstmt.setDate(11,Utilities.stringToSqlDate(subscriptionVO.getTrialEnd()));
-			cstmt.setDate(12,Utilities.stringToSqlDate(subscriptionVO.getEndedAt()));
-			cstmt.setDate(13,Utilities.stringToSqlDate(subscriptionVO.getTrialStart()));
-			cstmt.setString(14,subscriptionVO.getTaxPercent());
-			cstmt.setDate(15,Utilities.stringToSqlDate(subscriptionVO.getCurrentPeriodEnd()));
-			cstmt.setString(16,"0");
+			cstmt.setString(4,subscriptionVO.getQuantity());
+			cstmt.setDate(5,Utilities.stringToSqlDate(subscriptionVO.getTrialStart()));
+			cstmt.setDate(6,Utilities.stringToSqlDate(subscriptionVO.getTrialEnd()));
+			cstmt.setDate(7,Utilities.stringToSqlDate(subscriptionVO.getStart()));
+			cstmt.setString(8,subscriptionVO.getTaxPercent());
+			cstmt.setString(9,"0");
+			
+//			cstmt.setString(7,subscriptionVO.getStatus());
+//			cstmt.setString(8,subscriptionVO.getApplicationFeePercent());
+//			cstmt.setDate(9,Utilities.stringToSqlDate(subscriptionVO.getCanceledAt()));
+//			cstmt.setDate(10,Utilities.stringToSqlDate(subscriptionVO.getCurrentPeriodStart()));
+//			cstmt.setDate(12,Utilities.stringToSqlDate(subscriptionVO.getEndedAt()));
+//			cstmt.setDate(15,Utilities.stringToSqlDate(subscriptionVO.getCurrentPeriodEnd()));
+			
 			status = cstmt.executeUpdate();
-			subscriptionVO.setId(cstmt.getString(16));
+			subscriptionVO.setId(cstmt.getString(9));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new SubscriptionDAOException(e);

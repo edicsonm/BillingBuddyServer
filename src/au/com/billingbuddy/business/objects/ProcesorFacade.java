@@ -14,6 +14,7 @@ import au.com.billingbuddy.vo.objects.CreditCardRestrictionVO;
 import au.com.billingbuddy.vo.objects.CurrencyVO;
 import au.com.billingbuddy.vo.objects.IndustryVO;
 import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
+import au.com.billingbuddy.vo.objects.MerchantCustomerVO;
 import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.PlanVO;
@@ -747,4 +748,31 @@ public class ProcesorFacade {
 		return userMerchantVO;
 	}
 	
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<MerchantCustomerVO> listMerchantsCustomer(MerchantCustomerVO merchantCustomerVO) throws ProcesorFacadeException{
+		ArrayList<MerchantCustomerVO> listMerchantsCustomer = null;
+		try {
+			listMerchantsCustomer = processorMDTR.listMerchantsCustomer(merchantCustomerVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listMerchantsCustomer;
+	}
+	
+	public ArrayList<MerchantCustomerVO> listCustomersMerchant(MerchantCustomerVO merchantCustomerVO) throws ProcesorFacadeException{
+		ArrayList<MerchantCustomerVO> listCustomersMerchant = null;
+		try {
+			listCustomersMerchant = processorMDTR.listCustomersMerchant(merchantCustomerVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listCustomersMerchant;
+	}
 }

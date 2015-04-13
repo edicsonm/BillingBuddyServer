@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.xml.transform.stream.StreamSource;
 
+import org.json.simple.JSONObject;
+
 import com.stripe.Stripe;
 import com.stripe.exception.APIConnectionException;
 import com.stripe.exception.APIException;
@@ -17,6 +19,7 @@ import com.stripe.exception.InvalidRequestException;
 import com.stripe.model.Charge;
 import com.stripe.model.Refund;
 
+import au.com.billigbuddy.utils.ErrorManager;
 import au.com.billingbuddy.business.objects.reports.ReporteAmountByDay;
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
@@ -34,6 +37,7 @@ import au.com.billingbuddy.dao.objects.CurrencyDAO;
 import au.com.billingbuddy.dao.objects.CustomerDAO;
 import au.com.billingbuddy.dao.objects.IndustryDAO;
 import au.com.billingbuddy.dao.objects.MerchantConfigurationDAO;
+import au.com.billingbuddy.dao.objects.MerchantCustomerDAO;
 import au.com.billingbuddy.dao.objects.MerchantDAO;
 import au.com.billingbuddy.dao.objects.MerchantRestrictionDAO;
 import au.com.billingbuddy.dao.objects.PlanDAO;
@@ -51,8 +55,10 @@ import au.com.billingbuddy.exceptions.objects.CountryRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.CreditCardRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.CurrencyDAOException;
 import au.com.billingbuddy.exceptions.objects.CustomerDAOException;
+import au.com.billingbuddy.exceptions.objects.FraudDetectionMDTRException;
 import au.com.billingbuddy.exceptions.objects.IndustryDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantConfigurationDAOException;
+import au.com.billingbuddy.exceptions.objects.MerchantCustomerDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
@@ -77,6 +83,7 @@ import au.com.billingbuddy.vo.objects.CurrencyVO;
 import au.com.billingbuddy.vo.objects.CustomerVO;
 import au.com.billingbuddy.vo.objects.IndustryVO;
 import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
+import au.com.billingbuddy.vo.objects.MerchantCustomerVO;
 import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.PlanVO;
@@ -108,7 +115,13 @@ public class ProcessorMDTR {
 	
 	public TransactionVO chargePayment(TransactionVO transactionVO) throws ProcessorMDTRException {
 		ChargeVO chargeVO = null;
+		Charge charge = new Charge();
+		MySQLTransaction mySQLTransaction = null;
+		
 		try {
+			
+			mySQLTransaction = new MySQLTransaction();
+			mySQLTransaction.start();
 			
 			Map<String, Object> hashMapCharge = new HashMap<String, Object>();
 			hashMapCharge.put("amount", Utilities.currencyToStripe(transactionVO.getOrderAmount(), Currency.USD));
@@ -125,7 +138,8 @@ public class ProcessorMDTR {
 			hashMapCharge.put("card", hashMapCard);
 			initialTime = Calendar.getInstance().getTimeInMillis();
 			
-			Charge charge = Charge.create(hashMapCharge);
+//			Charge charge = Charge.create(hashMapCharge);
+			charge = Charge.create(hashMapCharge);
 			printValues(charge);
 	        
 			printTimes(initialTime, finalTime);		
@@ -144,61 +158,114 @@ public class ProcessorMDTR {
 			
 			printValues(charge);
 	        printTimes(initialTime, finalTime);
+	        
+	        /** Hasta este punto a transaccion fue procesada en el Procesador (STRIPE), se debe proceder con el proceso de registro de la 
+	        informacion asociada a la transaccion en la base de datos de BillingBuddy, si alguno de los procesos siguientes falla la informacion 
+	        debe ser registrada en un log por seguridad para permitir un reprocesamiento de la informacion que falló.
+	        **/
+	        
 	        chargeVO.setProcessTime((finalTime-initialTime) + " ms.");
 	        transactionVO.setChargeVO(chargeVO);
 	        
+	        CardVO cardVOAUX = chargeVO.getCardVO();
 	        CardVO cardVO = chargeVO.getCardVO();
-	        CustomerVO customerVO = transactionVO.getCardVO().getCustomerVO();
+	        CardDAO cardDAO = new CardDAO(mySQLTransaction);
 	        
-	        CustomerDAO customerDAO = new CustomerDAO();
-	        initialTime = Calendar.getInstance().getTimeInMillis();
-	        customerDAO.insert(customerVO);
-			finalTime = Calendar.getInstance().getTimeInMillis();
-			System.out.println("Tiempo total para copiar registrar un Customer: " + (finalTime-initialTime) + " ms.");
-	        
-	        if(customerVO != null && customerVO.getId() != null){
-	        	cardVO.setCustomerId(customerVO.getId());
-	        	CardDAO cardDAO = new CardDAO();
+	        if(cardDAO.searchCardByNumber(cardVOAUX) == null) {//El cliente NO existe, se debe registrar todo
+	        	System.out.println("Entra por el if ...");
+		        CustomerVO customerVO = transactionVO.getCardVO().getCustomerVO();
 		        
-	        	initialTime = Calendar.getInstance().getTimeInMillis();
-	        	cardDAO.insert(cardVO);
+		        CustomerDAO customerDAO = new CustomerDAO(mySQLTransaction);
+		        initialTime = Calendar.getInstance().getTimeInMillis();
+		        customerDAO.insert(customerVO);
 				finalTime = Calendar.getInstance().getTimeInMillis();
-				System.out.println("Tiempo total para copiar registrar una Card: " + (finalTime-initialTime) + " ms.");
+				System.out.println("Tiempo total para copiar registrar un Customer: " + (finalTime-initialTime) + " ms.");
 		        
-	        	if(cardVO != null && cardVO.getId() != null){
-		        	chargeVO.setCardId(cardVO.getId());
-		        	chargeVO.setTransactionId(transactionVO.getId());
-		        	ChargeDAO chargeDAO = new ChargeDAO();
-					
-					initialTime = Calendar.getInstance().getTimeInMillis();
-					chargeDAO.insert(chargeVO);
-					finalTime = Calendar.getInstance().getTimeInMillis();
-					System.out.println("Tiempo total para copiar registrar un Charge: " + (finalTime-initialTime) + " ms.");
-					
-					System.out.println("chargeVO.getId(): " + chargeVO.getId());
+		        if(customerVO != null && customerVO.getId() != null) {
+		        	
+		        	MerchantCustomerVO merchantCustomerVO = new MerchantCustomerVO();
+		        	MerchantCustomerDAO merchantCustomerDAO = new MerchantCustomerDAO(mySQLTransaction);
+		        	
+		        	merchantCustomerVO.setCustomerId(customerVO.getId());
+		        	merchantCustomerVO.setMerchantId(transactionVO.getMerchantId());
+		        	
+		        	merchantCustomerDAO.insert(merchantCustomerVO);
+		        	
+		        	if(merchantCustomerVO != null && merchantCustomerVO.getId() != null){
+		        		System.out.println("merchantCustomerVO.getId(): " + merchantCustomerVO.getId());
+			        	cardVO.setCustomerId(customerVO.getId());
+//			        	CardDAO cardDAO = new CardDAO();
+				        
+			        	initialTime = Calendar.getInstance().getTimeInMillis();
+			        	cardDAO.insert(cardVO);
+						finalTime = Calendar.getInstance().getTimeInMillis();
+						System.out.println("Tiempo total para copiar registrar una Card: " + (finalTime-initialTime) + " ms.");
+			        
+			        	if(cardVO != null && cardVO.getId() != null){
+				        	chargeVO.setCardId(cardVO.getId());
+				        	chargeVO.setTransactionId(transactionVO.getId());
+				        	ChargeDAO chargeDAO = new ChargeDAO(mySQLTransaction);
+							
+							initialTime = Calendar.getInstance().getTimeInMillis();
+							if(chargeDAO.insert(chargeVO) != 0){
+								ErrorManager.manageErrorPaymentPage("ProcessorMDTR.chargePayment.ChargeDAOException.SaveCharge", charge.toString());
+							}
+							finalTime = Calendar.getInstance().getTimeInMillis();
+							System.out.println("Tiempo total para copiar registrar un Charge: " + (finalTime-initialTime) + " ms.");
+							
+							System.out.println("chargeVO.getId(): " + chargeVO.getId());
+							mySQLTransaction.commit();
+				        } else {
+				        	System.out.println("#################################################################");
+				        	System.out.println("No fue posible registrar la tarjeta .... ");
+				        	System.out.println("#################################################################");
+				        	ErrorManager.manageErrorPaymentPage("ProcessorMDTR.chargePayment.ChargeDAOException.SaveCard", charge.toString());
+				        	mySQLTransaction.rollback();
+				        }
+		        	}else{
+		        		System.out.println("#################################################################");
+			        	System.out.println("No fue posible asociar el customer al merchant.... ");
+			        	System.out.println("#################################################################");
+			        	ErrorManager.manageErrorPaymentPage("ProcessorMDTR.chargePayment.ChargeDAOException.SaveMerchantCustomerVO", charge.toString());
+			        	mySQLTransaction.rollback();
+		        	}
 		        } else {
 		        	System.out.println("#################################################################");
-		        	System.out.println("No fue posible registrar la tarjeta .... ");
+		        	System.out.println("No fue posible registrar el cliente .... ");
 		        	System.out.println("#################################################################");
+		        	ErrorManager.manageErrorPaymentPage("ProcessorMDTR.chargePayment.ChargeDAOException.SaveCustomer", charge.toString());
+		        	mySQLTransaction.rollback();
 		        }
-	        } else {
-	        	System.out.println("#################################################################");
-	        	System.out.println("No fue posible registrar el cliente .... ");
-	        	System.out.println("#################################################################");
-	        }
+			}else{//El cliente ya existe
+				System.out.println("Entra por el else ...");
+				cardVO.setId(cardVOAUX.getId());
+	        	chargeVO.setCardId(cardVO.getId());
+	        	chargeVO.setTransactionId(transactionVO.getId());
+	        	ChargeDAO chargeDAO = new ChargeDAO(mySQLTransaction);
+				initialTime = Calendar.getInstance().getTimeInMillis();
+				
+				if(chargeDAO.insert(chargeVO) != 0){
+					ErrorManager.manageErrorPaymentPage("ProcessorMDTR.chargePayment.ChargeDAOException.SaveCharge", charge.toString());
+				}
+				
+				finalTime = Calendar.getInstance().getTimeInMillis();
+				System.out.println("Tiempo total para copiar registrar un Charge: " + (finalTime-initialTime) + " ms.");
+				System.out.println("chargeVO.getId(): " + chargeVO.getId());
+				mySQLTransaction.commit();
+			}
 		} catch (AuthenticationException e) {
 			e.printStackTrace();
-			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.AuthenticationException", charge.toString());
 			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.AuthenticationException");
 			throw processorMDTRException;
 		} catch (InvalidRequestException e) {
 			e.printStackTrace();
-			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.InvalidRequestException", charge.toString());
 			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.InvalidRequestException");
 			throw processorMDTRException;
 		} catch (APIConnectionException e) {
 			e.printStackTrace();
-			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.APIConnectionException", charge.toString());
 			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.APIConnectionException");
 			throw processorMDTRException;
 		} catch (CardException e) {
@@ -217,12 +284,12 @@ public class ProcessorMDTR {
 				RejectedChargeDAO rejectedChargeDAO = new RejectedChargeDAO();
 				rejectedChargeDAO.insert(rejectedChargeVO);
 			} catch (MySQLConnectionException ex) {
-				ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(ex);
+				ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.MySQLConnectionException", charge.toString());
 				processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.MySQLConnectionException");
 				throw processorMDTRException;
 			} catch (RejectedChargeDAOException ex) {
 				ex.printStackTrace();
-				ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(ex);
+				ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.RejectedChargesDAOException", charge.toString());
 				processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.RejectedChargesDAOException");
 				throw processorMDTRException;
 			}
@@ -231,31 +298,48 @@ public class ProcessorMDTR {
 			throw processorMDTRException;
 		} catch (APIException e) {
 			e.printStackTrace();
-			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.APIException", charge.toString());
 			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.APIException");
 			throw processorMDTRException;
 		} catch (ChargeDAOException e) {
 			e.printStackTrace();
-			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.ChargeDAOException", charge.toString());
 			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.ChargeDAOException");
 			throw processorMDTRException;
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
-			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.MySQLConnectionException", charge.toString());
 			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.MySQLConnectionException");
 			throw processorMDTRException;
 		} catch (CardDAOException e) {
 			e.printStackTrace();
-			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.CardDAOException", charge.toString());
 			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.CardDAOException");
 			throw processorMDTRException;
 		} catch (CustomerDAOException e) {
 			e.printStackTrace();
-			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.CustomerDAOException", charge.toString());
 			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.CustomerDAOException");
 			throw processorMDTRException;
-		} finally{
+		} catch (MerchantCustomerDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.MerchantCustomerDAOException", charge.toString());
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.MerchantCustomerDAOException");
+			throw processorMDTRException;
+		} catch (MySQLTransactionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e, "ProcessorMDTR.chargePayment.MySQLTransactionException", charge.toString());
+			processorMDTRException.setErrorCode("ProcessorMDTR.chargePayment.MySQLTransactionException");
+			throw processorMDTRException;
+		}finally{
 			transactionVO.setChargeVO(chargeVO);
+			try {
+				if(mySQLTransaction != null){
+					mySQLTransaction.close();
+				}
+			} catch (MySQLTransactionException e) {
+				e.printStackTrace();
+			}
 		}
 		return transactionVO;
 	}
@@ -1838,5 +1922,46 @@ public class ProcessorMDTR {
 		return userMerchantVO;
 	}
 	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
+	public ArrayList<MerchantCustomerVO> listMerchantsCustomer(MerchantCustomerVO merchantCustomerVO) throws ProcessorMDTRException{
+		ArrayList<MerchantCustomerVO> listMerchantsCustomer = null;
+		try {
+			MerchantCustomerDAO merchantCustomerDAO = new MerchantCustomerDAO();
+			listMerchantsCustomer = merchantCustomerDAO.searchMerchantsCustomer(merchantCustomerVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantsCustomer.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantCustomerDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantsCustomer.MerchantCustomerDAOException");
+			throw processorMDTRException;
+		}
+		return listMerchantsCustomer;
+	}
+	
+	public ArrayList<MerchantCustomerVO> listCustomersMerchant(MerchantCustomerVO merchantCustomerVO) throws ProcessorMDTRException{
+		ArrayList<MerchantCustomerVO> listCustomersMerchant = null;
+		try {
+			MerchantCustomerDAO merchantCustomerDAO = new MerchantCustomerDAO();
+			listCustomersMerchant = merchantCustomerDAO.searchCustomersMerchant(merchantCustomerVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCustomersMerchant.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantCustomerDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCustomersMerchant.MerchantCustomerDAOException");
+			throw processorMDTRException;
+		}
+		return listCustomersMerchant;
+	}
 }
 
