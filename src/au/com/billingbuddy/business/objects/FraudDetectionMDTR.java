@@ -37,6 +37,71 @@ public class FraudDetectionMDTR {
 	}
 	
 	private FraudDetectionMDTR() {}
+
+	public TransactionVO creditCardFraudDetectionFinal(TransactionVO transactionVO) throws FraudDetectionMDTRException{
+		HashMap<String, String> hashMap = new HashMap<String, String>();
+		try {
+			
+			//Se asume por defecto que toda transaccion sera fraudulenta a menos que se demuestre lo contrario.
+			transactionVO.setStatus(ConfigurationApplication.getKey("failure"));
+			transactionVO.setMessage(ConfigurationApplication.getKey("FraudDetectionMDRT.1"));
+			
+			CreditCardFraudDetection creditCardFraudDetection = new CreditCardFraudDetection(isSecure);
+			creditCardFraudDetection.debug = isDebugMode();
+			creditCardFraudDetection.setTimeout(10);
+			
+			hashMap.put("i", transactionVO.getIp());
+			hashMap.put("license_key", configurationSystem.getKey("license_key"));
+			hashMap.put("bin", transactionVO.getCardVO().getBin());
+
+//			Required Fields - Billing Address
+	        hashMap.put("city", transactionVO.getBillingAddressCity());
+	        hashMap.put("region", transactionVO.getBillingAddressRegion());
+	        hashMap.put("postal", transactionVO.getBillingAddressPostal());
+	        hashMap.put("country", transactionVO.getBillingAddressCountry());
+			
+			initialTime = Calendar.getInstance().getTimeInMillis();
+			creditCardFraudDetection.input(hashMap);
+	        creditCardFraudDetection.query();
+	        hashMap = creditCardFraudDetection.output();
+	        finalTime = Calendar.getInstance().getTimeInMillis();
+	        
+	        printValues(hashMap);
+	        printTimes(initialTime, finalTime);
+	        
+	        transactionVO.setHighRiskScore(isHighRiskScore(hashMap.get("riskScore")));
+	        transactionVO = parseElements(transactionVO, hashMap);
+	        transactionVO.setProcessTime((finalTime-initialTime) + " ms.");
+        
+			TransactionDAO transactionDAO = new TransactionDAO();
+			
+			if(transactionDAO.insert(transactionVO) == 0){
+				ErrorManager.manageErrorFraudDetection("ProcessorMDTR.creditCardFraudDetection.SaveTransaction", new JSONObject(hashMap).toString());
+			}
+	        
+	        System.out.println("transactionVO.isRiskScore(): " + transactionVO.isHighRiskScore());
+	        
+	        if(!transactionVO.isHighRiskScore()){
+	        	transactionVO.setStatus(ConfigurationApplication.getKey("success"));
+				transactionVO.setMessage(ConfigurationApplication.getKey("FraudDetectionMDRT.0"));
+	        }
+	        
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			FraudDetectionMDTRException fraudDetectionMDTRException = new FraudDetectionMDTRException(e, "ProcessorMDTR.creditCardFraudDetection.MySQLConnectionException", new JSONObject(hashMap).toString());
+			fraudDetectionMDTRException.setErrorCode("ProcessorMDTR.creditCardFraudDetection.MySQLConnectionException");
+			throw fraudDetectionMDTRException;
+		} catch (TransactionDAOException e) {
+			FraudDetectionMDTRException fraudDetectionMDTRException = new FraudDetectionMDTRException(e, "ProcessorMDTR.creditCardFraudDetection.TransactionDAOException", new JSONObject(hashMap).toString());
+			fraudDetectionMDTRException.setErrorCode("ProcessorMDTR.creditCardFraudDetection.TransactionDAOException");
+			throw fraudDetectionMDTRException;
+		} catch (Exception e) {
+			FraudDetectionMDTRException fraudDetectionMDTRException = new FraudDetectionMDTRException(e, "ProcessorMDTR.creditCardFraudDetection.Exception", new JSONObject(hashMap).toString());
+			fraudDetectionMDTRException.setErrorCode("ProcessorMDTR.creditCardFraudDetection.Exception");
+			throw fraudDetectionMDTRException;
+		}
+        return transactionVO;
+	}
 	
 	public TransactionVO creditCardFraudDetection(TransactionVO transactionVO) throws FraudDetectionMDTRException{
 		HashMap<String, String> hashMap = new HashMap<String, String>();
@@ -109,9 +174,8 @@ public class FraudDetectionMDTR {
         
 			TransactionDAO transactionDAO = new TransactionDAO();
 			
-			if(transactionDAO.insert(transactionVO) != 0){
+			if(transactionDAO.insert(transactionVO) == 0){
 				ErrorManager.manageErrorPaymentPage("ProcessorMDTR.creditCardFraudDetection.SaveTransaction", new JSONObject(hashMap).toString());
-				System.out.println("OJO CAMBIAR EL IF PARA EVITAR EL REGISTRO DE TODAS LAS TRANSACCIONES");
 			}
 	        
 	        System.out.println("transactionVO.isRiskScore(): " + transactionVO.isHighRiskScore());

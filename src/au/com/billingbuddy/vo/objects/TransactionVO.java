@@ -95,6 +95,10 @@ public class TransactionVO  extends VO implements Serializable {
 	private RejectedChargeVO rejectedChargeVO;
 	
 	public TransactionVO(){}
+	
+	public TransactionVO(String userId) {
+		setUserId(userId);
+	}
 
 	public String getId() {
 		return id;

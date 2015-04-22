@@ -421,5 +421,63 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 		return listTransactions;
 	}
 
+	public ArrayList<TransactionVO> searchByCustomer(TransactionVO transactionVO) throws TransactionDAOException {
+		ArrayList<TransactionVO> listTransactions = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = getConnection().prepareStatement("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_TRANSACTIONS_BY_CUSTOMER( ? , ? , ? )}");
+			pstmt.setString(1, transactionVO.getMerchantId());
+			pstmt.setString(2, transactionVO.getChargeVO().getCardVO().getCustomerId());
+			pstmt.setString(3, transactionVO.getUserId());
+			
+			rs = pstmt.executeQuery();
+			if (rs != null) {
+				listTransactions = new ArrayList<TransactionVO>();
+				while (rs.next()) {
+					transactionVO = new TransactionVO();
+					transactionVO.setId(rs.getString("Tran_ID"));
+					transactionVO.setCreationTime(rs.getString("Tran_CreateTime"));
+					transactionVO.setIpCity(rs.getString("Tran_IPCity"));
+					transactionVO.setIpRegionName(rs.getString("Tran_IPRegionName"));
+					transactionVO.setCountryCode(rs.getString("Tran_CountryCode"));
+					transactionVO.setIpCountryName(rs.getString("Tran_IPCountryName"));
+					
+					transactionVO.setChargeVO(new ChargeVO());
+					transactionVO.getChargeVO().setId(rs.getString("Char_ID"));
+					transactionVO.getChargeVO().setAmount(rs.getString("Char_Amount"));
+					transactionVO.getChargeVO().setCurrency(rs.getString("Char_Currency"));
+					transactionVO.getChargeVO().setCreationTime(rs.getString("Char_CreateTime"));
+					
+					transactionVO.setCardVO(new CardVO());
+					transactionVO.getCardVO().setId(rs.getString("Card_ID"));
+					transactionVO.getCardVO().setLast4(rs.getString("Card_Last4"));
+					transactionVO.getCardVO().setNumber(rs.getString("Card_Number"));
+					
+					transactionVO.getCardVO().setCustomerId(rs.getString("Cust_ID"));
+					transactionVO.getCardVO().setName(rs.getString("Card_Name"));
+					
+					transactionVO.getCardVO().setBrand(rs.getString("Card_Brand"));
+					transactionVO.getCardVO().setFunding(rs.getString("Card_Funding"));
+					transactionVO.getCardVO().setExpMonth(rs.getString("Card_ExpMonth"));
+					transactionVO.getCardVO().setExpYear(rs.getString("Card_ExpYear"));
+					transactionVO.getCardVO().setCountry(rs.getString("Card_Country"));
+					
+					transactionVO.setMerchantVO(new MerchantVO());
+					transactionVO.getMerchantVO().setId(rs.getString("Merc_ID"));
+					transactionVO.getMerchantVO().setName(rs.getString("Merc_Name"));
+					
+					listTransactions.add(transactionVO);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new TransactionDAOException(e);
+		} finally {
+			PsRs(pstmt, rs, getConnection());
+		}
+		return listTransactions;
+	}
+
 }
 

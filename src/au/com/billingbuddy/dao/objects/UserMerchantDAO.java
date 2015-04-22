@@ -107,6 +107,30 @@ public class UserMerchantDAO extends MySQLConnection implements IUserMerchantDAO
 		}
 		return list;
 	}
+	
+	public UserMerchantVO searchMerchantUser(UserMerchantVO userMerchantVO) throws UserMerchantDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_USER( ? )}");
+			pstmt.setString(1,userMerchantVO.getUserId());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				while (resultSet.next()) {
+					userMerchantVO.setMerchantId(resultSet.getString("Merc_ID"));
+					userMerchantVO.setMerchantVO(new MerchantVO());
+					userMerchantVO.getMerchantVO().setName(resultSet.getString("Merc_Name"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new UserMerchantDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet, connection);
+		}
+		return userMerchantVO;
+	}
 
 	public int rechargeAdministratorAccess( UserMerchantVO userMerchantVO) throws UserMerchantDAOException {
 		CallableStatement cstmt = null;

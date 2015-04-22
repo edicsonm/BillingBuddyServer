@@ -89,7 +89,7 @@ public class MerchantCustomerDAO extends MySQLConnection implements IMerchantCus
 		PreparedStatement pstmt = null;
 		ArrayList<MerchantCustomerVO> list = null;
 		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CUSTOMERS_MERCHANT( ? )}");
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CUSTOMERS_MERCHANT( ? , ? )}");
 			pstmt.setString(1,merchantCustomerVO.getMerchantId());
 			pstmt.setString(2,merchantCustomerVO.getUserId());
 			resultSet = (ResultSet)pstmt.executeQuery();
@@ -104,6 +104,7 @@ public class MerchantCustomerDAO extends MySQLConnection implements IMerchantCus
 					merchantCustomerVOAUX.getMerchantVO().setName(resultSet.getString("Merc_Name"));
 					merchantCustomerVOAUX.setCustomerVO(new CustomerVO());
 					merchantCustomerVOAUX.getCustomerVO().setEmail(resultSet.getString("Cust_Email"));
+					merchantCustomerVOAUX.getCustomerVO().setCreateTime(resultSet.getString("Cust_CreateTime"));
 					list.add(merchantCustomerVOAUX);
 				}
 			}

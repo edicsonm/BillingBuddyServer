@@ -13,6 +13,7 @@ public interface ITransactionDAO {
 	public VO searchByID(String ID) throws TransactionDAOException;
 	public ArrayList<TransactionVO> search() throws TransactionDAOException;
 	public ArrayList<TransactionVO> search(TransactionVO transactionVO) throws TransactionDAOException;
+	public ArrayList<TransactionVO> searchByCustomer(TransactionVO transactionVO) throws TransactionDAOException;
 	
 	/*Reports*/
 	public ArrayList<TransactionVO> searchAmountsByDay(TransactionVO transactionVO) throws TransactionDAOException;

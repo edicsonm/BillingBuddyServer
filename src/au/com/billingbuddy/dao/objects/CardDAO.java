@@ -14,6 +14,7 @@ import au.com.billingbuddy.dao.interfaces.ICardDAO;
 import au.com.billingbuddy.exceptions.objects.CardDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.vo.objects.CardVO;
+import au.com.billingbuddy.vo.objects.CertificateVO;
 import au.com.billingbuddy.vo.objects.VO;
 
 public class CardDAO extends MySQLConnection implements ICardDAO {
@@ -117,7 +118,6 @@ public class CardDAO extends MySQLConnection implements ICardDAO {
 				while (resultSet.next()) {
 					cardVO = new CardVO();
 					cardVO.setId(resultSet.getString("Card_ID"));
-					cardVO.setCustomerId(resultSet.getString("Cust_ID"));
 				}
 			}
 		} catch (SQLException e) {
@@ -127,6 +127,42 @@ public class CardDAO extends MySQLConnection implements ICardDAO {
 			PsRs(pstmt, resultSet,connection);
 		}
 		return cardVO;
+	}
+	
+	public ArrayList<CardVO> searchCardsByCustomer(CardVO cardVO) throws CardDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		ArrayList<CardVO> list = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CARD_BY_CUSTOMER( ? )}");
+			pstmt.setString(1, cardVO.getCustomerId());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				list = new ArrayList<CardVO>();
+				while (resultSet.next()) {
+					cardVO = new CardVO();
+					cardVO.setId(resultSet.getString("Card_ID"));
+					cardVO.setCustomerId(resultSet.getString("Cust_ID"));
+					cardVO.setCustomerId(resultSet.getString("Cust_ID"));
+					cardVO.setName(resultSet.getString("Card_Name"));
+					cardVO.setNumber(resultSet.getString("Card_Number"));
+					cardVO.setExpMonth(resultSet.getString("Card_ExpMonth"));
+					cardVO.setExpYear(resultSet.getString("Card_ExpYear"));
+					cardVO.setBrand(resultSet.getString("Card_Brand"));
+					cardVO.setAddressCity(resultSet.getString("Card_AddressCity"));
+					cardVO.setAddresState(resultSet.getString("Card_AddressState"));
+					cardVO.setAddressCountry(resultSet.getString("Card_AddressCountry"));
+					list.add(cardVO);
+				}
+			}
+		} catch (SQLException e) {
+			CardDAOException cardDAOException =  new CardDAOException(e);
+			throw cardDAOException;
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return list;
 	}
 	
 

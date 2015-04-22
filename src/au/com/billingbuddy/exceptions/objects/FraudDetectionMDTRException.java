@@ -1,7 +1,5 @@
 package au.com.billingbuddy.exceptions.objects;
 
-import org.json.simple.JSONObject;
-
 import au.com.billigbuddy.utils.ErrorManager;
 
 public class FraudDetectionMDTRException extends BillingBuddyException {
@@ -10,7 +8,7 @@ public class FraudDetectionMDTRException extends BillingBuddyException {
 
 	public FraudDetectionMDTRException(Exception e, String location, String error) {
 		super(e);
-		ErrorManager.manageErrorPaymentPage(location, error);
+		ErrorManager.manageErrorFraudDetection(location, error);
 	}
 	
 	public FraudDetectionMDTRException(Exception e) {

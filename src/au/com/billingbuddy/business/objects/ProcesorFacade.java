@@ -6,6 +6,7 @@ import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.exceptions.objects.ProcesorFacadeException;
 import au.com.billingbuddy.exceptions.objects.ProcessorMDTRException;
 import au.com.billingbuddy.vo.objects.BusinessTypeVO;
+import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.ChargeVO;
 import au.com.billingbuddy.vo.objects.CountryBlockListVO;
 import au.com.billingbuddy.vo.objects.CountryRestrictionVO;
@@ -95,6 +96,19 @@ public class ProcesorFacade {
 		}
 		return chargeVO;
 	}
+	
+	public ArrayList<TransactionVO> searchTransactionsByCustomer(TransactionVO transactionVO) throws ProcesorFacadeException{
+		ArrayList<TransactionVO> listTransactionsByCustomer = null;
+		try {
+			listTransactionsByCustomer = processorMDTR.searchTransactionsByCustomer(transactionVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listTransactionsByCustomer;
+	}
+	
 
 /**********************************************************************************************************************************/
 /**********************************************************************************************************************************/
@@ -358,6 +372,17 @@ public class ProcesorFacade {
 			throw procesorFacadeException;
 		}
 		return listMerchants;
+	}
+	
+	public MerchantVO searchMerchantDetailsUpdateProfile(MerchantVO merchantVO) throws ProcesorFacadeException{
+		try {
+			merchantVO = processorMDTR.searchMerchantDetailsUpdateProfile(merchantVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return merchantVO;
 	}
 	
 	public MerchantVO listMerchantDetails(MerchantVO merchantVO) throws ProcesorFacadeException{
@@ -748,6 +773,17 @@ public class ProcesorFacade {
 		return userMerchantVO;
 	}
 	
+	public UserMerchantVO searchMerchantUser(UserMerchantVO userMerchantVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.searchMerchantUser(userMerchantVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return userMerchantVO;
+	}
+	
 	
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
@@ -774,5 +810,20 @@ public class ProcesorFacade {
 			throw procesorFacadeException;
 		}
 		return listCustomersMerchant;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public ArrayList<CardVO> listCardsByCustomer(CardVO cardVO) throws ProcesorFacadeException{
+		ArrayList<CardVO> listCardsByCustomer = null;
+		try {
+			listCardsByCustomer = processorMDTR.listCardsByCustomer(cardVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listCardsByCustomer;
 	}
 }

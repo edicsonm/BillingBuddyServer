@@ -1104,6 +1104,23 @@ public class ProcessorMDTR {
 		return merchantVO;
 	}
 	
+	public MerchantVO searchMerchantDetailsUpdateProfile(MerchantVO merchantVO) throws ProcessorMDTRException{
+		try {
+			MerchantDAO merchantDAO = new MerchantDAO();
+			merchantVO = merchantDAO.searchDetailUpdateProfile(merchantVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDetailsUpdateProfile.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDetailsUpdateProfile.MerchantDAOException");
+			throw processorMDTRException;
+		}
+		return merchantVO;
+	}
+	
 	public MerchantVO saveMerchant(MerchantVO merchantVO) throws ProcessorMDTRException{
 		try {
 			MerchantDAO merchantDAO = new MerchantDAO();
@@ -1788,6 +1805,26 @@ public class ProcessorMDTR {
 	}
 	
 	
+	public ArrayList<TransactionVO> searchTransactionsByCustomer(TransactionVO transactionVO) throws ProcessorMDTRException{
+		ArrayList<TransactionVO> listTransactionsByCustomer = null;
+		try {
+			TransactionDAO transactionDAO = new TransactionDAO();
+			listTransactionsByCustomer = transactionDAO.searchByCustomer(transactionVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchTransactionsByCustomer.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (TransactionDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchTransactionsByCustomer.TransactionDAOException");
+			throw processorMDTRException;
+		}
+		return listTransactionsByCustomer;
+	}
+	
+	
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
@@ -1922,6 +1959,24 @@ public class ProcessorMDTR {
 		return userMerchantVO;
 	}
 	
+	public UserMerchantVO searchMerchantUser(UserMerchantVO userMerchantVO) throws ProcessorMDTRException {
+		try {
+			UserMerchantDAO userMerchantDAO = new UserMerchantDAO();
+			userMerchantVO = userMerchantDAO.searchMerchantUser(userMerchantVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchMerchantUser.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (UserMerchantDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.searchMerchantUser.UserMerchantDAOException");
+			throw processorMDTRException;
+		}
+		return userMerchantVO;
+	}
+	
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
@@ -1962,6 +2017,29 @@ public class ProcessorMDTR {
 			throw processorMDTRException;
 		}
 		return listCustomersMerchant;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
+	public ArrayList<CardVO> listCardsByCustomer(CardVO cardVO) throws ProcessorMDTRException{
+		ArrayList<CardVO> listCardsByCustomer = null;
+		try {
+			CardDAO cardDAO = new CardDAO();
+			listCardsByCustomer = cardDAO.searchCardsByCustomer(cardVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCardsByCustomer.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CardDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listCardsByCustomer.CardDAOException");
+			throw processorMDTRException;
+		}
+		return listCardsByCustomer;
 	}
 }
 

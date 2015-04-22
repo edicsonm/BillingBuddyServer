@@ -13,14 +13,19 @@ import com.stripe.exception.CardException;
 import com.stripe.exception.InvalidRequestException;
 import com.stripe.model.Charge;
 
+import au.com.billigbuddy.utils.ErrorManager;
 import au.com.billingbuddy.common.objects.ConfigurationApplication;
 import au.com.billingbuddy.common.objects.Currency;
+import au.com.billingbuddy.common.objects.SaveInformationTransactionThread;
+import au.com.billingbuddy.common.objects.TransactionManager;
 import au.com.billingbuddy.common.objects.Utilities;
 import au.com.billingbuddy.connection.objects.MySQLTransaction;
 import au.com.billingbuddy.dao.objects.CardDAO;
+import au.com.billingbuddy.dao.objects.ChargeDAO;
 import au.com.billingbuddy.dao.objects.RejectedChargeDAO;
 import au.com.billingbuddy.dao.objects.TransactionDAO;
 import au.com.billingbuddy.exceptions.objects.CardDAOException;
+import au.com.billingbuddy.exceptions.objects.ChargeDAOException;
 import au.com.billingbuddy.exceptions.objects.FraudDetectionMDTRException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.MySQLTransactionException;
@@ -37,8 +42,8 @@ import au.com.billingbuddy.vo.objects.TransactionVO;
 public class TransactionMDTR {
 	
 	private static TransactionMDTR instance = null;
-//	private static ConfigurationApplication instanceConfigurationApplication = ConfigurationApplication.getInstance();
 	private static FraudDetectionMDTR fraudDetectionMDTR = FraudDetectionMDTR.getInstance();
+	private static TransactionManager instanceTransactionManager = TransactionManager.getInstance();
 	
 	private long initialTime;
 	private long finalTime;
@@ -57,29 +62,22 @@ public class TransactionMDTR {
 		// 2.- Contactar al Procesador
 		// 3.- Salvar toda la informacion Administrativa 
 		try {
+			
+			//Se asume por defecto que toda transaccion sera fraudulenta a menos que se demuestre lo contrario.
+			transactionVO.setStatus(ConfigurationApplication.getKey("failure"));
+			transactionVO.setMessage(ConfigurationApplication.getKey("TransactionFacade.2"));
+			transactionVO.setErrorCode("TransactionFacade.2");
+			
 			long initialTime = Calendar.getInstance().getTimeInMillis();
-			transactionVO = fraudDetectionMDTR.creditCardFraudDetection(transactionVO);
+			transactionVO = fraudDetectionMDTR.creditCardFraudDetectionFinal(transactionVO);
 			long finalTime = Calendar.getInstance().getTimeInMillis();
 			System.out.println("Tiempo total de procesamiento para MaxMind: " + (finalTime-initialTime) + " ms.");
 
 			if(!transactionVO.isHighRiskScore()) {
 				initialTime = Calendar.getInstance().getTimeInMillis();
-				transactionVO = chargePayment(transactionVO);
+				transactionVO = chargePaymentFinal(transactionVO);
 				finalTime = Calendar.getInstance().getTimeInMillis();
 				System.out.println("Tiempo total de procesamiento para Stripe: " + (finalTime-initialTime) + " ms.");
-				if(transactionVO != null && transactionVO.getChargeVO() != null && transactionVO.getChargeVO().getId() != null){
-					transactionVO.setStatus(ConfigurationApplication.getKey("success"));
-					transactionVO.setMessage(ConfigurationApplication.getKey("TransactionFacade.0"));
-					transactionVO.setErrorCode("TransactionFacade.1");
-		        }else{
-		        	transactionVO.setStatus(ConfigurationApplication.getKey("failure"));
-					transactionVO.setMessage(ConfigurationApplication.getKey("TransactionFacade.1"));
-					transactionVO.setErrorCode("TransactionFacade.1");
-		        }
-			} else {
-				transactionVO.setStatus(ConfigurationApplication.getKey("failure"));
-				transactionVO.setMessage(ConfigurationApplication.getKey("TransactionFacade.2"));
-				transactionVO.setErrorCode("TransactionFacade.2");
 			}
 			
 		} catch (FraudDetectionMDTRException e) {
@@ -92,7 +90,8 @@ public class TransactionMDTR {
 	}
 	
 	
-	public TransactionVO chargePayment(TransactionVO transactionVO) throws TransactionMDTRException {
+	public TransactionVO chargePaymentFinal(TransactionVO transactionVO) throws TransactionMDTRException {
+		ChargeVO chargeVO = null;
 		Charge charge = new Charge();
 		try {
 				Map<String, Object> hashMapCharge = new HashMap<String, Object>();
@@ -115,17 +114,18 @@ public class TransactionMDTR {
 		        
 				printTimes(initialTime, finalTime);		
 				finalTime = Calendar.getInstance().getTimeInMillis();
-	//			chargeVO = new ChargeVO();
-	//			chargeVO.setCardVO(transactionVO.getCardVO());
-	//			chargeVO.setTransactionId(transactionVO.getId());
-	//			chargeVO.setProcessTime((finalTime-initialTime) + " ms.");
+				chargeVO = new ChargeVO();
+				chargeVO.setCardVO(transactionVO.getCardVO());
+				chargeVO.setTransactionId(transactionVO.getId());
+				chargeVO.setProcessTime((finalTime-initialTime) + " ms.");
 				
-	//			long initialTime = Calendar.getInstance().getTimeInMillis();
-	//			Utilities.copyChargeToChargeVO(chargeVO,charge);
-	//			long finalTime = Calendar.getInstance().getTimeInMillis();
-	//			System.out.println("Tiempo total para copiar los elementos de Stripe: " + (finalTime-initialTime) + " ms.");
-	//			
-	//			transactionVO.setCardVO(chargeVO.getCardVO());
+				long initialTime = Calendar.getInstance().getTimeInMillis();
+				Utilities.copyChargeToChargeVO(chargeVO,charge);
+				long finalTime = Calendar.getInstance().getTimeInMillis();
+				System.out.println("Tiempo total para copiar los elementos de Stripe: " + (finalTime-initialTime) + " ms.");
+				
+				transactionVO.setCardVO(chargeVO.getCardVO());
+				transactionVO.setChargeVO(chargeVO);
 				
 				printValues(charge);
 		        printTimes(initialTime, finalTime);
@@ -135,23 +135,25 @@ public class TransactionMDTR {
 		        debe ser registrada en un log por seguridad para permitir un reprocesamiento de la informacion que falló.
 		        **/
 		        
+		        instanceTransactionManager.saveInformationTransaction(transactionVO.getId(), transactionVO, charge);
+		        
 		        transactionVO.setStatus(ConfigurationApplication.getKey("success"));
 				transactionVO.setMessage(ConfigurationApplication.getKey("TransactionFacade.0"));
 				
 			} catch (AuthenticationException e) {
 				e.printStackTrace();
-				TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, "ProcessorMDTR.chargePayment.AuthenticationException", charge.toString());
-				transactionMDTRException.setErrorCode("TransactionMDTR.chargePayment.AuthenticationException");
+				TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, transactionVO.getId(), "ProcessorMDTR.chargePaymentFinal.AuthenticationException", charge.toString());
+				transactionMDTRException.setErrorCode("TransactionMDTR.chargePaymentFinal.AuthenticationException");
 				throw transactionMDTRException;
 			} catch (InvalidRequestException e) {
 				e.printStackTrace();
-				TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, "ProcessorMDTR.chargePayment.InvalidRequestException", charge.toString());
-				transactionMDTRException.setErrorCode("TransactionMDTR.chargePayment.InvalidRequestException");
+				TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, transactionVO.getId(), "ProcessorMDTR.chargePaymentFinal.InvalidRequestException", charge.toString());
+				transactionMDTRException.setErrorCode("TransactionMDTR.chargePaymentFinal.InvalidRequestException");
 				throw transactionMDTRException;
 			} catch (APIConnectionException e) {
 				e.printStackTrace();
-				TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, "ProcessorMDTR.chargePayment.APIConnectionException", charge.toString());
-				transactionMDTRException.setErrorCode("TransactionMDTR.chargePayment.APIConnectionException");
+				TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, transactionVO.getId(), "ProcessorMDTR.chargePaymentFinal.APIConnectionException", charge.toString());
+				transactionMDTRException.setErrorCode("TransactionMDTR.chargePaymentFinal.APIConnectionException");
 				throw transactionMDTRException;
 			} catch (CardException e) {
 				e.printStackTrace();
@@ -169,25 +171,89 @@ public class TransactionMDTR {
 					RejectedChargeDAO rejectedChargeDAO = new RejectedChargeDAO();
 					rejectedChargeDAO.insert(rejectedChargeVO);
 				} catch (MySQLConnectionException ex) {
-					TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, "ProcessorMDTR.chargePayment.MySQLConnectionException", charge.toString());
-					transactionMDTRException.setErrorCode("ProcessorMDTR.chargePayment.MySQLConnectionException");
+					TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, transactionVO.getId(), "ProcessorMDTR.chargePaymentFinal.MySQLConnectionException", charge.toString());
+					transactionMDTRException.setErrorCode("TransactionMDTR.chargePaymentFinal.MySQLConnectionException");
 					throw transactionMDTRException;
 				} catch (RejectedChargeDAOException ex) {
 					ex.printStackTrace();
-					TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, "ProcessorMDTR.chargePayment.RejectedChargesDAOException", charge.toString());
-					transactionMDTRException.setErrorCode("ProcessorMDTR.chargePayment.RejectedChargesDAOException");
+					TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, transactionVO.getId(), "ProcessorMDTR.chargePaymentFinal.RejectedChargesDAOException", charge.toString());
+					transactionMDTRException.setErrorCode("TransactionMDTR.chargePaymentFinal.RejectedChargesDAOException");
 					throw transactionMDTRException;
 				}
-				TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e);
-				transactionMDTRException.setErrorCode("ProcessorMDTR.chargePayment.CardException." + e.getCode());
+				TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, transactionVO.getId(),"ProcessorMDTR.chargePaymentFinal.CardException", charge.toString());
+				transactionMDTRException.setErrorCode("TransactionMDTR.chargePaymentFinal.CardException." + e.getCode());
 				throw transactionMDTRException;
 			} catch (APIException e) {
 				e.printStackTrace();
-				TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, "ProcessorMDTR.chargePayment.APIException", charge.toString());
-				transactionMDTRException.setErrorCode("ProcessorMDTR.chargePayment.APIException");
+				TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, transactionVO.getId(), "ProcessorMDTR.chargePayment.APIException", charge.toString());
+				transactionMDTRException.setErrorCode("TransactionMDTR.chargePayment.APIException");
 				throw transactionMDTRException;
 			} 
 			return transactionVO;
+	}
+	
+	public TransactionVO saveInformationTransaction(TransactionVO transactionVO, ChargeVO chargeVO, Charge charge) throws TransactionMDTRException {
+		CardVO cardVOAUX = chargeVO.getCardVO();
+        CardVO cardVO = chargeVO.getCardVO();
+        MySQLTransaction mySQLTransaction = null;
+		try {
+			mySQLTransaction = new MySQLTransaction();
+			mySQLTransaction.start();
+			CardDAO cardDAO = new CardDAO(mySQLTransaction);
+	        if(cardDAO.searchCardByNumber(cardVOAUX) == null) {//El cliente NO existe, se debe registrar todo
+	        	System.out.println("El cliente NO existe, se debe registrar todo");
+	        	
+	        }else{
+	        	System.out.println("El cliente EXISTE");
+	        	cardVO.setId(cardVOAUX.getId());
+	        	chargeVO.setCardId(cardVO.getId());
+	        	chargeVO.setTransactionId(transactionVO.getId());
+	        	ChargeDAO chargeDAO = new ChargeDAO(mySQLTransaction);
+				initialTime = Calendar.getInstance().getTimeInMillis();
+				
+				System.out.println("chargeVO.getTransactionId(): " + chargeVO.getTransactionId());
+				System.out.println("chargeVO.getStripeId(): " + chargeVO.getStripeId());
+				System.out.println("chargeVO.getInvoiceId(): " + chargeVO.getInvoiceId());
+				System.out.println("chargeVO.getAddressId(): " + chargeVO.getAddressId());
+				
+				if(chargeDAO.insert(chargeVO) != 0) {
+					ErrorManager.manageErrorPaymentPage("TransactionMDTR.saveInformationTransaction.ChargeDAOException.SaveCharge", charge.toString());
+				}
+				
+				finalTime = Calendar.getInstance().getTimeInMillis();
+				System.out.println("Tiempo total para copiar registrar un Charge: " + (finalTime-initialTime) + " ms.");
+				System.out.println("chargeVO.getId(): " + chargeVO.getId());
+				mySQLTransaction.commit();
+	        	
+	        }
+		} catch (MySQLTransactionException e) {
+			e.printStackTrace();
+			TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, "TransactionMDTR.saveInformationTransaction.MySQLTransactionException", charge.toString());
+			transactionMDTRException.setErrorCode("TransactionMDTR.saveInformationTransaction.MySQLTransactionException");
+			throw transactionMDTRException;
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+		} catch (CardDAOException e) {
+			e.printStackTrace();
+			TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, "TransactionMDTR.saveInformationTransaction.CardDAOException", charge.toString());
+			transactionMDTRException.setErrorCode("TransactionMDTR.saveInformationTransaction.CardDAOException");
+			throw transactionMDTRException;
+		} catch (ChargeDAOException e) {
+			e.printStackTrace();
+			TransactionMDTRException transactionMDTRException = new TransactionMDTRException(e, "TransactionMDTR.saveInformationTransaction.ChargeDAOException", charge.toString());
+			transactionMDTRException.setErrorCode("TransactionMDTR.saveInformationTransaction.ChargeDAOException");
+			throw transactionMDTRException;
+		}finally{
+			transactionVO.setChargeVO(chargeVO);
+			try {
+				if(mySQLTransaction != null){
+					mySQLTransaction.close();
+				}
+			} catch (MySQLTransactionException e) {
+				e.printStackTrace();
+			}
+		}
+		return transactionVO;
 	}
 	
 	private void printTimes(long initialTime, long finalTime) {
@@ -222,8 +288,6 @@ public class TransactionMDTR {
 			System.out.println(charge);
 		}
 	}
-	
-	
 	
 	public TransactionVO chargePayment_ELimiar_ETODO(TransactionVO transactionVO) throws TransactionMDTRException {
 		try {
@@ -344,7 +408,6 @@ public class TransactionMDTR {
 //			throw transactionMDTRException;
 		}
 	}
-	
 	
 	public ArrayList<TransactionVO> listTransaction(TransactionVO transactionVO){
 		try {

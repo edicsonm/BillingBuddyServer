@@ -12,6 +12,7 @@ public interface IMerchantDAO {
 	public int delete(MerchantVO merchantVO) throws MerchantDAOException;
 	public int changeStatusMerchant(MerchantVO merchantVO) throws MerchantDAOException;
 	public MerchantVO searchDetail(MerchantVO merchantVO) throws MerchantDAOException;
+	public MerchantVO searchDetailUpdateProfile(MerchantVO merchantVO) throws MerchantDAOException;
 	
 	public ArrayList<MerchantVO> search(MerchantVO merchantVO) throws MerchantDAOException;
 	public ArrayList<MerchantVO> searchAll(MerchantVO merchantVO) throws MerchantDAOException;

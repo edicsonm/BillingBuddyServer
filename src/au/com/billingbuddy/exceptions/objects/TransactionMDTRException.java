@@ -6,9 +6,9 @@ public class TransactionMDTRException extends BillingBuddyException {
 
 	private static final long serialVersionUID = -7547774623502489923L;
 
-	public TransactionMDTRException(Exception e, String location, String error) {
+	public TransactionMDTRException(Exception e, String ... attributes) {
 		super(e);
-		ErrorManager.manageErrorPaymentPage(location, error);
+		ErrorManager.manageErrorProcessor(attributes);
 	}
 	
 	public TransactionMDTRException(Exception e) {

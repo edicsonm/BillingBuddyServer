@@ -16,6 +16,10 @@ public class MerchantCustomerVO extends VO implements Serializable {
 	public MerchantCustomerVO() {
 	}
 
+	public MerchantCustomerVO(String userId) {
+		setUserId(userId);
+	}
+	
 	public String getId() {
 		return id;
 	}
