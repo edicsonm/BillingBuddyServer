@@ -36,6 +36,12 @@ public class MerchantVO extends VO implements Serializable {
 	private String postCodePersonalInformation;
 	private String countryNumericPersonalInformation;
 	
+	private String averageTicketSize;
+	private String monthlyProcessingVolume;
+	private String firstQuestion;
+	private String secondQuestion;
+	private String thirdQuestion;
+	
 	private CountryVO countryVOBusiness;
 	private CountryVO countryVOPersonalInformation;
 	
@@ -365,6 +371,46 @@ public class MerchantVO extends VO implements Serializable {
 
 	public void setCertificateVO(CertificateVO certificateVO) {
 		this.certificateVO = certificateVO;
+	}
+
+	public String getAverageTicketSize() {
+		return averageTicketSize;
+	}
+
+	public void setAverageTicketSize(String averageTicketSize) {
+		this.averageTicketSize = averageTicketSize;
+	}
+
+	public String getMonthlyProcessingVolume() {
+		return monthlyProcessingVolume;
+	}
+
+	public void setMonthlyProcessingVolume(String monthlyProcessingVolume) {
+		this.monthlyProcessingVolume = monthlyProcessingVolume;
+	}
+
+	public String getFirstQuestion() {
+		return firstQuestion;
+	}
+
+	public void setFirstQuestion(String firstQuestion) {
+		this.firstQuestion = firstQuestion;
+	}
+
+	public String getSecondQuestion() {
+		return secondQuestion;
+	}
+
+	public void setSecondQuestion(String secondQuestion) {
+		this.secondQuestion = secondQuestion;
+	}
+
+	public String getThirdQuestion() {
+		return thirdQuestion;
+	}
+
+	public void setThirdQuestion(String thirdQuestion) {
+		this.thirdQuestion = thirdQuestion;
 	}
 
 	/*@Override

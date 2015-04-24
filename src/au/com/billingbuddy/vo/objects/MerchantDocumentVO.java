@@ -9,6 +9,7 @@ public class MerchantDocumentVO extends VO implements Serializable {
 	private String id;
 	private String merchantId;
 	private String name;
+	private String description;
 	private String size;
 	private Blob file;
 	
@@ -63,6 +64,14 @@ public class MerchantDocumentVO extends VO implements Serializable {
 
 	public void setMerchantVO(MerchantVO merchantVO) {
 		this.merchantVO = merchantVO;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }

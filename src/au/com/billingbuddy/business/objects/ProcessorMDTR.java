@@ -39,6 +39,7 @@ import au.com.billingbuddy.dao.objects.IndustryDAO;
 import au.com.billingbuddy.dao.objects.MerchantConfigurationDAO;
 import au.com.billingbuddy.dao.objects.MerchantCustomerDAO;
 import au.com.billingbuddy.dao.objects.MerchantDAO;
+import au.com.billingbuddy.dao.objects.MerchantDocumentDAO;
 import au.com.billingbuddy.dao.objects.MerchantRestrictionDAO;
 import au.com.billingbuddy.dao.objects.PlanDAO;
 import au.com.billingbuddy.dao.objects.RefundDAO;
@@ -60,6 +61,7 @@ import au.com.billingbuddy.exceptions.objects.IndustryDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantConfigurationDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantCustomerDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantDAOException;
+import au.com.billingbuddy.exceptions.objects.MerchantDocumentDAOException;
 import au.com.billingbuddy.exceptions.objects.MerchantRestrictionDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.MySQLTransactionException;
@@ -84,6 +86,7 @@ import au.com.billingbuddy.vo.objects.CustomerVO;
 import au.com.billingbuddy.vo.objects.IndustryVO;
 import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
 import au.com.billingbuddy.vo.objects.MerchantCustomerVO;
+import au.com.billingbuddy.vo.objects.MerchantDocumentVO;
 import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.PlanVO;
@@ -410,6 +413,25 @@ public class ProcessorMDTR {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
 			processorMDTRException.setErrorCode("ProcessorMDTR.listChargeByDayFiter.ChargeDAOException");
+			throw processorMDTRException;
+		}
+		return listCharge;
+	}
+	
+	public ArrayList<ChargeVO> listChargesRefundedByCustomer(ChargeVO chargeVO) throws ProcessorMDTRException{
+		ArrayList<ChargeVO> listCharge = null;
+		try {
+			ChargeDAO chargeDAO = new ChargeDAO();
+			listCharge = chargeDAO.searchChargesRefundedByCustomer(chargeVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listChargesRefundedByCustomer.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (ChargeDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listChargesRefundedByCustomer.ChargeDAOException");
 			throw processorMDTRException;
 		}
 		return listCharge;
@@ -2041,5 +2063,102 @@ public class ProcessorMDTR {
 		}
 		return listCardsByCustomer;
 	}
+
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	
+	public MerchantDocumentVO saveMerchantDocument(MerchantDocumentVO merchantDocumentVO) throws ProcessorMDTRException{
+		try {
+			MerchantDocumentDAO merchantDocumentDAO = new MerchantDocumentDAO();
+			if(merchantDocumentDAO.insert(merchantDocumentVO) != 0 ){
+				merchantDocumentVO.setStatus(ConfigurationApplication.getKey("success"));
+				merchantDocumentVO.setMessage("ProcessorMDTR.saveMerchantDocument.success");
+	        }else{
+	        	merchantDocumentVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	merchantDocumentVO.setMessage("ProcessorMDTR.saveMerchantDocument.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar el Documento para el Merchant .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantDocument.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDocumentDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveMerchantDocument.MerchantDocumentDAOException");
+			throw processorMDTRException;
+		}
+		return merchantDocumentVO;
+	}
+	
+	public MerchantDocumentVO deleteMerchantDocument(MerchantDocumentVO merchantDocumentVO) throws ProcessorMDTRException{
+		try {
+			MerchantDocumentDAO merchantDocumentDAO = new MerchantDocumentDAO();
+			if(merchantDocumentDAO.delete(merchantDocumentVO) != 0 ){
+				merchantDocumentVO.setStatus(ConfigurationApplication.getKey("success"));
+				merchantDocumentVO.setMessage("ProcessorMDTR.deleteMerchantDocument.success");
+	        }else{
+	        	merchantDocumentVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	merchantDocumentVO.setMessage("ProcessorMDTR.deleteMerchantDocument.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible Elmiminar el Documento para el Merchant .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchantDocument.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDocumentDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.deleteMerchantDocument.MerchantDocumentDAOException");
+			throw processorMDTRException;
+		}
+		return merchantDocumentVO;
+	}
+	
+	public MerchantDocumentVO listMerchantDocument(MerchantDocumentVO merchantDocumentVO) throws ProcessorMDTRException{
+		try {
+			MerchantDocumentDAO merchantDocumentDAO = new MerchantDocumentDAO();
+			merchantDocumentVO = merchantDocumentDAO.searchDocument(merchantDocumentVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDocument.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDocumentDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDocument.CardDAOException");
+			throw processorMDTRException;
+		}
+		return merchantDocumentVO;
+	}
+	
+	public ArrayList<MerchantDocumentVO> listMerchantDocuments(MerchantDocumentVO merchantDocumentVO) throws ProcessorMDTRException{
+		ArrayList<MerchantDocumentVO> listMerchantDocuments = null;
+		try {
+			MerchantDocumentDAO merchantDocumentDAO = new MerchantDocumentDAO();
+			listMerchantDocuments = merchantDocumentDAO.searchDocuments(merchantDocumentVO);
+		} catch (MySQLConnectionException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDocuments.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (MerchantDocumentDAOException e) {
+			e.printStackTrace();
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.listMerchantDocuments.CardDAOException");
+			throw processorMDTRException;
+		}
+		return listMerchantDocuments;
+	}
+	
+	
 }
 

@@ -94,7 +94,7 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_MERCHANT(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
 			cstmt.setString(1,merchantVO.getBusinessTypeId());
 			cstmt.setString(2,merchantVO.getIndustryId());
 			cstmt.setString(3,merchantVO.getCountryNumericMerchant());
@@ -118,9 +118,14 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 			cstmt.setString(21,merchantVO.getAlternateEmailAddress());
 			cstmt.setString(22,merchantVO.getCityPersonalInformation());
 			cstmt.setString(23,merchantVO.getPostCodePersonalInformation());
-			cstmt.setString(24,merchantVO.getId());
+			cstmt.setString(24,merchantVO.getAverageTicketSize());
+			cstmt.setString(25,merchantVO.getMonthlyProcessingVolume());
+			cstmt.setString(26,merchantVO.getFirstQuestion());
+			cstmt.setString(27,merchantVO.getSecondQuestion());
+			cstmt.setString(28,merchantVO.getThirdQuestion());
+			cstmt.setString(29,merchantVO.getId());
 			status = cstmt.executeUpdate();
-			merchantVO.setId(cstmt.getString(24));
+			merchantVO.setId(cstmt.getString(29));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new MerchantDAOException(e);
@@ -212,7 +217,6 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 		try {
 			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_MERCHANT_DETAILS_UPDATE_PROFILE( ? )}");
 			pstmt.setString(1,merchantVO.getId());
-			System.out.println("merchantVO.getId() en e DAO: " + merchantVO.getId());
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				while (resultSet.next()) {
@@ -243,6 +247,13 @@ public class MerchantDAO extends MySQLConnection implements IMerchantDAO {
 					merchantVO.setAlternateEmailAddress(resultSet.getString("Merc_AlternateEmailAddress"));
 					merchantVO.setCityPersonalInformation(resultSet.getString("Merc_CityPersonalInformation"));
 					merchantVO.setPostCodePersonalInformation(resultSet.getString("Merc_PostCodePersonalInformation"));
+					
+					merchantVO.setAverageTicketSize(resultSet.getString("Merc_AverageTicketSize"));
+					merchantVO.setMonthlyProcessingVolume(resultSet.getString("Merc_MonthlyProcessingVolume"));
+					merchantVO.setFirstQuestion(resultSet.getString("Merc_FirstQuestion"));
+					merchantVO.setSecondQuestion(resultSet.getString("Merc_SecondQuestion"));
+					merchantVO.setThirdQuestion(resultSet.getString("Merc_ThirdQuestion"));
+					
 				}
 			}
 		} catch (SQLException e) {

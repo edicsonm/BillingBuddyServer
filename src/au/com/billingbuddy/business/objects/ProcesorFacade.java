@@ -16,6 +16,7 @@ import au.com.billingbuddy.vo.objects.CurrencyVO;
 import au.com.billingbuddy.vo.objects.IndustryVO;
 import au.com.billingbuddy.vo.objects.MerchantConfigurationVO;
 import au.com.billingbuddy.vo.objects.MerchantCustomerVO;
+import au.com.billingbuddy.vo.objects.MerchantDocumentVO;
 import au.com.billingbuddy.vo.objects.MerchantRestrictionVO;
 import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.PlanVO;
@@ -78,6 +79,18 @@ public class ProcesorFacade {
 		ArrayList<ChargeVO> listCharges = null;
 		try {
 			listCharges = processorMDTR.listChargeByDayFiter(chargeVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listCharges;
+	}
+	
+	public ArrayList<ChargeVO> listChargesRefundedByCustomer(ChargeVO chargeVO) throws ProcesorFacadeException{
+		ArrayList<ChargeVO> listCharges = null;
+		try {
+			listCharges = processorMDTR.listChargesRefundedByCustomer(chargeVO);
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());
@@ -825,5 +838,53 @@ public class ProcesorFacade {
 			throw procesorFacadeException;
 		}
 		return listCardsByCustomer;
+	}
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	public MerchantDocumentVO saveMerchantDocument(MerchantDocumentVO merchantDocumentVO) throws ProcesorFacadeException{
+		try {
+			merchantDocumentVO = processorMDTR.saveMerchantDocument(merchantDocumentVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return merchantDocumentVO;
+	}
+	
+	public MerchantDocumentVO deleteMerchantDocument(MerchantDocumentVO merchantDocumentVO) throws ProcesorFacadeException{
+		try {
+			merchantDocumentVO = processorMDTR.deleteMerchantDocument(merchantDocumentVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return merchantDocumentVO;
+	}
+	
+	public MerchantDocumentVO listMerchantDocument(MerchantDocumentVO merchantDocumentVO) throws ProcesorFacadeException{
+		try {
+			merchantDocumentVO = processorMDTR.listMerchantDocument(merchantDocumentVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return merchantDocumentVO;
+	}
+	
+	public ArrayList<MerchantDocumentVO> listMerchantDocuments(MerchantDocumentVO merchantDocumentVO) throws ProcesorFacadeException{
+		ArrayList<MerchantDocumentVO> listMerchantDocuments = null;
+		try {
+			listMerchantDocuments = processorMDTR.listMerchantDocuments(merchantDocumentVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return listMerchantDocuments;
 	}
 }
