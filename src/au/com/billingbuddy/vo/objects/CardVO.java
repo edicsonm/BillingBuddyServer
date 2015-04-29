@@ -234,5 +234,18 @@ public class CardVO extends VO implements Serializable{
 		this.addressCountry = addressCountry;
 	}
 	
+	@Override
+    public boolean equals(Object obj) {
+		if (!(obj instanceof CardVO))
+			return false;
+		CardVO objetoVO = (CardVO) obj;
+		return (this.getId().equalsIgnoreCase(objetoVO.getId()));
+    }
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+	
 
 }

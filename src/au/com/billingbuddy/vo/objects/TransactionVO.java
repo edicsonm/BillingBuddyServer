@@ -788,7 +788,18 @@ public class TransactionVO  extends VO implements Serializable {
 		this.creationTime = creationTime;
 	}
 
+	@Override
+    public boolean equals(Object obj) {
+		if (!(obj instanceof TransactionVO))
+			return false;
+		TransactionVO objetoVO = (TransactionVO) obj;
+		return (this.getId().equalsIgnoreCase(objetoVO.getId()));
+    }
 
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
 	
 
 }

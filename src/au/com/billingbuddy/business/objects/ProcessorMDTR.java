@@ -752,29 +752,29 @@ public class ProcessorMDTR {
 		return subscriptionVO;
 	}
 	
-	public SubscriptionVO deleteSubscription(SubscriptionVO subscriptionVO) throws ProcessorMDTRException{
+	public SubscriptionVO cancelSubscription(SubscriptionVO subscriptionVO) throws ProcessorMDTRException{
 		try {
 			SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
-			subscriptionDAO.delete(subscriptionVO);
-			if(subscriptionVO != null && subscriptionVO.getId() != null){
+			if(subscriptionDAO.cancel(subscriptionVO) != 0){
+//			if(subscriptionVO != null && subscriptionVO.getId() != null){
 				subscriptionVO.setStatus(instanceConfigurationApplication.getKey("success"));
-				subscriptionVO.setMessage("ProcessorMDTR.deleteSubscription.success");
+				subscriptionVO.setMessage("ProcessorMDTR.cancelSubscription.success");
 	        }else{
 	        	subscriptionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
-	        	subscriptionVO.setMessage("ProcessorMDTR.deleteSubscription.failure");
+	        	subscriptionVO.setMessage("ProcessorMDTR.cancelSubscription.failure");
 				System.out.println("#################################################################");
-	        	System.out.println("No fue posible eliminar la Subscription .... ");
+	        	System.out.println("No fue posible cancelar la Subscription .... ");
 	        	System.out.println("#################################################################");
 	        }
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.deleteSubscription.MySQLConnectionException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.cancelSubscription.MySQLConnectionException");
 			throw processorMDTRException;
 		} catch (SubscriptionDAOException e) {
 			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.deleteSubscription.SubscriptionDAOException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.cancelSubscription.SubscriptionDAOException");
 			throw processorMDTRException;
 		}
 		return subscriptionVO;

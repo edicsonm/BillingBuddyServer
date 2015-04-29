@@ -210,9 +210,9 @@ public class ProcesorFacade {
 		return subscriptionVO;
 	}
 	
-	public SubscriptionVO deleteSubscription(SubscriptionVO subscriptionVO) throws ProcesorFacadeException{
+	public SubscriptionVO cancelSubscription(SubscriptionVO subscriptionVO) throws ProcesorFacadeException{
 		try {
-			processorMDTR.deleteSubscription(subscriptionVO);
+			processorMDTR.cancelSubscription(subscriptionVO);
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());

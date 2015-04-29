@@ -168,5 +168,18 @@ public class SubscriptionVO extends VO implements Serializable {
 	public void setPlanVO(PlanVO planVO) {
 		this.planVO = planVO;
 	}
+	
+	@Override
+    public boolean equals(Object obj) {
+		if (!(obj instanceof SubscriptionVO))
+			return false;
+		SubscriptionVO objetoVO = (SubscriptionVO) obj;
+		return (this.getId().equalsIgnoreCase(objetoVO.getId()));
+    }
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
 
 }

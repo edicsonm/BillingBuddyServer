@@ -8,7 +8,7 @@ import au.com.billingbuddy.vo.objects.SubscriptionVO;
 public interface ISubscriptionDAO {
 	public int insert(SubscriptionVO subscriptionVO) throws SubscriptionDAOException;
 	public int update(SubscriptionVO subscriptionVO) throws SubscriptionDAOException;
-	public int delete(SubscriptionVO subscriptionVO) throws SubscriptionDAOException;
+	public int cancel(SubscriptionVO subscriptionVO) throws SubscriptionDAOException;
 	public SubscriptionVO searchByID(String ID) throws SubscriptionDAOException;
 	public ArrayList<SubscriptionVO> search() throws SubscriptionDAOException;
 }

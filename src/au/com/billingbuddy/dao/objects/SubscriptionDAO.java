@@ -92,11 +92,11 @@ public class SubscriptionDAO extends MySQLConnection implements ISubscriptionDAO
 		return status;
 	}
 
-	public int delete(SubscriptionVO subscriptionVO) throws SubscriptionDAOException {
+	public int cancel(SubscriptionVO subscriptionVO) throws SubscriptionDAOException {
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_DELETE_SUBSCRIPTION(?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_CANCEL_SUBSCRIPTION(?)}");
 			cstmt.setString(1,subscriptionVO.getId());
 			status = cstmt.executeUpdate();
 			subscriptionVO.setId(cstmt.getString(1));
@@ -123,7 +123,8 @@ public class SubscriptionDAO extends MySQLConnection implements ISubscriptionDAO
 		PreparedStatement pstmt = null;
 		ArrayList<SubscriptionVO> list = null;
 		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_SUBSCRIPTION()}");
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_SUBSCRIPTION(?)}");
+			pstmt.setString(1,subscriptionVO.getCustomerId());
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				list = new ArrayList<SubscriptionVO>();
