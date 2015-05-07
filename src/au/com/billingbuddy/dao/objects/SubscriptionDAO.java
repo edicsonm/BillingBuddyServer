@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import au.com.billigbuddy.utils.BBUtils;
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.common.objects.Utilities;
 import au.com.billingbuddy.connection.objects.MySQLConnection;
@@ -31,16 +32,15 @@ public class SubscriptionDAO extends MySQLConnection implements ISubscriptionDAO
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_SUBSCRIPTION(?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_SUBSCRIPTION(?, ?, ?, ?, ?, ?, ?, ?)}");
 			cstmt.setString(1,subscriptionVO.getPlanId());
 			cstmt.setString(2,subscriptionVO.getCustomerId());
 			cstmt.setString(3,subscriptionVO.getDiscountId());
 			cstmt.setString(4,subscriptionVO.getQuantity());
-			cstmt.setDate(5,Utilities.stringToSqlDate(subscriptionVO.getTrialStart()));
-			cstmt.setDate(6,Utilities.stringToSqlDate(subscriptionVO.getTrialEnd()));
-			cstmt.setDate(7,Utilities.stringToSqlDate(subscriptionVO.getStart()));
-			cstmt.setString(8,subscriptionVO.getTaxPercent());
-			cstmt.setString(9,"0");
+			cstmt.setDate(5,BBUtils.formatStringToSqlDate(6,subscriptionVO.getTrialStart()));
+			cstmt.setDate(6,BBUtils.formatStringToSqlDate(6,subscriptionVO.getTrialEnd()));
+			cstmt.setString(7,subscriptionVO.getTaxPercent());
+			cstmt.setString(8,"0");
 			
 //			cstmt.setString(7,subscriptionVO.getStatus());
 //			cstmt.setString(8,subscriptionVO.getApplicationFeePercent());
@@ -50,7 +50,7 @@ public class SubscriptionDAO extends MySQLConnection implements ISubscriptionDAO
 //			cstmt.setDate(15,Utilities.stringToSqlDate(subscriptionVO.getCurrentPeriodEnd()));
 			
 			status = cstmt.executeUpdate();
-			subscriptionVO.setId(cstmt.getString(9));
+			subscriptionVO.setId(cstmt.getString(8));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new SubscriptionDAOException(e);
