@@ -14,7 +14,6 @@ import au.com.billingbuddy.dao.interfaces.ICardDAO;
 import au.com.billingbuddy.exceptions.objects.CardDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.vo.objects.CardVO;
-import au.com.billingbuddy.vo.objects.CertificateVO;
 import au.com.billingbuddy.vo.objects.VO;
 
 public class CardDAO extends MySQLConnection implements ICardDAO {

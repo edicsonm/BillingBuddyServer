@@ -2045,6 +2045,31 @@ public class ProcessorMDTR {
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
 	
+	public CardVO saveCard(CardVO cardVO) throws ProcessorMDTRException{
+		try {
+			CardDAO cardDAO = new CardDAO();
+			if(cardDAO.insert(cardVO) != 0){
+				cardVO.setStatus(ConfigurationApplication.getKey("success"));
+				cardVO.setMessage("ProcessorMDTR.saveCard.success");
+	        }else{
+	        	cardVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	cardVO.setMessage("ProcessorMDTR.saveCard.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible registrar la Card .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveCard.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CardDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveCard.CardDAOException");
+			throw processorMDTRException;
+		}
+		return cardVO;
+	}
+	
 	public ArrayList<CardVO> listCardsByCustomer(CardVO cardVO) throws ProcessorMDTRException{
 		ArrayList<CardVO> listCardsByCustomer = null;
 		try {

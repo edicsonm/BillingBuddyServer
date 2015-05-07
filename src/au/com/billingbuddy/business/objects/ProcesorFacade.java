@@ -828,6 +828,18 @@ public class ProcesorFacade {
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
 	/**********************************************************************************************************************************/
+	
+	public CardVO saveCard(CardVO cardVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.saveCard(cardVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return cardVO;
+	}
+	
 	public ArrayList<CardVO> listCardsByCustomer(CardVO cardVO) throws ProcesorFacadeException{
 		ArrayList<CardVO> listCardsByCustomer = null;
 		try {
