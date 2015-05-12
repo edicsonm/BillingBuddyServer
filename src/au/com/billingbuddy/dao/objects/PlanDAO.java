@@ -13,6 +13,7 @@ import au.com.billingbuddy.connection.objects.MySQLTransaction;
 import au.com.billingbuddy.dao.interfaces.IPlanDAO;
 import au.com.billingbuddy.exceptions.objects.PlanDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
+import au.com.billingbuddy.vo.objects.MerchantVO;
 import au.com.billingbuddy.vo.objects.PlanVO;
 
 public class PlanDAO extends MySQLConnection implements IPlanDAO {
@@ -29,18 +30,19 @@ public class PlanDAO extends MySQLConnection implements IPlanDAO {
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_PLAN(?,?,?,?,?,?,?,?,?)}");
-			cstmt.setString(1,planVO.getAmount());
-			cstmt.setString(2,planVO.getCreationTime());
-			cstmt.setString(3,planVO.getCurrency());
-			cstmt.setString(4,planVO.getInterval());
-			cstmt.setString(5,planVO.getIntervalCount());
-			cstmt.setString(6,planVO.getName());
-			cstmt.setString(7,planVO.getTrialPeriodDays());
-			cstmt.setString(8,planVO.getStatementDescriptor());
-			cstmt.setString(9,"0");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_PLAN(?,?,?,?,?,?,?,?,?,?)}");
+			cstmt.setString(1,planVO.getMerchantId());
+			cstmt.setString(2,planVO.getAmount());
+			cstmt.setString(3,planVO.getCreationTime());
+			cstmt.setString(4,planVO.getCurrency());
+			cstmt.setString(5,planVO.getInterval());
+			cstmt.setString(6,planVO.getIntervalCount());
+			cstmt.setString(7,planVO.getName());
+			cstmt.setString(8,planVO.getTrialPeriodDays());
+			cstmt.setString(9,planVO.getStatementDescriptor());
+			cstmt.setString(10,"0");
 			status = cstmt.executeUpdate();
-			planVO.setId(cstmt.getString(9));
+			planVO.setId(cstmt.getString(10));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new PlanDAOException(e);
@@ -54,18 +56,19 @@ public class PlanDAO extends MySQLConnection implements IPlanDAO {
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_PLAN(?,?,?,?,?,?,?,?,?)}");
-			cstmt.setString(1,planVO.getAmount());
-			cstmt.setString(2,planVO.getCreationTime());
-			cstmt.setString(3,planVO.getCurrency());
-			cstmt.setString(4,planVO.getInterval());
-			cstmt.setString(5,planVO.getIntervalCount());
-			cstmt.setString(6,planVO.getName());
-			cstmt.setString(7,planVO.getTrialPeriodDays());
-			cstmt.setString(8,planVO.getStatementDescriptor());
-			cstmt.setString(9,planVO.getId());
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_PLAN(?,?,?,?,?,?,?,?,?,?)}");
+			cstmt.setString(1,planVO.getMerchantId());
+			cstmt.setString(2,planVO.getAmount());
+			cstmt.setString(3,planVO.getCreationTime());
+			cstmt.setString(4,planVO.getCurrency());
+			cstmt.setString(5,planVO.getInterval());
+			cstmt.setString(6,planVO.getIntervalCount());
+			cstmt.setString(7,planVO.getName());
+			cstmt.setString(8,planVO.getTrialPeriodDays());
+			cstmt.setString(9,planVO.getStatementDescriptor());
+			cstmt.setString(10,planVO.getId());
 			status = cstmt.executeUpdate();
-			planVO.setId(cstmt.getString(9));
+			planVO.setId(cstmt.getString(10));
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new PlanDAOException(e);
@@ -106,14 +109,17 @@ public class PlanDAO extends MySQLConnection implements IPlanDAO {
 		PreparedStatement pstmt = null;
 		ArrayList<PlanVO> list = null;
 		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_PLAN()}");
-//			pstmt.setString(1, planVO.getId());
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_PLAN(?)}");
+			pstmt.setString(1, planVO.getUserId());
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				list = new ArrayList<PlanVO>();
 				while (resultSet.next()) {
 					planVO = new PlanVO();
 					planVO.setId(resultSet.getString("Plan_id"));
+					planVO.setMerchantId(resultSet.getString("Merc_ID"));
+					planVO.setMerchantVO(new MerchantVO());
+					planVO.getMerchantVO().setName(resultSet.getString("Merc_Name"));
 					planVO.setAmount(resultSet.getString("Plan_Amount"));
 					planVO.setCreationTime(resultSet.getString("Plan_CreateTime"));
 					planVO.setCurrency(resultSet.getString("Plan_Currency"));

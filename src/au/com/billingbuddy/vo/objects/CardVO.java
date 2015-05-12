@@ -7,6 +7,8 @@ public class CardVO extends VO implements Serializable{
 	private static final long serialVersionUID = 587132337119064926L;
 	private String id;
 	private String customerId;
+	private String merchantCustomerId;
+	private String merchantCustomerCardId;
 	private String bin;
 	private String cardIdStripe;
 	private String brand;
@@ -33,7 +35,9 @@ public class CardVO extends VO implements Serializable{
 	private String registrationTime;
 	
 	private CustomerVO customerVO;
-
+	private MerchantCustomerVO merchantCustomerVO;
+	private MerchantCustomerCardVO merchantCustomerCardVO;
+	
 	public String getId() {
 		return id;
 	}
@@ -245,6 +249,39 @@ public class CardVO extends VO implements Serializable{
 	@Override
 	public int hashCode() {
 		return super.hashCode();
+	}
+
+	public String getMerchantCustomerId() {
+		return merchantCustomerId;
+	}
+
+	public void setMerchantCustomerId(String merchantCustomerId) {
+		this.merchantCustomerId = merchantCustomerId;
+	}
+
+	public MerchantCustomerVO getMerchantCustomerVO() {
+		return merchantCustomerVO;
+	}
+
+	public void setMerchantCustomerVO(MerchantCustomerVO merchantCustomerVO) {
+		this.merchantCustomerVO = merchantCustomerVO;
+	}
+
+	public MerchantCustomerCardVO getMerchantCustomerCardVO() {
+		return merchantCustomerCardVO;
+	}
+
+	public void setMerchantCustomerCardVO(
+			MerchantCustomerCardVO merchantCustomerCardVO) {
+		this.merchantCustomerCardVO = merchantCustomerCardVO;
+	}
+
+	public String getMerchantCustomerCardId() {
+		return merchantCustomerCardId;
+	}
+
+	public void setMerchantCustomerCardId(String merchantCustomerCardId) {
+		this.merchantCustomerCardId = merchantCustomerCardId;
 	}
 	
 

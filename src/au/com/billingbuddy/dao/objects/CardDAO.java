@@ -12,6 +12,7 @@ import au.com.billingbuddy.connection.objects.MySQLConnection;
 import au.com.billingbuddy.connection.objects.MySQLTransaction;
 import au.com.billingbuddy.dao.interfaces.ICardDAO;
 import au.com.billingbuddy.exceptions.objects.CardDAOException;
+import au.com.billingbuddy.exceptions.objects.IndustryDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.VO;
@@ -30,7 +31,7 @@ public class CardDAO extends MySQLConnection implements ICardDAO {
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_CARD( ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_CARD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? )}");
 			cstmt.setString(1,cardVO.getCustomerId());
 			cstmt.setString(2,cardVO.getCardIdStripe());
 			cstmt.setString(3,cardVO.getBrand());
@@ -39,21 +40,22 @@ public class CardDAO extends MySQLConnection implements ICardDAO {
 			cstmt.setString(6,cardVO.getFingerPrint());
 			cstmt.setString(7,cardVO.getFunding());
 			cstmt.setString(8,cardVO.getNumber());
-			cstmt.setString(9,cardVO.getName());
-			cstmt.setString(10,cardVO.getLast4());
-			cstmt.setString(11,cardVO.getAddressCity());
-			cstmt.setString(12,cardVO.getAddressCountry());
-			cstmt.setString(13,cardVO.getAddresState());
-			cstmt.setString(14,cardVO.getAddressLine1());
-			cstmt.setString(15,cardVO.getAddressLine2());
-			cstmt.setString(16,cardVO.getAddressZip());
-			cstmt.setString(17,cardVO.getCountry());
-			cstmt.setString(18,cardVO.getBlackListed());
-			cstmt.setString(19,cardVO.getBlackListedReason());
-			cstmt.setString(20,cardVO.getBlackListedCreateTime());
-			cstmt.setString(21, "0");
+			cstmt.setString(9,cardVO.getCvv());
+			cstmt.setString(10,cardVO.getName());
+			cstmt.setString(11,cardVO.getLast4());
+			cstmt.setString(12,cardVO.getAddressCity());
+			cstmt.setString(13,cardVO.getAddressCountry());
+			cstmt.setString(14,cardVO.getAddresState());
+			cstmt.setString(15,cardVO.getAddressLine1());
+			cstmt.setString(16,cardVO.getAddressLine2());
+			cstmt.setString(17,cardVO.getAddressZip());
+			cstmt.setString(18,cardVO.getCountry());
+			cstmt.setString(19,cardVO.getBlackListed());
+			cstmt.setString(20,cardVO.getBlackListedReason());
+			cstmt.setString(21,cardVO.getBlackListedCreateTime());
+			cstmt.setString(22, "0");
 			status = cstmt.executeUpdate();
-			cardVO.setId(cstmt.getString(21));
+			cardVO.setId(cstmt.getString(22));
 		} catch (SQLException e) {
 			CardDAOException cardDAOException =  new CardDAOException(e);
 			throw cardDAOException;
@@ -63,11 +65,44 @@ public class CardDAO extends MySQLConnection implements ICardDAO {
 		return status;
 	}
 
-	public int update() throws CardDAOException {
-		return 0;
+	public int update(CardVO cardVO) throws CardDAOException {
+		CallableStatement cstmt = null;
+		int status = 0;
+		try {
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_CARD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
+			cstmt.setString(1,cardVO.getCustomerId());
+			cstmt.setString(2,cardVO.getCardIdStripe());
+			cstmt.setString(3,cardVO.getBrand());
+			cstmt.setString(4,cardVO.getExpMonth());
+			cstmt.setString(5,cardVO.getExpYear());
+			cstmt.setString(6,cardVO.getFingerPrint());
+			cstmt.setString(7,cardVO.getFunding());
+			cstmt.setString(8,cardVO.getNumber());
+			cstmt.setString(9,cardVO.getCvv());
+			cstmt.setString(10,cardVO.getName());
+			cstmt.setString(11,cardVO.getLast4());
+			cstmt.setString(12,cardVO.getAddressCity());
+			cstmt.setString(13,cardVO.getAddressCountry());
+			cstmt.setString(14,cardVO.getAddresState());
+			cstmt.setString(15,cardVO.getAddressLine1());
+			cstmt.setString(16,cardVO.getAddressLine2());
+			cstmt.setString(17,cardVO.getAddressZip());
+			cstmt.setString(18,cardVO.getCountry());
+			cstmt.setString(19,cardVO.getBlackListed());
+			cstmt.setString(20,cardVO.getBlackListedReason());
+			cstmt.setString(21,cardVO.getBlackListedCreateTime());
+			cstmt.setString(22, cardVO.getId());
+			status = cstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new CardDAOException(e);
+		} finally {
+			Cs(cstmt, getConnection());
+		}
+		return status;
 	}
 
-	public int delete() throws CardDAOException {
+	public int delete(CardVO cardVO) throws CardDAOException {
 		return 0;
 	}
 
@@ -135,7 +170,7 @@ public class CardDAO extends MySQLConnection implements ICardDAO {
 		ArrayList<CardVO> list = null;
 		try {
 			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_CARD_BY_CUSTOMER( ? )}");
-			pstmt.setString(1, cardVO.getCustomerId());
+			pstmt.setString(1, cardVO.getMerchantCustomerId());
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				list = new ArrayList<CardVO>();
@@ -143,9 +178,10 @@ public class CardDAO extends MySQLConnection implements ICardDAO {
 					cardVO = new CardVO();
 					cardVO.setId(resultSet.getString("Card_ID"));
 					cardVO.setCustomerId(resultSet.getString("Cust_ID"));
-					cardVO.setCustomerId(resultSet.getString("Cust_ID"));
+					cardVO.setMerchantCustomerCardId(resultSet.getString("Mcca_ID"));
 					cardVO.setName(resultSet.getString("Card_Name"));
 					cardVO.setNumber(resultSet.getString("Card_Number"));
+					cardVO.setCvv(resultSet.getString("Card_Cvv"));
 					cardVO.setExpMonth(resultSet.getString("Card_ExpMonth"));
 					cardVO.setExpYear(resultSet.getString("Card_ExpYear"));
 					cardVO.setBrand(resultSet.getString("Card_Brand"));

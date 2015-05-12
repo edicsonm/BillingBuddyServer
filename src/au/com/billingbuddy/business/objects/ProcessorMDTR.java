@@ -711,42 +711,12 @@ public class ProcessorMDTR {
 	        	System.out.println("#################################################################");
 	        }
 		} catch (MySQLConnectionException e) {
-			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
 			processorMDTRException.setErrorCode("ProcessorMDTR.saveSubscription.MySQLConnectionException");
 			throw processorMDTRException;
 		} catch (SubscriptionDAOException e) {
-			e.printStackTrace();
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.saveSubscription.SubscriptionDAOException");
-			throw processorMDTRException;
-		}
-		return subscriptionVO;
-	}
-	
-	public SubscriptionVO updateSubscription(SubscriptionVO subscriptionVO) throws ProcessorMDTRException{
-		try {
-			SubscriptionDAO subscriptionDAO = new SubscriptionDAO();
-			subscriptionDAO.update(subscriptionVO);
-			if(subscriptionVO != null && subscriptionVO.getId() != null){
-				subscriptionVO.setStatus(instanceConfigurationApplication.getKey("success"));
-				subscriptionVO.setMessage("ProcessorMDTR.updateSubscription.success");
-	        }else{
-	        	subscriptionVO.setStatus(instanceConfigurationApplication.getKey("failure"));
-	        	subscriptionVO.setMessage("ProcessorMDTR.updateSubscription.failure");
-				System.out.println("#################################################################");
-	        	System.out.println("No fue posible actualizar la Subscription .... ");
-	        	System.out.println("#################################################################");
-	        }
-		} catch (MySQLConnectionException e) {
-			e.printStackTrace();
-			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.updateSubscription.MySQLConnectionException");
-			throw processorMDTRException;
-		} catch (SubscriptionDAOException e) {
-			e.printStackTrace();
-			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
-			processorMDTRException.setErrorCode("ProcessorMDTR.updateSubscription.SubscriptionDAOException");
+			processorMDTRException.setErrorCode("ProcessorMDTR.saveSubscription.SubscriptionDAOException"+ (!Utilities.isNullOrEmpty(e.getSqlObjectName())? ("."+e.getSqlObjectName()):""));
 			throw processorMDTRException;
 		}
 		return subscriptionVO;
@@ -2065,6 +2035,31 @@ public class ProcessorMDTR {
 		} catch (CardDAOException e) {
 			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
 			processorMDTRException.setErrorCode("ProcessorMDTR.saveCard.CardDAOException");
+			throw processorMDTRException;
+		}
+		return cardVO;
+	}
+	
+	public CardVO updateCard(CardVO cardVO) throws ProcessorMDTRException{
+		try {
+			CardDAO cardDAO = new CardDAO();
+			if(cardDAO.update(cardVO) != 0){
+				cardVO.setStatus(ConfigurationApplication.getKey("success"));
+				cardVO.setMessage("ProcessorMDTR.updateCard.success");
+	        }else{
+	        	cardVO.setStatus(ConfigurationApplication.getKey("failure"));
+	        	cardVO.setMessage("ProcessorMDTR.updateCard.failure");
+				System.out.println("#################################################################");
+	        	System.out.println("No fue posible update la Card .... ");
+	        	System.out.println("#################################################################");
+	        }
+		} catch (MySQLConnectionException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateCard.MySQLConnectionException");
+			throw processorMDTRException;
+		} catch (CardDAOException e) {
+			ProcessorMDTRException processorMDTRException = new ProcessorMDTRException(e);
+			processorMDTRException.setErrorCode("ProcessorMDTR.updateCard.CardDAOException");
 			throw processorMDTRException;
 		}
 		return cardVO;

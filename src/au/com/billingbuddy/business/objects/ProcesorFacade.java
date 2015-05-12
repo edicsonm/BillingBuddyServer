@@ -199,17 +199,6 @@ public class ProcesorFacade {
 		return subscriptionVO;
 	}
 	
-	public SubscriptionVO updateSubscription(SubscriptionVO subscriptionVO) throws ProcesorFacadeException{
-		try {
-			processorMDTR.updateSubscription(subscriptionVO);
-		} catch (ProcessorMDTRException e) {
-			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
-			procesorFacadeException.setErrorCode(e.getErrorCode());
-			throw procesorFacadeException;
-		}
-		return subscriptionVO;
-	}
-	
 	public SubscriptionVO cancelSubscription(SubscriptionVO subscriptionVO) throws ProcesorFacadeException{
 		try {
 			processorMDTR.cancelSubscription(subscriptionVO);
@@ -832,6 +821,17 @@ public class ProcesorFacade {
 	public CardVO saveCard(CardVO cardVO) throws ProcesorFacadeException{
 		try {
 			processorMDTR.saveCard(cardVO);
+		} catch (ProcessorMDTRException e) {
+			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
+			procesorFacadeException.setErrorCode(e.getErrorCode());
+			throw procesorFacadeException;
+		}
+		return cardVO;
+	}
+	
+	public CardVO updateCard(CardVO cardVO) throws ProcesorFacadeException{
+		try {
+			processorMDTR.updateCard(cardVO);
 		} catch (ProcessorMDTRException e) {
 			ProcesorFacadeException procesorFacadeException = new ProcesorFacadeException(e);
 			procesorFacadeException.setErrorCode(e.getErrorCode());

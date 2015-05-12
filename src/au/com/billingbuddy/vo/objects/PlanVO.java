@@ -7,6 +7,7 @@ public class PlanVO extends VO implements Serializable {
 	private static final long serialVersionUID = 491976966806876498L;
 
 	private String id;
+	private String merchantId;
 	private String amount;
 	private String creationTime;
 	private String currency;
@@ -15,6 +16,8 @@ public class PlanVO extends VO implements Serializable {
 	private String name;
 	private String trialPeriodDays;
 	private String statementDescriptor;
+	
+	private MerchantVO merchantVO;
 	
 	public PlanVO(){}
 	
@@ -92,6 +95,22 @@ public class PlanVO extends VO implements Serializable {
 
 	public void setStatementDescriptor(String statementDescriptor) {
 		this.statementDescriptor = statementDescriptor;
+	}
+	
+	public String getMerchantId() {
+		return merchantId;
+	}
+
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
+	}
+	
+	public MerchantVO getMerchantVO() {
+		return merchantVO;
+	}
+
+	public void setMerchantVO(MerchantVO merchantVO) {
+		this.merchantVO = merchantVO;
 	}
 	
 	@Override

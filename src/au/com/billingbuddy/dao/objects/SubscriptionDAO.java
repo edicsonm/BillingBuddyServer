@@ -15,6 +15,7 @@ import au.com.billingbuddy.connection.objects.MySQLTransaction;
 import au.com.billingbuddy.dao.interfaces.ISubscriptionDAO;
 import au.com.billingbuddy.exceptions.objects.SubscriptionDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
+import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.PlanVO;
 import au.com.billingbuddy.vo.objects.SubscriptionVO;
 
@@ -34,7 +35,7 @@ public class SubscriptionDAO extends MySQLConnection implements ISubscriptionDAO
 		try {
 			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_SUBSCRIPTION(?, ?, ?, ?, ?, ?, ?, ?)}");
 			cstmt.setString(1,subscriptionVO.getPlanId());
-			cstmt.setString(2,subscriptionVO.getCustomerId());
+			cstmt.setString(2,subscriptionVO.getMerchantCustomerCardId());
 			cstmt.setString(3,subscriptionVO.getDiscountId());
 			cstmt.setString(4,subscriptionVO.getQuantity());
 			cstmt.setDate(5,BBUtils.formatStringToSqlDate(6,subscriptionVO.getTrialStart()));
@@ -60,37 +61,6 @@ public class SubscriptionDAO extends MySQLConnection implements ISubscriptionDAO
 		return status;
 	}
 
-	public int update(SubscriptionVO subscriptionVO) throws SubscriptionDAOException {
-		CallableStatement cstmt = null;
-		int status = 0;
-		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_SUBSCRIPTION(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
-			cstmt.setString(1,subscriptionVO.getPlanId());
-			cstmt.setString(2,subscriptionVO.getCustomerId());
-			cstmt.setString(3,subscriptionVO.getDiscountId());
-			cstmt.setString(4,subscriptionVO.getCancelAtPeriodEnd());
-			cstmt.setString(5,subscriptionVO.getQuantity());
-			cstmt.setDate(6,Utilities.stringToSqlDate(subscriptionVO.getStart()));
-			cstmt.setString(7,subscriptionVO.getStatus());
-			cstmt.setString(8,subscriptionVO.getApplicationFeePercent());
-			cstmt.setDate(9,Utilities.stringToSqlDate(subscriptionVO.getCanceledAt()));
-			cstmt.setDate(10,Utilities.stringToSqlDate(subscriptionVO.getCurrentPeriodStart()));
-			cstmt.setDate(11,Utilities.stringToSqlDate(subscriptionVO.getTrialEnd()));
-			cstmt.setDate(12,Utilities.stringToSqlDate(subscriptionVO.getEndedAt()));
-			cstmt.setDate(13,Utilities.stringToSqlDate(subscriptionVO.getTrialStart()));
-			cstmt.setString(14,subscriptionVO.getTaxPercent());
-			cstmt.setDate(15,Utilities.stringToSqlDate(subscriptionVO.getCurrentPeriodEnd()));
-			cstmt.setString(16,subscriptionVO.getId());
-			status = cstmt.executeUpdate();
-			subscriptionVO.setId(cstmt.getString(16));
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new SubscriptionDAOException(e);
-		} finally {
-			Cs(cstmt, getConnection());
-		}
-		return status;
-	}
 
 	public int cancel(SubscriptionVO subscriptionVO) throws SubscriptionDAOException {
 		CallableStatement cstmt = null;
@@ -123,8 +93,9 @@ public class SubscriptionDAO extends MySQLConnection implements ISubscriptionDAO
 		PreparedStatement pstmt = null;
 		ArrayList<SubscriptionVO> list = null;
 		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_SUBSCRIPTION(?)}");
-			pstmt.setString(1,subscriptionVO.getCustomerId());
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_SUBSCRIPTION(?,?)}");
+			pstmt.setString(1,subscriptionVO.getUserId());
+			pstmt.setString(2,subscriptionVO.getMerchantCustomerCardVO().getMerchantCustomerVO().getId());
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				list = new ArrayList<SubscriptionVO>();
@@ -132,9 +103,13 @@ public class SubscriptionDAO extends MySQLConnection implements ISubscriptionDAO
 					subscriptionVO = new SubscriptionVO();
 					subscriptionVO.setId(resultSet.getString("Subs_ID"));
 					subscriptionVO.setPlanId(resultSet.getString("Plan_ID"));
+					subscriptionVO.setMerchantCustomerCardId(resultSet.getString("Mcca_ID"));
+					
 					subscriptionVO.setPlanVO(new PlanVO());
 					subscriptionVO.getPlanVO().setName(resultSet.getString("Plan_Name"));
-					subscriptionVO.setCustomerId(resultSet.getString("Cust_ID"));
+					
+					subscriptionVO.setCardVO(new CardVO());
+					subscriptionVO.getCardVO().setNumber(resultSet.getString("Card_Number"));
 					subscriptionVO.setDiscountId(resultSet.getString("Disc_ID"));
 					subscriptionVO.setCancelAtPeriodEnd(resultSet.getString("Subs_CancelAtPeriodEnd"));
 					subscriptionVO.setQuantity(resultSet.getString("Subs_Quantity"));
@@ -159,6 +134,12 @@ public class SubscriptionDAO extends MySQLConnection implements ISubscriptionDAO
 			PsRs(pstmt, resultSet,connection);
 		}
 		return list;
+	}
+
+	public int update(SubscriptionVO subscriptionVO)
+			throws SubscriptionDAOException {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 

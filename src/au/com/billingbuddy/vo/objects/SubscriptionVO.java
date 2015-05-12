@@ -6,8 +6,8 @@ public class SubscriptionVO extends VO implements Serializable {
 
 	private static final long serialVersionUID = -3649491090597337979L;
 	private String id;
+	private String merchantCustomerCardId;
 	private String planId;
-	private String customerId;
 	private String discountId;
 	private String cancelAtPeriodEnd;
 	private String quantity;
@@ -24,7 +24,17 @@ public class SubscriptionVO extends VO implements Serializable {
 	private String creationTime;
 
 	private PlanVO planVO;
+	private CardVO cardVO;
+	private MerchantCustomerCardVO merchantCustomerCardVO;
 	
+	public CardVO getCardVO() {
+		return cardVO;
+	}
+
+	public void setCardVO(CardVO cardVO) {
+		this.cardVO = cardVO;
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -39,14 +49,6 @@ public class SubscriptionVO extends VO implements Serializable {
 
 	public void setPlanId(String planId) {
 		this.planId = planId;
-	}
-
-	public String getCustomerId() {
-		return customerId;
-	}
-
-	public void setCustomerId(String customerId) {
-		this.customerId = customerId;
 	}
 
 	public String getDiscountId() {
@@ -180,6 +182,23 @@ public class SubscriptionVO extends VO implements Serializable {
 	@Override
 	public int hashCode() {
 		return super.hashCode();
+	}
+
+	public String getMerchantCustomerCardId() {
+		return merchantCustomerCardId;
+	}
+
+	public void setMerchantCustomerCardId(String merchantCustomerCardId) {
+		this.merchantCustomerCardId = merchantCustomerCardId;
+	}
+
+	public MerchantCustomerCardVO getMerchantCustomerCardVO() {
+		return merchantCustomerCardVO;
+	}
+
+	public void setMerchantCustomerCardVO(
+			MerchantCustomerCardVO merchantCustomerCardVO) {
+		this.merchantCustomerCardVO = merchantCustomerCardVO;
 	}
 
 }

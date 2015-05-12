@@ -74,12 +74,12 @@ public class SaveInformationTransactionThread extends Thread {
 			        	merchantCustomerVO.setCustomerId(customerVO.getId());
 			        	merchantCustomerVO.setMerchantId(transactionVO.getMerchantId());
 			        	merchantCustomerDAO.insert(merchantCustomerVO);
-			        	if(merchantCustomerVO != null && merchantCustomerVO.getId() != null){
+			        	if(merchantCustomerVO != null && merchantCustomerVO.getId() != null) {
 			        		
 			        		System.out.println("merchantCustomerVO.getId(): " + merchantCustomerVO.getId());
 				        	cardVO.setCustomerId(customerVO.getId());
 				        	initialTime = Calendar.getInstance().getTimeInMillis();
-							if(cardDAO.insert(cardVO) != 0){
+							if(cardDAO.insert(cardVO) != 0) {
 								finalTime = Calendar.getInstance().getTimeInMillis();
 								System.out.println("Tiempo total para copiar registrar una Card: " + (finalTime-initialTime) + " ms.");
 								

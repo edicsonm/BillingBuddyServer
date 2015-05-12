@@ -11,8 +11,8 @@ public interface ICardDAO {
 	public CardVO searchCard(CardVO CardVO) throws CardDAOException;
 	public CardVO searchCardByNumber(CardVO CardVO) throws CardDAOException;
 	public ArrayList<CardVO> searchCardsByCustomer(CardVO CardVO) throws CardDAOException;
-	public int update() throws CardDAOException;
-	public int delete() throws CardDAOException;
+	public int update(CardVO cardVO) throws CardDAOException;
+	public int delete(CardVO cardVO) throws CardDAOException;
 	public VO searchByID(String ID) throws CardDAOException;
 	public ArrayList<CardVO> search() throws CardDAOException;
 }
