@@ -1,6 +1,6 @@
 package au.com.billingbuddy.exceptions.objects;
 
-public class ChargeDAOException extends Exception {
+public class ChargeDAOException extends BillingBuddySQLException {
 
 	/**
 	 * 

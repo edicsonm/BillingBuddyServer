@@ -7,8 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import com.sun.crypto.provider.RSACipher;
-
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.connection.objects.MySQLConnection;
 import au.com.billingbuddy.connection.objects.MySQLTransaction;

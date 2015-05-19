@@ -40,7 +40,6 @@ public class ChargeDAO extends MySQLConnection implements IChargeDAO {
 		int status = 0;
 		try {
 			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_CHARGE(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");
-			
 			cstmt.setString(1,chargeVO.getTransactionId());
 			cstmt.setString(2,chargeVO.getCardId());
 			cstmt.setString(3,chargeVO.getStripeId());
@@ -60,7 +59,7 @@ public class ChargeDAO extends MySQLConnection implements IChargeDAO {
 			cstmt.setString(17,"0");
 			status = cstmt.executeUpdate();
 			chargeVO.setId(cstmt.getString(17));
-			
+			status = 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new ChargeDAOException(e);

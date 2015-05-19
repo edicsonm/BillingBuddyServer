@@ -8,6 +8,7 @@ import au.com.billingbuddy.vo.objects.VO;
 
 public interface ITransactionDAO {
 	public int insert(TransactionVO transactionVO) throws TransactionDAOException;
+	public int insertTransactionSubscription(TransactionVO transactionVO) throws TransactionDAOException;
 	public int update(TransactionVO transactionVO) throws TransactionDAOException;
 	public int delete() throws TransactionDAOException;
 	public VO searchByID(String ID) throws TransactionDAOException;

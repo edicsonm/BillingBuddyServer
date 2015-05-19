@@ -1,10 +1,6 @@
 package au.com.billingbuddy.exceptions.objects;
 
-import java.sql.SQLException;
-
-import au.com.billingbuddy.exceptions.interfaces.IException;
-
-public class MySQLConnectionException extends SQLException implements IException {
+public class MySQLConnectionException extends BillingBuddySQLException {
 	
 	private static final long serialVersionUID = 8518132010973914369L;
 

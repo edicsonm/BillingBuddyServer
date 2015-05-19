@@ -88,7 +88,7 @@ public class Utilities {
 			chargeVO.setDescription(charge.getDescription());
 			chargeVO.setStatementDescription(charge.getStatementDescription());
 			chargeVO.setObject("");
-			chargeVO.setCardId(charge.getCard().getId());
+			chargeVO.setCardId(chargeVO.getCardVO().getId());
 			chargeVO.setInvoice(charge.getInvoice());
 			chargeVO.setLiveMode(booleanToString(charge.getLivemode()));
 			chargeVO.getCardVO().setCardIdStripe(charge.getCard().getId());

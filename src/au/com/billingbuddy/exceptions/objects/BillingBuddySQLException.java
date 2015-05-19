@@ -2,9 +2,15 @@ package au.com.billingbuddy.exceptions.objects;
 
 import java.sql.SQLException;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import au.com.billigbuddy.utils.ErrorManager;
 import au.com.billingbuddy.common.objects.MySQLError;
 import au.com.billingbuddy.common.objects.Utilities;
+import au.com.billingbuddy.dao.objects.ErrorLogDAO;
 import au.com.billingbuddy.exceptions.interfaces.IException;
+import au.com.billingbuddy.vo.objects.ErrorLogVO;
 
 public class BillingBuddySQLException extends SQLException implements IException {
 
@@ -12,12 +18,14 @@ public class BillingBuddySQLException extends SQLException implements IException
 	private String componentOrigen;
 	private String errorMenssage;
 	private String errorLevel;
-	
 	private String value;
 	private String sqlObjectName;
 	
+	private JSONObject errorDetails = new JSONObject();
+	
 	public BillingBuddySQLException(SQLException e) {
 		super(e);
+		
 		e.printStackTrace();
 //		String tagG = this.getClass().getSuperclass().getSimpleName();
 //		String tagE = this.getClass().getSimpleName();
@@ -27,23 +35,58 @@ public class BillingBuddySQLException extends SQLException implements IException
 //		tagG = this.getStackTrace()[0].getClassName();
 //		int sz = this.getStackTrace()[0].getClassName().split("\\.").length;
 //		System.out.println("tagG: " + tagG);
-		
-		System.out.println("e.getMessage(): " + e.getMessage());
-		System.out.println("e.getErrorCode(): " + e.getErrorCode());
-		System.out.println("e.getSQLState(): " + e.getSQLState());
-		
-		
-		MySQLError mySQLError = Utilities.extractSQLError(e.getMessage(), e.getErrorCode());
-		if(mySQLError != null){
-			setValue(mySQLError.getValue());
-			setSqlObjectName(mySQLError.getSqlObjectName());
-		}
-		// gestorArchivosProp = GestorArchivosProp.obtenerInstancia();
-		// ParamsConfigApp configuracion =
-		// gestorArchivosProp.getParamsConfigAppInstance();
-		// this.mapaExcepciones = configuracion.getExceptionIds();
-	}
+//		try {
+			
+//			System.out.println("e.getMessage(): " + e.getMessage());
+//			System.out.println("e.getErrorCode(): " + e.getErrorCode());
+//			System.out.println("e.getSQLState(): " + e.getSQLState());
+			
+//			System.out.println("e.getCause().toString() 3 : "+this.getClass().getCanonicalName());
+//			System.out.println("e.getCause().toString() 4 : "+this.getClass().getSimpleName());
+//			System.out.println("e.getCause().toString() 5 : "+this.getClass().getSuperclass().getSimpleName());
+			
+			JSONArray arrayAttributes = new JSONArray();
+			JSONObject attributeDetails = new JSONObject();
+			StackTraceElement[] stackTraceElements = e.getStackTrace();
+			for (int i = 0; i < stackTraceElements.length; i++) {
+				StackTraceElement stackTraceElement = stackTraceElements[i];
+				attributeDetails.put(i, stackTraceElement.toString());
+			}
+			
+			errorDetails.put("Message", e.getMessage());
+			errorDetails.put("ErrorCode", e.getErrorCode());
+			errorDetails.put("SQLState", e.getSQLState());
+			errorDetails.put("ClassName", this.getClass().getCanonicalName());
+//			errorDetails.put("Detail", e.toString());
+			errorDetails.put("Details", attributeDetails);
 	
+			JSONObject jSONObject = new JSONObject();
+			jSONObject.put("ErrorDetails", errorDetails);
+			
+//			ErrorLogVO errorLogVO = new ErrorLogVO();
+//			errorLogVO.setProcessName(this.getClass().getSimpleName());
+//			errorLogVO.setInformation(jSONObject.toJSONString());
+//			ErrorLogDAO errorLogDAO = new ErrorLogDAO();
+//			if(errorLogDAO.insert(errorLogVO) == 0){
+//				System.out.println("Genera archivo de error " + e.hashCode());
+//				String fileName = this.getClass().getCanonicalName() +"_"+ e.hashCode();
+//				ErrorManager.logDailySubscriptionErrorFile(fileName, jSONObject);
+//			}else{
+//				System.out.println("Guarda el error del DAO en la tabla de los errores: "  +  e.hashCode());
+//			}
+		
+			MySQLError mySQLError = Utilities.extractSQLError(e.getMessage(), e.getErrorCode());
+			if(mySQLError != null){
+				setValue(mySQLError.getValue());
+				setSqlObjectName(mySQLError.getSqlObjectName());
+			}
+//		} catch (ErrorLogDAOException e1) {
+//			System.out.println("Sale por aca 1 " + e1.getMessage());
+//		} catch (MySQLConnectionException e1) {
+//			System.out.println("Sale por aca 2 " + e1.getMessage());
+//		}
+	}
+		
 	public BillingBuddySQLException(String message) {
 		super(message);
 		// gestorArchivosProp = GestorArchivosProp.obtenerInstancia();
@@ -105,6 +148,14 @@ public class BillingBuddySQLException extends SQLException implements IException
 
 	public void setSqlObjectName(String sqlObjectName) {
 		this.sqlObjectName = sqlObjectName;
+	}
+
+	public JSONObject getErrorDetails() {
+		return errorDetails;
+	}
+
+	public void setErrorDetails(JSONObject errorDetails) {
+		this.errorDetails = errorDetails;
 	}
 
 	// private GestorArchivosProp gestorArchivosProp;

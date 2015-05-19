@@ -3,7 +3,7 @@ package au.com.billingbuddy.exceptions.objects;
 import java.sql.SQLException;
 
 
-public class DailySubscriptionDAOException extends BillingBuddySQLException{
+public class DailySubscriptionDAOException extends BillingBuddySQLException {
 
 	private static final long serialVersionUID = -262305314292851754L;
 

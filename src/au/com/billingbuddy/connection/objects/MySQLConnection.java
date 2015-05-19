@@ -9,10 +9,11 @@ import java.sql.SQLException;
 
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.connection.interfaces.IMySQLConnection;
+import au.com.billingbuddy.dao.objects.DAO;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.MySQLTransactionException;
 
-public class MySQLConnection implements IMySQLConnection {
+public class MySQLConnection extends DAO implements IMySQLConnection {
 	
 	protected Connection connection = null;
 	
@@ -76,7 +77,12 @@ public class MySQLConnection implements IMySQLConnection {
 	protected void Cs(CallableStatement cs, Connection con) {
         try {
             if (cs != null) {
-                cs.close();
+            	
+            	//Esta linea guarda de manera temporal el string que se ejecuto cuando se realizo el CALL al SP, 
+            	//este elemento puede ser utilidado para registrar esta informacion en el log de los errores para futuras revisiones.
+            	setCallString(cs.toString());
+                
+            	cs.close();
                 cs = null;
             }
             if (con != null && con.getAutoCommit()) {

@@ -22,9 +22,9 @@ public class TransactionManager {
 	private TransactionManager(){}
 	
 	public void saveInformationTransaction(String name, TransactionVO transactionVO, Charge charge){
-		SaveInformationTransactionThread SaveInformationTransactionThread = new SaveInformationTransactionThread(name, transactionVO, charge);
-		threads.put(name, SaveInformationTransactionThread);
-		SaveInformationTransactionThread.start();
+		SaveInformationTransactionThread saveInformationTransactionThread = new SaveInformationTransactionThread(name, transactionVO, charge);
+		threads.put(name, saveInformationTransactionThread);
+		saveInformationTransactionThread.start();
 	}
 	
 	public static void main(String[] args) {

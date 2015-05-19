@@ -2,7 +2,7 @@ package au.com.billingbuddy.exceptions.objects;
 
 import java.sql.SQLException;
 
-public class RejectedChargeDAOException extends SQLException {
+public class RejectedChargeDAOException extends BillingBuddySQLException {
 
 	private static final long serialVersionUID = -3755005386591594873L;
 

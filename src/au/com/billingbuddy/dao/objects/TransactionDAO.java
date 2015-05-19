@@ -123,6 +123,28 @@ public class TransactionDAO extends MySQLConnection implements ITransactionDAO {
 		return status;
 	}
 
+	public int insertTransactionSubscription(TransactionVO transactionVO) throws TransactionDAOException {
+		CallableStatement cstmt = null;
+		int status = 0;
+		try {
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_TRANSACTION_SUBSCRIPTION(?,?,?,?,?,?,?)}");
+			cstmt.setString(1,transactionVO.getMerchantId());
+			cstmt.setString(2,transactionVO.getIp());
+			cstmt.setString(3,transactionVO.getMaxmindId());
+			cstmt.setString(4,transactionVO.getUserAgent());
+			cstmt.setString(5,transactionVO.getOrderAmount());
+			cstmt.setString(6,transactionVO.getOrderCurrency());
+			cstmt.setString(7,"0");
+			status = cstmt.executeUpdate();
+			transactionVO.setId(cstmt.getString(7));
+		} catch (SQLException e) {
+			throw new TransactionDAOException(e);
+		} finally {
+			Cs(cstmt, getConnection());
+		}
+		return status;
+	}
+	
 	public int update(TransactionVO transactionVO) throws TransactionDAOException {
 		return 0;
 	}

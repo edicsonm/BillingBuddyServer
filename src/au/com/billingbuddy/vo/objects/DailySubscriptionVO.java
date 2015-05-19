@@ -8,14 +8,18 @@ public class DailySubscriptionVO extends VO implements Serializable {
 	private String id;
 	private String subscriptionId;
 	private String planId;
+	private String merchantId;
 	private String merchantCustomerCardId;
 	private String quantity;
 	private String amount;
+	private String currency;
 	private String currentPeriodStart;
 	private String currentPeriodEnd;
 	private String creationTime;
 	private String AuthorizerCode;
 	private String AuthorizerReason;
+	
+	private MerchantCustomerCardVO merchantCustomerCardVO;
 	
 	public String getId() {
 		return id;
@@ -95,6 +99,25 @@ public class DailySubscriptionVO extends VO implements Serializable {
 	@Override
 	public int hashCode() {
 		return super.hashCode();
+	}
+	public MerchantCustomerCardVO getMerchantCustomerCardVO() {
+		return merchantCustomerCardVO;
+	}
+	public void setMerchantCustomerCardVO(
+			MerchantCustomerCardVO merchantCustomerCardVO) {
+		this.merchantCustomerCardVO = merchantCustomerCardVO;
+	}
+	public String getCurrency() {
+		return currency;
+	}
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+	public String getMerchantId() {
+		return merchantId;
+	}
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
 	}
 
 }

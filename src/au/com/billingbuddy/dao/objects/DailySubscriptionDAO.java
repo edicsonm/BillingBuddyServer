@@ -13,7 +13,9 @@ import au.com.billingbuddy.connection.objects.MySQLTransaction;
 import au.com.billingbuddy.dao.interfaces.IDailySubscriptionDAO;
 import au.com.billingbuddy.exceptions.objects.DailySubscriptionDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
+import au.com.billingbuddy.vo.objects.CardVO;
 import au.com.billingbuddy.vo.objects.DailySubscriptionVO;
+import au.com.billingbuddy.vo.objects.MerchantCustomerCardVO;
 
 public class DailySubscriptionDAO extends MySQLConnection implements IDailySubscriptionDAO {
 
@@ -30,14 +32,13 @@ public class DailySubscriptionDAO extends MySQLConnection implements IDailySubsc
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_INDUSTRY(?,?,?)}");
-			/*cstmt.setString(1,industryVO.getDescription());
-			cstmt.setString(2,industryVO.getStatus());
-			cstmt.setString(3,industryVO.getId());
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_DAILY_SUBSCRIPTION(?,?,?,?)}");
+			cstmt.setString(1,dailySubscriptionVO.getStatus());
+			cstmt.setString(2,dailySubscriptionVO.getAuthorizerCode());
+			cstmt.setString(3,dailySubscriptionVO.getAuthorizerReason());
+			cstmt.setString(8,dailySubscriptionVO.getId());
 			status = cstmt.executeUpdate();
-			industryVO.setId(cstmt.getString(3));*/
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw new DailySubscriptionDAOException(e);
 		} finally {
 			Cs(cstmt, getConnection());
@@ -51,16 +52,27 @@ public class DailySubscriptionDAO extends MySQLConnection implements IDailySubsc
 		PreparedStatement pstmt = null;
 		ArrayList<DailySubscriptionVO> list = null;
 		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_INDUSTRY()}");
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_DAILY_SUBSCRIPTION()}");
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				list = new ArrayList<DailySubscriptionVO>();
 				while (resultSet.next()) {
 					DailySubscriptionVO dailySubscriptionVO = new DailySubscriptionVO();
-					/*industryVO.setId(resultSet.getString("Indu_ID"));
-					industryVO.setDescription(resultSet.getString("Indu_Description"));
-					industryVO.setStatus(resultSet.getString("Indu_Status"));
-					industryVO.setCreationTime(resultSet.getString("Indu_CreateTime"));*/
+					dailySubscriptionVO.setId(resultSet.getString("Dasu_ID"));
+					dailySubscriptionVO.setSubscriptionId(resultSet.getString("Subs_ID"));
+					dailySubscriptionVO.setMerchantId(resultSet.getString("Merc_ID"));
+					dailySubscriptionVO.setQuantity(resultSet.getString("Dasu_Quantity"));
+					dailySubscriptionVO.setAmount(resultSet.getString("Dasu_Amount"));
+					dailySubscriptionVO.setCurrency(resultSet.getString("Dasu_Currency"));
+					dailySubscriptionVO.setMerchantCustomerCardVO(new MerchantCustomerCardVO());
+					dailySubscriptionVO.getMerchantCustomerCardVO().setCardVO(new CardVO());
+					dailySubscriptionVO.getMerchantCustomerCardVO().setCardId(resultSet.getString("Card_ID"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setId(resultSet.getString("Card_ID"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setNumber(resultSet.getString("Card_Number"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setExpMonth(resultSet.getString("Card_ExpMonth"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setExpYear(resultSet.getString("Card_ExpYear"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setCvv(resultSet.getString("Card_Cvv"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setName(resultSet.getString("Card_Name"));
 					list.add(dailySubscriptionVO);
 				}
 			}
