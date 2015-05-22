@@ -20,5 +20,6 @@
 	<classpathentry kind="lib" path="/home/edicson/BillingBuddy/workspaceBB/BillingBuddyServer/lib/mysql-connector-java-5.1.26-bin.jar"/>
 	<classpathentry kind="lib" path="/home/edicson/BillingBuddy/workspaceBB/BillingBuddyServer/lib/stripe-java-latest.jar"/>
 	<classpathentry kind="lib" path="/home/edicson/BillingBuddy/Liferay/tomcat-7.0.42/lib/commons-collections.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/BillingBuddy/Liferay/tomcat-7.0.42/lib/ext/portal-service.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -28,11 +28,11 @@ public class SubscriptionsMDTRException extends BillingBuddyException {
 			errorLogVO.setInformation(jSONObject.toJSONString());
 			ErrorLogDAO errorLogDAO = new ErrorLogDAO();
 			if(errorLogDAO.insert(errorLogVO) == 0){
-				System.out.println("Genera archivo de error " + e.hashCode());
+//				System.out.println("Genera archivo de error " + e.hashCode());
 				String fileName = this.getClass().getCanonicalName() +"_"+ e.hashCode();
 				ErrorManager.logDailySubscriptionErrorFile(fileName, jSONObject);
 			}else{
-				System.out.println("Guarda el error del DAO en la tabla de los errores: "  + e.hashCode());
+//				System.out.println("Guarda el error del DAO en la tabla de los errores: "  + e.hashCode());
 			}
 		} catch (ErrorLogDAOException e1) {
 			System.out.println("Sale por aca 1 " + e1.getMessage());
@@ -52,11 +52,11 @@ public class SubscriptionsMDTRException extends BillingBuddyException {
 			errorLogVO.setInformation(jSONObject.toJSONString());
 			ErrorLogDAO errorLogDAO = new ErrorLogDAO();
 			if(errorLogDAO.insert(errorLogVO) == 0){
-				System.out.println("Genera archivo de error " + e.hashCode());
+//				System.out.println("Genera archivo de error " + e.hashCode());
 				String fileName = this.getClass().getCanonicalName() +"_"+ e.hashCode();
 				ErrorManager.logDailySubscriptionErrorFile(fileName, jSONObject);
 			}else{
-				System.out.println("Guarda el error del DAO en la tabla de los errores: "  + e.hashCode());
+//				System.out.println("Guarda el error del DAO en la tabla de los errores: "  + e.hashCode());
 			}
 		} catch (ErrorLogDAOException e1) {
 			System.out.println("Sale por aca 1 " + e1.getMessage());

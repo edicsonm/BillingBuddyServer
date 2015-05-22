@@ -25,8 +25,7 @@ public class BillingBuddySQLException extends SQLException implements IException
 	
 	public BillingBuddySQLException(SQLException e) {
 		super(e);
-		
-		e.printStackTrace();
+//		e.printStackTrace();
 //		String tagG = this.getClass().getSuperclass().getSimpleName();
 //		String tagE = this.getClass().getSimpleName();
 //		System.out.println("tagG: " + tagG);

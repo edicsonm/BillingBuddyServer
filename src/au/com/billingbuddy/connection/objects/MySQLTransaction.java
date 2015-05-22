@@ -37,6 +37,15 @@ public class MySQLTransaction implements IMySQLTransaction {
 			throw exception;
 		}
 	}
+	
+	public void autoCommit(boolean autoCommit ) throws MySQLTransactionException {
+		try {
+			this.connection.setAutoCommit(autoCommit);
+		} catch (SQLException e) {
+			MySQLTransactionException exception = new MySQLTransactionException(e);
+			throw exception;
+		}
+	}
 
 	public void undo() throws MySQLTransactionException {
 		try {
@@ -50,6 +59,7 @@ public class MySQLTransaction implements IMySQLTransaction {
 	
 	public void rollback() throws MySQLTransactionException {
 		try {
+			System.out.println("Rollback sobre la transaccion ... ");
 			this.connection.rollback();
 		} catch (SQLException e) {
 			MySQLTransactionException exception = new MySQLTransactionException(e);
@@ -69,6 +79,7 @@ public class MySQLTransaction implements IMySQLTransaction {
 	
 	public void commit() throws MySQLTransactionException {
 		try {
+			System.out.println("Commit sobre la transaccion ... ");
 			this.connection.commit();
 		} catch (SQLException e) {
 			MySQLTransactionException exception = new MySQLTransactionException(e);

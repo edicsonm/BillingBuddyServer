@@ -1,6 +1,11 @@
 package au.com.billingbuddy.exceptions.objects;
 
+import org.json.simple.JSONObject;
+
+import au.com.billigbuddy.utils.ErrorManager;
+import au.com.billingbuddy.dao.objects.ErrorLogDAO;
 import au.com.billingbuddy.exceptions.interfaces.IException;
+import au.com.billingbuddy.vo.objects.ErrorLogVO;
 
 public class BillingBuddyException extends Exception implements IException {
 
@@ -12,25 +17,62 @@ public class BillingBuddyException extends Exception implements IException {
 
 	public BillingBuddyException(String message) {
 		super(message);
-		// gestorArchivosProp = GestorArchivosProp.obtenerInstancia();
-		// ParamsConfigApp configuracion =
-		// gestorArchivosProp.getParamsConfigAppInstance();
-		// this.mapaExcepciones = configuracion.getExceptionIds();
 	}
 
 	public BillingBuddyException(String message, Throwable cause) {
 		super(message, cause);
-		// gestorArchivosProp = GestorArchivosProp.obtenerInstancia();
-		// ParamsConfigApp configuracion =
-		// gestorArchivosProp.getParamsConfigAppInstance();
-		// this.mapaExcepciones = configuracion.getExceptionIds();
 	}
 	
-	public BillingBuddyException(Exception e) {
+	public BillingBuddyException(Exception e, String ... attributes) {
 		super(e);
-//		System.out.println("1:" + this.getClass().getSuperclass().getSimpleName());
-//		System.out.println("2:" + this.getClass().getSimpleName() + ".1");
-//		System.out.println("3:" + this.getStackTrace()[0].getClassName());
+		ErrorManager.manageErrorProcessor(attributes);
+	}
+	
+	public BillingBuddyException(BillingBuddySQLException e) {
+		super(e);
+		try {
+			JSONObject jSONObject = new JSONObject();
+			jSONObject.put("ErrorDetails", e.getErrorDetails());
+			ErrorLogVO errorLogVO = new ErrorLogVO();
+			errorLogVO.setProcessName(this.getClass().getSimpleName());
+			errorLogVO.setInformation(jSONObject.toJSONString());
+			ErrorLogDAO errorLogDAO = new ErrorLogDAO();
+			if(errorLogDAO.insert(errorLogVO) == 0){
+//				System.out.println("Genera archivo de error " + e.hashCode());
+				String fileName = this.getClass().getCanonicalName() +"_"+ e.hashCode();
+				ErrorManager.logDailySubscriptionErrorFile(fileName, jSONObject);
+			}else{
+//				System.out.println("Guarda el error del DAO en la tabla de los errores: "  + e.hashCode());
+			}
+		} catch (ErrorLogDAOException e1) {
+			System.out.println("Sale por aca 1 " + e1.getMessage());
+		} catch (MySQLConnectionException e1) {
+			System.out.println("Sale por aca 2 " + e1.getMessage());
+		}
+	}
+	
+	public BillingBuddyException(BillingBuddySQLException e, String call) {
+		super(e);
+		try {
+			e.getErrorDetails().put("CALL", call);
+			JSONObject jSONObject = new JSONObject();
+			jSONObject.put("ErrorDetails", e.getErrorDetails());
+			ErrorLogVO errorLogVO = new ErrorLogVO();
+			errorLogVO.setProcessName(this.getClass().getSimpleName());
+			errorLogVO.setInformation(jSONObject.toJSONString());
+			ErrorLogDAO errorLogDAO = new ErrorLogDAO();
+			if(errorLogDAO.insert(errorLogVO) == 0){
+//				System.out.println("Genera archivo de error " + e.hashCode());
+				String fileName = this.getClass().getCanonicalName() +"_"+ e.hashCode();
+				ErrorManager.logDailySubscriptionErrorFile(fileName, jSONObject);
+			}else{
+//				System.out.println("Guarda el error del DAO en la tabla de los errores: "  + e.hashCode());
+			}
+		} catch (ErrorLogDAOException e1) {
+			System.out.println("Sale por aca 1 " + e1.getMessage());
+		} catch (MySQLConnectionException e1) {
+			System.out.println("Sale por aca 2 " + e1.getMessage());
+		}
 	}
 
 	public BillingBuddyException(Throwable cause) {

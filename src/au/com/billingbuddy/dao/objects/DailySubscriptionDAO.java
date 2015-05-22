@@ -19,7 +19,7 @@ import au.com.billingbuddy.vo.objects.MerchantCustomerCardVO;
 
 public class DailySubscriptionDAO extends MySQLConnection implements IDailySubscriptionDAO {
 
-	public DailySubscriptionDAO() throws MySQLConnectionException{
+	public DailySubscriptionDAO() throws MySQLConnectionException {
 		super();
 	}
 	
@@ -32,11 +32,20 @@ public class DailySubscriptionDAO extends MySQLConnection implements IDailySubsc
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
+			
 			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_DAILY_SUBSCRIPTION(?,?,?,?)}");
 			cstmt.setString(1,dailySubscriptionVO.getStatus());
 			cstmt.setString(2,dailySubscriptionVO.getAuthorizerCode());
 			cstmt.setString(3,dailySubscriptionVO.getAuthorizerReason());
-			cstmt.setString(8,dailySubscriptionVO.getId());
+			if (dailySubscriptionVO.getErrorCode() != null && dailySubscriptionVO.getErrorCode().equalsIgnoreCase("1")) {
+				cstmt.setString(4,"0");
+			}else if (dailySubscriptionVO.getErrorCode() != null && dailySubscriptionVO.getErrorCode().equalsIgnoreCase("2")) {
+				throw new DailySubscriptionDAOException("asdasd");
+			}else {
+				cstmt.setString(4,dailySubscriptionVO.getId());
+			}
+//			cstmt.setString(4,"0");
+//			cstmt.setString(4,dailySubscriptionVO.getId());
 			status = cstmt.executeUpdate();
 		} catch (SQLException e) {
 			throw new DailySubscriptionDAOException(e);
@@ -45,7 +54,7 @@ public class DailySubscriptionDAO extends MySQLConnection implements IDailySubsc
 		}
 		return status;
 	}
-
+	
 	public ArrayList<DailySubscriptionVO> search() throws DailySubscriptionDAOException {
 		Connection connection = this.connection;
 		ResultSet resultSet = null; 
