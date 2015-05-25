@@ -42,9 +42,9 @@ import com.stripe.exception.InvalidRequestException;
 import com.stripe.model.Charge;
 
 
-public class SubscriptionsMDTR {
+public class ProcessSubscriptionsMDTR {
 	
-	private static SubscriptionsMDTR instance = null;
+	private static ProcessSubscriptionsMDTR instance = null;
 	/*private static ConfigurationSystem configurationSystem = ConfigurationSystem.getInstance();
 	private static ConfigurationApplication instanceConfigurationApplication = ConfigurationApplication.getInstance();*/
 	
@@ -75,26 +75,23 @@ public class SubscriptionsMDTR {
 	
 	private boolean swErrorOnlevel1 = false;
 	
-	public static synchronized SubscriptionsMDTR getInstance() {
+	public static synchronized ProcessSubscriptionsMDTR getInstance() {
 		if (instance == null) {
-			instance = new SubscriptionsMDTR();
+			instance = new ProcessSubscriptionsMDTR();
 		}
 		return instance;
 	}
 	
-	private SubscriptionsMDTR() {
+	private ProcessSubscriptionsMDTR() {
 		Stripe.apiKey = ConfigurationSystem.getKey("apiKey");
 	}
 	
 	public synchronized boolean proccesDailySubscriptions() throws SubscriptionsMDTRException {
-		/*Map<String, Object> hashMapCharge = new HashMap<String, Object>();*/
 		setLogFileName(ConfigurationSystem.getKey("urlSaveErrorFilesSaveInformationSubscriptions") + "ProccesDailySubscriptions - "+ Calendar.getInstance().getTime());
 		
 		try {
 			initialTime = Calendar.getInstance().getTimeInMillis();
 			mySQLTransaction = new MySQLTransaction();
-//			mySQLTransaction.autoCommit(false); 
-//			mySQLTransaction.start();
 			
 			submittedProcessLogVO.setProcessName("ProccesDailySubscriptions");
 			submittedProcessLogVO.setStartTime(Calendar.getInstance().getTime().toString());
@@ -380,7 +377,6 @@ public class SubscriptionsMDTR {
 		int unProcessed = 0;
 		int processed = 0;
 		int totalRegistries = 0;
-		System.out.println("1 Reprocesando archivo ....");
 		try {
 			mySQLTransaction = new MySQLTransaction();
 			mySQLTransaction.start();
@@ -411,16 +407,43 @@ public class SubscriptionsMDTR {
 					unProcessed ++;
 				}
 			}
+			
+			if(totalRegistries == processed) {
+				SubmittedProcessLogDAO submittedProcessLogDAO = new SubmittedProcessLogDAO(mySQLTransaction);
+				submittedProcessLogVO.setId(jSONObjectParameters.get("idSubmittedProcessLog").toString());
+				
+				submittedProcessLogVO = submittedProcessLogDAO.searchByID(submittedProcessLogVO);				
+				
+				Object obj = JSONValue.parse(submittedProcessLogVO.getInformation());
+				JSONObject jSONObjectInitial = (JSONObject) obj;
+				jSONObjectInitial.remove("ReprocessErrorFile");
+				
+				JSONObject jSONObjectFinal = new JSONObject();
+				jSONObjectFinal.put("Total number of registries", totalRegistries);
+				jSONObjectFinal.put("Number of processed", processed);
+				jSONObjectFinal.put("Number of unProcessed", unProcessed);
+				jSONObjectFinal.put("Reprocessing date", Calendar.getInstance().getTime().toString());
+				
+				JSONObject information = new JSONObject();
+				information.put("Initial Information", jSONObjectInitial);
+				information.put("Final Information", jSONObjectFinal);
+				submittedProcessLogVO.setInformation(information.toJSONString());
+				submittedProcessLogVO.setStatusProcess("Success");
+				submittedProcessLogDAO.update(submittedProcessLogVO);
+				jSONObjectParameters.put("answer", true);
+			}else {
+				if(processed == 0) jSONObjectParameters.put("errorType", "noRegistriesUpdated");
+				jSONObjectParameters.put("answer", false);
+			}
 			mySQLTransaction.commit();
 //			System.out.println("Termina el proceso satisfactoriamente");
 			jSONObjectParameters.put("unProcessed", unProcessed);
 			jSONObjectParameters.put("processed", processed);
 			jSONObjectParameters.put("totalRegistries", totalRegistries);
-			jSONObjectParameters.put("answer", true);
 			
-			System.out.println("unProcessed: " + unProcessed);
+			/*System.out.println("unProcessed: " + unProcessed);
 			System.out.println("processed: " + processed);
-			System.out.println("totalRegistries: " + totalRegistries);
+			System.out.println("totalRegistries: " + totalRegistries);*/
 			return jSONObjectParameters;
 		} catch (MySQLTransactionException e) {
 			/*e.printStackTrace();*/
@@ -433,6 +456,8 @@ public class SubscriptionsMDTR {
 			throw new SubscriptionsMDTRException(e);
 		} catch (IOException e) {
 			/*e.printStackTrace();*/
+			throw new SubscriptionsMDTRException(e);
+		} catch (SubmittedProcessLogDAOException e) {
 			throw new SubscriptionsMDTRException(e);
 		} finally {
 			try {
@@ -508,14 +533,6 @@ public class SubscriptionsMDTR {
 	}
 	
 	class ProcessSubscription extends Thread {
-		/*Map<String, Object> hashMapCharge = new HashMap<String, Object>();
-		setLogFileName(ConfigurationSystem.getKey("urlSaveErrorFilesSaveInformationSubscriptions") + "ProccesDailySubscriptions - "+ Calendar.getInstance().getTime());
-		MySQLTransaction mySQLTransaction = null;*/
-		
-//		boolean answer = true;
-//		boolean unpaids =  false;
-//		boolean noUpdated =  false;
-//		boolean errorFileExist =  false;
 		
 		private Map<String, Object> hashMapCharge = new HashMap<String, Object>();
 		private DailySubscriptionVO dailySubscriptionVO;
@@ -715,110 +732,9 @@ public class SubscriptionsMDTR {
 						e.printStackTrace();
 					}
 				}
-			
-			
-				
-				
-				/*
-				finalTime = Calendar.getInstance().getTimeInMillis();
-				System.out.println("Tiempo total para procesar todas las subscripciones: " + (finalTime-initialTime) + " ms.");
-				try {
-					
-					submittedProcessLogDAO = new SubmittedProcessLogDAO();
-					submittedProcessLogVO.setEndTime(Calendar.getInstance().getTime().toString());
-					
-					if(answer) submittedProcessLogVO.setStatusProcess("Success");
-					else submittedProcessLogVO.setStatusProcess("Error");
-					
-					JSONObject informationDetails = new JSONObject();
-					
-					JSONObject information = new JSONObject();
-					information.put("unpaids", unpaids);
-					if(unpaids){
-						information.put("Recomendation","Run the \"Reprocess Process\" to resend the transactions to our processor.");
-						information.put("Information", "There are subscripcions that our procesor could not charge to some card holders. The uncharges transactions information are available in the tables Reprocess_X ");
-					}
-					informationDetails.put("ReprocessUnpaids", unpaids);
-					informationDetails.put("InformationUnpaids", information);
-					
-					
-					information = new JSONObject();
-					information.put("noUpdated", noUpdated);
-					if(noUpdated){
-						information.put("InformationNoUpdated", "There are subscripcions that were charged by our processor but the information was not updated in our systems.");
-						information.put("Recomendation","Check system logs to determine the causes of the error.");
-					}
-					informationDetails.put("InformationNoUpdated", information);
-					
-					information = new JSONObject();
-					information.put("errorFileExist", errorFileExist);
-					if(errorFileExist){
-						information.put("Information", "Was created a file that content information about the subscripcions that could not Update.");
-						information.put("Recomendation","Execute the recovery process to update the correct field in our data base.");
-						information.put("FileLocation",getLogFileName());
-					}
-					informationDetails.put("ReprocessErrorFile", errorFileExist);
-					informationDetails.put("InformationErrorFileExist", information);
-//					informationDetails.put("Processing Time", ((finalTime-initialTime) + " ms."));
-					
-					information = new JSONObject();
-					information.put("Total Time", ((finalTime-initialTime) + " ms."));
-					information.put("Total Transactions to process", listDailySubscriptions.size());
-					information.put("Total Transactions no updates on Data Base", numberNoUpdated);
-					information.put("Total Transactions updates on Data Base", numberUpdated);
-					information.put("Total Transactions unpaids", numberUnpaids);
-					information.put("Total Transactions chargeds", numberCharged);
-					
-					informationDetails.put("Resume ProcessExecution", information);
-					
-					
-					System.out.println("Imprimiendo resumen ... ");
-					System.out.println( "Total de numberNoUpdated: " + numberNoUpdated);
-					System.out.println( "Total de numberUpdated: " + numberUpdated);
-					System.out.println( "Total de numberUnpaids: " + numberUnpaids);
-					System.out.println( "Total de numberCharged: " + numberCharged);
-					
-					
-					submittedProcessLogVO.setInformation(informationDetails.toJSONString());
-					submittedProcessLogDAO.update(submittedProcessLogVO);
-					mySQLTransaction.commit();
-					
-				} catch (MySQLConnectionException e) {
-					e.printStackTrace();
-				} catch (MySQLTransactionException e) {
-					e.printStackTrace();
-				} catch (SubmittedProcessLogDAOException e) {
-					e.printStackTrace();
-				} finally{
-					try {
-						if(mySQLTransaction != null){
-							mySQLTransaction.close();
-						}
-					} catch (MySQLTransactionException e) {
-						e.printStackTrace();
-					}
-				}
-			*/}
+			}
 		}
-		
-//		public synchronized void writeError(JSONObject errorDetails){
-//			try{
-//				writeInErrorLog = true;
-//				File file = new File(getLogFileName());
-//				if(!file.exists()){
-//					file.createNewFile();
-//				}
-//				FileWriter fstream = new FileWriter(file, true);
-//				BufferedWriter out = new BufferedWriter(fstream);
-//				out.write(errorDetails.toJSONString());
-//				out.newLine();
-//				out.close();
-//			}catch(IOException e){
-//	    		e.printStackTrace();
-//	    	}
-//		}
-	 
- }
+	}
 	
 	private synchronized void sended(){
 		numberSended ++;
@@ -843,11 +759,5 @@ public class SubscriptionsMDTR {
 	public synchronized void setSwErrorOnlevel1(boolean swErrorOnlevel1) {
 		this.swErrorOnlevel1 = swErrorOnlevel1;
 	}
-	
-//	private synchronized void setErrorOnLevel1(){
-//		swErrorOnlevel1 = true;
-//	}
-	
-	
 	
 }

@@ -44,6 +44,7 @@ public class DailySubscriptionDAO extends MySQLConnection implements IDailySubsc
 			}else {
 				cstmt.setString(4,dailySubscriptionVO.getId());
 			}
+//			cstmt.setString(4,dailySubscriptionVO.getId());
 //			cstmt.setString(4,"0");
 //			cstmt.setString(4,dailySubscriptionVO.getId());
 			status = cstmt.executeUpdate();

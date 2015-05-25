@@ -108,12 +108,13 @@ public class SubmittedProcessLogDAO extends MySQLConnection implements ISubmitte
 		PreparedStatement pstmt = null;
 		ArrayList<SubmittedProcessLogVO> list = null;
 		try {
-			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_SUBMITTED_PROCESS_LOG(?,?,?,?,?)}");
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_SUBMITTED_PROCESS_LOG(?,?,?,?,?,?)}");
 			pstmt.setString(1,submittedProcessLogVO.getProcessName());
 			pstmt.setString(2,submittedProcessLogVO.getInitialDateReport());
 			pstmt.setString(3,submittedProcessLogVO.getFinalDateReport());
 			pstmt.setString(4,submittedProcessLogVO.getStatusProcess());
 			pstmt.setString(5,submittedProcessLogVO.getMatch());
+			pstmt.setString(6,submittedProcessLogVO.getId());
 			resultSet = (ResultSet)pstmt.executeQuery();
 			if (resultSet != null) {
 				list = new ArrayList<SubmittedProcessLogVO>();
@@ -135,6 +136,33 @@ public class SubmittedProcessLogDAO extends MySQLConnection implements ISubmitte
 			PsRs(pstmt, resultSet,connection);
 		}
 		return list;
+	}
+	
+	public SubmittedProcessLogVO searchByID(SubmittedProcessLogVO submittedProcessLogVO) throws SubmittedProcessLogDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_SUBMITTED_PROCESS_LOG_BY_ID(?)}");
+			pstmt.setString(1,submittedProcessLogVO.getId());
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				while (resultSet.next()) {
+					submittedProcessLogVO.setId(resultSet.getString("Splo_ID"));
+					submittedProcessLogVO.setProcessName(resultSet.getString("Splo_ProcessName"));
+					submittedProcessLogVO.setStartTime(resultSet.getString("Splo_StartTime"));
+					submittedProcessLogVO.setEndTime(resultSet.getString("Splo_EndTime"));
+					submittedProcessLogVO.setStatusProcess(resultSet.getString("Splo_StatusProcess"));
+					submittedProcessLogVO.setInformation(resultSet.getString("Splo_Information"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new SubmittedProcessLogDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return submittedProcessLogVO;
 	}
 
 }

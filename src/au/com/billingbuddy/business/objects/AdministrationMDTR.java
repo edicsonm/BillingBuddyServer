@@ -20,7 +20,9 @@ public class AdministrationMDTR {
 	}
 	
 	private AdministrationMDTR() {}
-	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/	
 	public ArrayList<SubmittedProcessLogVO> listSubmittedProcessLogs(SubmittedProcessLogVO submittedProcessLogVO) throws AdministrationMDTRException {
 		ArrayList<SubmittedProcessLogVO> listSubmittedProcessLogs = null;
 		try {
@@ -38,21 +40,25 @@ public class AdministrationMDTR {
 		return listSubmittedProcessLogs;
 	}
 	
-	/*public ArrayList<SubmittedProcessLogVO> reprocessErrorFile(SubmittedProcessLogVO submittedProcessLogVO) throws AdministrationMDTRException {
-		ArrayList<SubmittedProcessLogVO> listSubmittedProcessLogs = null;
+	public SubmittedProcessLogVO searchSubmittedProcessLog(SubmittedProcessLogVO submittedProcessLogVO) throws AdministrationMDTRException {
 		try {
 			SubmittedProcessLogDAO submittedProcessLogDAO = new SubmittedProcessLogDAO();
-			listSubmittedProcessLogs = submittedProcessLogDAO.search(submittedProcessLogVO);
+			submittedProcessLogVO = submittedProcessLogDAO.searchByID(submittedProcessLogVO);
 		} catch (MySQLConnectionException e) {
 			AdministrationMDTRException administrationMDTRException = new AdministrationMDTRException(e);
-			administrationMDTRException.setErrorCode("AdministrationMDTR.proccesDailySubscriptions.MySQLConnectionException");
+			administrationMDTRException.setErrorCode("AdministrationMDTR.searchSubmittedProcessLog.MySQLConnectionException");
 			throw administrationMDTRException;
 		} catch (SubmittedProcessLogDAOException e) {
 			AdministrationMDTRException administrationMDTRException = new AdministrationMDTRException(e);
-			administrationMDTRException.setErrorCode("AdministrationMDTR.proccesDailySubscriptions.SubmittedProcessLogDAOException");
+			administrationMDTRException.setErrorCode("AdministrationMDTR.searchSubmittedProcessLog.SubmittedProcessLogDAOException");
 			throw administrationMDTRException;
 		}
-		return listSubmittedProcessLogs;
-	}*/
+		return submittedProcessLogVO;
+	}
+	
+	
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
+	/**********************************************************************************************************************************/
 	
 }

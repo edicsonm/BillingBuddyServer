@@ -10,4 +10,6 @@ public interface ISubmittedProcessLogDAO {
 	public int update(SubmittedProcessLogVO submittedProcessLogVO) throws SubmittedProcessLogDAOException;
 	public ArrayList<SubmittedProcessLogVO> search() throws SubmittedProcessLogDAOException;
 	public ArrayList<SubmittedProcessLogVO> search(SubmittedProcessLogVO submittedProcessLogVO) throws SubmittedProcessLogDAOException;
+	public SubmittedProcessLogVO searchByID(SubmittedProcessLogVO submittedProcessLogVO) throws SubmittedProcessLogDAOException;
+	
 }
