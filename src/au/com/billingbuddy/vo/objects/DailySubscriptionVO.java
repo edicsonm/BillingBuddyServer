@@ -13,6 +13,7 @@ public class DailySubscriptionVO extends VO implements Serializable {
 	private String quantity;
 	private String amount;
 	private String currency;
+	private String processAttempt;
 	private String currentPeriodStart;
 	private String currentPeriodEnd;
 	private String creationTime;
@@ -88,12 +89,20 @@ public class DailySubscriptionVO extends VO implements Serializable {
 		AuthorizerReason = authorizerReason;
 	}
 	
-	@Override
+	/*@Override
     public boolean equals(Object obj) {
 		if (!(obj instanceof DailySubscriptionVO))
 			return false;
 		DailySubscriptionVO objetoVO = (DailySubscriptionVO) obj;
 		return (this.getId().equalsIgnoreCase(objetoVO.getId()));
+    }*/
+	
+	@Override
+    public boolean equals(Object obj) {
+		if (!(obj instanceof DailySubscriptionVO))
+			return false;
+		DailySubscriptionVO objetoVO = (DailySubscriptionVO) obj;
+		return (this.getSubscriptionId().equalsIgnoreCase(objetoVO.getSubscriptionId()));
     }
 
 	@Override
@@ -118,6 +127,12 @@ public class DailySubscriptionVO extends VO implements Serializable {
 	}
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
+	}
+	public String getProcessAttempt() {
+		return processAttempt;
+	}
+	public void setProcessAttempt(String processAttempt) {
+		this.processAttempt = processAttempt;
 	}
 
 }

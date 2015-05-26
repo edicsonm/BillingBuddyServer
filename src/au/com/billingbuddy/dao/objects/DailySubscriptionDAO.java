@@ -56,6 +56,35 @@ public class DailySubscriptionDAO extends MySQLConnection implements IDailySubsc
 		return status;
 	}
 	
+	public int updateUnPaid(DailySubscriptionVO dailySubscriptionVO) throws DailySubscriptionDAOException {
+		CallableStatement cstmt = null;
+		int status = 0;
+		try {
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_UPDATE_UNPAID_DAILY_SUBSCRIPTION(?,?,?,?,?)}");
+			cstmt.setString(1,dailySubscriptionVO.getStatus());
+			cstmt.setString(2,dailySubscriptionVO.getProcessAttempt());
+			cstmt.setString(3,dailySubscriptionVO.getAuthorizerCode());
+			cstmt.setString(4,dailySubscriptionVO.getAuthorizerReason());
+			cstmt.setString(5,dailySubscriptionVO.getId());
+			if (dailySubscriptionVO.getErrorCode() != null && dailySubscriptionVO.getErrorCode().equalsIgnoreCase("1")) {
+				cstmt.setString(4,"0");
+			}else if (dailySubscriptionVO.getErrorCode() != null && dailySubscriptionVO.getErrorCode().equalsIgnoreCase("2")) {
+				throw new DailySubscriptionDAOException("asdasd");
+			}else {
+				cstmt.setString(4,dailySubscriptionVO.getId());
+			}
+//			cstmt.setString(4,dailySubscriptionVO.getId());
+//			cstmt.setString(4,"0");
+//			cstmt.setString(4,dailySubscriptionVO.getId());
+			status = cstmt.executeUpdate();
+		} catch (SQLException e) {
+			throw new DailySubscriptionDAOException(e);
+		} finally {
+			Cs(cstmt, getConnection());
+		}
+		return status;
+	}
+	
 	public ArrayList<DailySubscriptionVO> search() throws DailySubscriptionDAOException {
 		Connection connection = this.connection;
 		ResultSet resultSet = null; 
@@ -93,6 +122,70 @@ public class DailySubscriptionDAO extends MySQLConnection implements IDailySubsc
 			PsRs(pstmt, resultSet,connection);
 		}
 		return list;
+	}
+	
+	public ArrayList<DailySubscriptionVO> searchUnPaid() throws DailySubscriptionDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		ArrayList<DailySubscriptionVO> list = null;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_DAILY_UNPAID_SUBSCRIPTION()}");
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				list = new ArrayList<DailySubscriptionVO>();
+				while (resultSet.next()) {
+					DailySubscriptionVO dailySubscriptionVO = new DailySubscriptionVO();
+					dailySubscriptionVO.setId(resultSet.getString("Dasu_ID"));
+					dailySubscriptionVO.setSubscriptionId(resultSet.getString("Subs_ID"));
+					dailySubscriptionVO.setMerchantId(resultSet.getString("Merc_ID"));
+					dailySubscriptionVO.setQuantity(resultSet.getString("Dasu_Quantity"));
+					dailySubscriptionVO.setAmount(resultSet.getString("Dasu_Amount"));
+					dailySubscriptionVO.setCurrency(resultSet.getString("Dasu_Currency"));
+					dailySubscriptionVO.setProcessAttempt(resultSet.getString("Dasu_ProcessAttempt"));					
+					dailySubscriptionVO.setMerchantCustomerCardVO(new MerchantCustomerCardVO());
+					dailySubscriptionVO.getMerchantCustomerCardVO().setCardVO(new CardVO());
+					dailySubscriptionVO.getMerchantCustomerCardVO().setCardId(resultSet.getString("Card_ID"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setId(resultSet.getString("Card_ID"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setNumber(resultSet.getString("Card_Number"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setExpMonth(resultSet.getString("Card_ExpMonth"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setExpYear(resultSet.getString("Card_ExpYear"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setCvv(resultSet.getString("Card_Cvv"));
+					dailySubscriptionVO.getMerchantCustomerCardVO().getCardVO().setName(resultSet.getString("Card_Name"));
+					list.add(dailySubscriptionVO);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DailySubscriptionDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return list;
+	}
+
+	@Override
+	public int searchUnPaidBloked() throws DailySubscriptionDAOException {
+		Connection connection = this.connection;
+		ResultSet resultSet = null; 
+		PreparedStatement pstmt = null;
+		int count = 0;
+		try {
+			pstmt = connection.prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SEARCH_DAILY_UNPAID_SUBSCRIPTION_BLOCKED()}");
+			resultSet = (ResultSet)pstmt.executeQuery();
+			if (resultSet != null) {
+				while (resultSet.next()) {
+					count = resultSet.getInt("Count");
+				}
+			}
+			System.out.println("resultSet.getFetchSize(): " + count);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DailySubscriptionDAOException(e);
+		} finally {
+			PsRs(pstmt, resultSet,connection);
+		}
+		return count;
 	}
 
 }
