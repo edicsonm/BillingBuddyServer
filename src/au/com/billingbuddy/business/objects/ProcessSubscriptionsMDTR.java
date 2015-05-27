@@ -10,9 +10,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
@@ -20,16 +21,16 @@ import au.com.billigbuddy.utils.ErrorManager;
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.common.objects.Utilities;
 import au.com.billingbuddy.connection.objects.MySQLTransaction;
-import au.com.billingbuddy.dao.objects.DailySubscriptionDAO;
+import au.com.billingbuddy.dao.objects.SubscriptionsToProcessDAO;
 import au.com.billingbuddy.dao.objects.ErrorLogDAO;
 import au.com.billingbuddy.dao.objects.SubmittedProcessLogDAO;
-import au.com.billingbuddy.exceptions.objects.DailySubscriptionDAOException;
+import au.com.billingbuddy.exceptions.objects.SubscriptionsToProcessDAOException;
 import au.com.billingbuddy.exceptions.objects.ErrorLogDAOException;
 import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.MySQLTransactionException;
 import au.com.billingbuddy.exceptions.objects.SubmittedProcessLogDAOException;
 import au.com.billingbuddy.exceptions.objects.SubscriptionsMDTRException;
-import au.com.billingbuddy.vo.objects.DailySubscriptionVO;
+import au.com.billingbuddy.vo.objects.SubscriptionsToProcessVO;
 import au.com.billingbuddy.vo.objects.ErrorLogVO;
 import au.com.billingbuddy.vo.objects.SubmittedProcessLogVO;
 
@@ -72,10 +73,13 @@ public class ProcessSubscriptionsMDTR {
 	private String processName = "ProccesDailySubscriptions";
 	
 	private boolean errorFileExist =  false;
-	private ArrayList<DailySubscriptionVO> listDailySubscriptions = null;
+	private ArrayList<SubscriptionsToProcessVO> listSubscriptionsToProcess = null;
 	
 	private boolean swErrorOnlevel1 = false;
 	
+	private static final Logger logger = LogManager.getLogger(ProcessSubscriptionsMDTR.class);
+	/*"trace", "debug", "info", "warn", "error" and "fatal"*/
+    
 	public static synchronized ProcessSubscriptionsMDTR getInstance() {
 		if (instance == null) {
 			instance = new ProcessSubscriptionsMDTR();
@@ -88,6 +92,15 @@ public class ProcessSubscriptionsMDTR {
 	}
 	
 	public synchronized boolean proccesDailySubscriptions() throws SubscriptionsMDTRException {
+		
+		logger.trace("/*****************************************************************************************************/");
+		logger.trace("/*********************************INICIANDO PROCESO DE SUBSCRIPCIONES*********************************/");
+		logger.trace("/*****************************************************************************************************/");
+		
+		logger.info("/*****************************************************************************************************/");
+		logger.info("/*********************************INICIANDO PROCESO DE SUBSCRIPCIONES*********************************/");
+		logger.info("/*****************************************************************************************************/");
+		
 		setLogFileName(ConfigurationSystem.getKey("urlSaveErrorFilesSaveInformationSubscriptions") + processName + " - "+ Calendar.getInstance().getTime());
 		
 		try {
@@ -100,28 +113,29 @@ public class ProcessSubscriptionsMDTR {
 			SubmittedProcessLogDAO submittedProcessLogDAO = new SubmittedProcessLogDAO();
 			submittedProcessLogDAO.insert(submittedProcessLogVO);
 			
-			DailySubscriptionDAO dailySubscriptionDAO = new DailySubscriptionDAO(mySQLTransaction);
-			listDailySubscriptions = dailySubscriptionDAO.search();
+			SubscriptionsToProcessDAO subscriptionsToProcessDAO = new SubscriptionsToProcessDAO(mySQLTransaction);
+			listSubscriptionsToProcess = subscriptionsToProcessDAO.search();
 			
-			if(listDailySubscriptions != null && listDailySubscriptions.size() > 0) {
-				for (int position = 0; position<listDailySubscriptions.size(); position++) {
-				/*for (Iterator<DailySubscriptionVO> iterator = listDailySubscriptions.iterator(); iterator .hasNext();) {*/
+			if(listSubscriptionsToProcess != null && listSubscriptionsToProcess.size() > 0) {
+				for (int position = 0; position<listSubscriptionsToProcess.size(); position++) {
+					
+				/*for (Iterator<DailySubscriptionVO> iterator = listSubscriptionsToProcess.iterator(); iterator .hasNext();) {*/
 //					initialTimeIndividual = Calendar.getInstance().getTimeInMillis();
 					/*DailySubscriptionVO dailySubscriptionVO = iterator.next();*/
 					
-					DailySubscriptionVO dailySubscriptionVO = listDailySubscriptions.get(position);
+					SubscriptionsToProcessVO subscriptionsToProcessVO = listSubscriptionsToProcess.get(position);
 					
-					int first = listDailySubscriptions.indexOf(dailySubscriptionVO);
-					int last = listDailySubscriptions.lastIndexOf(dailySubscriptionVO);
+					int first = listSubscriptionsToProcess.indexOf(subscriptionsToProcessVO);
+					int last = listSubscriptionsToProcess.lastIndexOf(subscriptionsToProcessVO);
 					
-					System.out.println(position+" "+dailySubscriptionVO.getSubscriptionId() + " first: " + first);
-					System.out.println("  "+dailySubscriptionVO.getSubscriptionId() + " last: " + last);
+					logger.debug(position+" "+subscriptionsToProcessVO.getSubscriptionId() + " first: " + first);
+					logger.debug("  "+subscriptionsToProcessVO.getSubscriptionId() + " last: " + last);
 					
-					ArrayList<DailySubscriptionVO> listDailySubscriptionsAUX = new ArrayList<DailySubscriptionVO>(listDailySubscriptions.subList(first, last + 1));
+					ArrayList<SubscriptionsToProcessVO> listSubscriptionsToProcessAUX = new ArrayList<SubscriptionsToProcessVO>(listSubscriptionsToProcess.subList(first, last + 1));
 					position = last;
 					
-					ProcessSubscription processSubscription = new ProcessSubscription(listDailySubscriptionsAUX, dailySubscriptionDAO, mySQLTransaction);
-					processSubscription.setName(dailySubscriptionVO.getSubscriptionId());
+					ProcessSubscription processSubscription = new ProcessSubscription(listSubscriptionsToProcessAUX, subscriptionsToProcessDAO, mySQLTransaction);
+					processSubscription.setName(subscriptionsToProcessVO.getSubscriptionId());
 					processSubscription.start();
 					hashThreadsProcessSubscription.put(processSubscription.getName(), processSubscription);
 //					
@@ -184,17 +198,19 @@ public class ProcessSubscriptionsMDTR {
 //					finalTimeIndividual = Calendar.getInstance().getTimeInMillis();
 //					System.out.println("Tiempo total para procesar una subscripcion: " + (finalTimeIndividual-initialTimeIndividual) + " ms.");
 				}
+				logger.info("Todos los hilos fueron creados, se llama al proceso de monitoreo de los hilos creados");
+				logger.trace("Todos los hilos fueron creados, se llama al proceso de monitoreo de los hilos creados");
 				
-				System.out.println("Todos los hilos fueron creados, se llama al proceso de monitoreo de los hilos creados");
-				/*MonitorProcessSubscription monitorProcessSubscription = new MonitorProcessSubscription(hashThreadsProcessSubscription);
-				monitorProcessSubscription.start();*/
+				MonitorProcessSubscription monitorProcessSubscription = new MonitorProcessSubscription(hashThreadsProcessSubscription);
+				monitorProcessSubscription.start();
 //				finalTime = Calendar.getInstance().getTimeInMillis();
 //				System.out.println("Tiempo total para procesar todas las subscripciones: " + (finalTime-initialTime) + " ms.");
 			
 			} else {
 
 				finalTime = Calendar.getInstance().getTimeInMillis();
-				System.out.println("Tiempo total para procesar todas las subscripciones: " + (finalTime-initialTime) + " ms.");
+				logger.info("Tiempo total para procesar todas las subscripciones: " + (finalTime-initialTime) + " ms.");
+				logger.trace("Tiempo total para procesar todas las subscripciones: " + (finalTime-initialTime) + " ms.");
 				try {
 					
 					submittedProcessLogDAO = new SubmittedProcessLogDAO();
@@ -235,7 +251,7 @@ public class ProcessSubscriptionsMDTR {
 					
 					information = new JSONObject();
 					information.put("Total Time", ((finalTime-initialTime) + " ms."));
-					information.put("Total Transactions to process", listDailySubscriptions.size());
+					information.put("Total Transactions to process", listSubscriptionsToProcess.size());
 					information.put("Total Transactions no updates on Data Base", numberNoUpdated);
 					information.put("Total Transactions updates on Data Base", numberUpdated);
 					information.put("Total Transactions unpaids", numberUnpaids);
@@ -250,6 +266,12 @@ public class ProcessSubscriptionsMDTR {
 					System.out.println( "Total de numberUpdated: " + numberUpdated);
 					System.out.println( "Total de numberUnpaids: " + numberUnpaids);
 					System.out.println( "Total de numberCharged: " + numberCharged);
+					
+					logger.info("Imprimiendo resumen wqwe qweqwe ... ");
+					logger.info( "Total de numberNoUpdated: " + numberNoUpdated);
+					logger.info( "Total de numberUpdated: " + numberUpdated);
+					logger.info( "Total de numberUnpaids: " + numberUnpaids);
+					logger.info( "Total de numberCharged: " + numberCharged);
 					/**/
 					
 					submittedProcessLogVO.setInformation(informationDetails.toJSONString());
@@ -319,7 +341,7 @@ public class ProcessSubscriptionsMDTR {
 //			e.printStackTrace();
 //		} catch (InvalidRequestException e) {
 //			e.printStackTrace();
-		} catch (DailySubscriptionDAOException e) {
+		} catch (SubscriptionsToProcessDAOException e) {
 			SubscriptionsMDTRException subscriptionsMDTRException = new SubscriptionsMDTRException(e);
 			subscriptionsMDTRException.setErrorCode("SubscriptionsMDTR.proccesDailySubscriptions.DailySubscriptionDAOException");
 			throw subscriptionsMDTRException;
@@ -345,23 +367,23 @@ public class ProcessSubscriptionsMDTR {
 		
 	}
 	
-	public ArrayList<DailySubscriptionVO> listDailySubscriptions() throws SubscriptionsMDTRException{
-		ArrayList<DailySubscriptionVO> listDailySubscriptions = null;
+	public ArrayList<SubscriptionsToProcessVO> listSubscriptionsToProcess() throws SubscriptionsMDTRException{
+		ArrayList<SubscriptionsToProcessVO> listSubscriptionsToProcess = null;
 		try {
-			DailySubscriptionDAO dailySubscriptionDAO = new DailySubscriptionDAO();
-			listDailySubscriptions = dailySubscriptionDAO.search();
+			SubscriptionsToProcessDAO subscriptionsToProcessDAO = new SubscriptionsToProcessDAO();
+			listSubscriptionsToProcess = subscriptionsToProcessDAO.search();
 		} catch (MySQLConnectionException e) {
 			e.printStackTrace();
 			SubscriptionsMDTRException subscriptionsMDTRException = new SubscriptionsMDTRException(e);
-			subscriptionsMDTRException.setErrorCode("SubscriptionsMDTR.processDailySubscriptions.MySQLConnectionException");
+			subscriptionsMDTRException.setErrorCode("SubscriptionsMDTR.listSubscriptionsToProcess.MySQLConnectionException");
 			throw subscriptionsMDTRException;
-		} catch (DailySubscriptionDAOException e) {
+		} catch (SubscriptionsToProcessDAOException e) {
 			e.printStackTrace();
 			SubscriptionsMDTRException subscriptionsMDTRException = new SubscriptionsMDTRException(e);
-			subscriptionsMDTRException.setErrorCode("SubscriptionsMDTR.processDailySubscriptions.DailySubscriptionDAOException");
+			subscriptionsMDTRException.setErrorCode("SubscriptionsMDTR.listSubscriptionsToProcess.SubscriptionsToProcessDAOException e");
 			throw subscriptionsMDTRException;
 		}
-		return listDailySubscriptions;
+		return listSubscriptionsToProcess;
 	}
 	
 	public synchronized void writeError(JSONObject errorDetails){
@@ -386,7 +408,7 @@ public class ProcessSubscriptionsMDTR {
 		File archivo = null;
 		FileReader fileReader = null;
 		BufferedReader bufferedReader = null;
-		DailySubscriptionVO dailySubscriptionVO = null;
+		SubscriptionsToProcessVO subscriptionsToProcessVO = null;
 		
 		int unProcessed = 0;
 		int processed = 0;
@@ -394,7 +416,7 @@ public class ProcessSubscriptionsMDTR {
 		try {
 			mySQLTransaction = new MySQLTransaction();
 			mySQLTransaction.start();
-			DailySubscriptionDAO dailySubscriptionDAO = new DailySubscriptionDAO(mySQLTransaction);
+			SubscriptionsToProcessDAO subscriptionsToProcessDAO = new SubscriptionsToProcessDAO(mySQLTransaction);
 			archivo = new File(jSONObjectParameters.get("fileName").toString());
 			fileReader = new FileReader(archivo);
 			bufferedReader = new BufferedReader(fileReader);
@@ -403,17 +425,17 @@ public class ProcessSubscriptionsMDTR {
 				totalRegistries ++ ;
 				Object obj = JSONValue.parse(linea);
 				JSONObject jSONObject = (JSONObject) obj;
-				dailySubscriptionVO = new DailySubscriptionVO();
-				dailySubscriptionVO.setStatus(jSONObject.get("Dasu_Status").toString());
-				dailySubscriptionVO.setAuthorizerCode(jSONObject.get("Dasu_AuthorizerCode")!= null? jSONObject.get("Dasu_AuthorizerCode").toString():null);
-				dailySubscriptionVO.setAuthorizerReason(jSONObject.get("Dasu_AuthorizerReason") != null ? jSONObject.get("Dasu_AuthorizerReason").toString():null);
-				dailySubscriptionVO.setId(jSONObject.get("Dasu_ID").toString());
+				subscriptionsToProcessVO = new SubscriptionsToProcessVO();
+				subscriptionsToProcessVO.setStatus(jSONObject.get("Dasu_Status").toString());
+				subscriptionsToProcessVO.setAuthorizerCode(jSONObject.get("Dasu_AuthorizerCode")!= null? jSONObject.get("Dasu_AuthorizerCode").toString():null);
+				subscriptionsToProcessVO.setAuthorizerReason(jSONObject.get("Dasu_AuthorizerReason") != null ? jSONObject.get("Dasu_AuthorizerReason").toString():null);
+				subscriptionsToProcessVO.setId(jSONObject.get("Dasu_ID").toString());
 				if(jSONObject.get("ReprocessTRX") != null && jSONObject.get("ReprocessTRX").toString().equalsIgnoreCase("true")){
 					try {
 						processed ++;
-						dailySubscriptionDAO.update(dailySubscriptionVO);
+						subscriptionsToProcessDAO.update(subscriptionsToProcessVO);
 //						System.out.println(dailySubscriptionVO.getId()+ ":" + dailySubscriptionDAO.update(dailySubscriptionVO));
-					} catch (DailySubscriptionDAOException e) {
+					} catch (SubscriptionsToProcessDAOException e) {
 						mySQLTransaction.rollback();
 						throw new SubscriptionsMDTRException(e);
 					}
@@ -509,6 +531,7 @@ public class ProcessSubscriptionsMDTR {
 	
 	private void printTimes(long initialTime, long finalTime) {
 		System.out.println("Time to obtain answer from maxmind: " + (finalTime-initialTime) + " ms.");
+		logger.info("Time to obtain answer from maxmind: " + (finalTime-initialTime) + " ms.");
 	}
 
 	public boolean isWriteInErrorLog() {
@@ -538,38 +561,46 @@ public class ProcessSubscriptionsMDTR {
 		public void run() {
 			while (!hashProcessSubscription.isEmpty()) {
 //					System.out.println("Esperando la finalizacion de " + hashProcessSubscription.size() + " hilos ...");
-					System.out.println("Esperando la finalizacion de " + hashProcessSubscription.size() + " hilos ... " + "(numberSended: " + numberSended + ") (numberCharged: " +numberCharged+") (numberUnpaids: "  + numberUnpaids+")");
+					logger.info("Esperando la finalizacion de " + hashProcessSubscription.size() + " hilos ... " + "(numberSended: " + numberSended + ") (numberCharged: " +numberCharged+") (numberUnpaids: "  + numberUnpaids+")");
+//					System.out.println("Esperando la finalizacion de " + hashProcessSubscription.size() + " hilos ... " + "(numberSended: " + numberSended + ") (numberCharged: " +numberCharged+") (numberUnpaids: "  + numberUnpaids+")");
+					try {
+						this.sleep(4000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 			}
 //			System.out.println("Hilos finalizados .... " + "(numberSended: " + getNumberSended() + ") (numberCharged: " +getNumberCharged()+") (numberUnpaids: "  + getNumberUnpaids()+")");
 			finalTime = Calendar.getInstance().getTimeInMillis();
-			System.out.println("Tiempo total para procesar todas las subscripciones: " + (finalTime-initialTime) + " ms.");
+			logger.info("Tiempo total para procesar todas las subscripciones: " + (finalTime-initialTime) + " ms.");
+//			System.out.println("Tiempo total para procesar todas las subscripciones: " + (finalTime-initialTime) + " ms.");
 		}
 	}
 	
 	class ProcessSubscription extends Thread {
 		
 		private Map<String, Object> hashMapCharge = new HashMap<String, Object>();
-		private ArrayList<DailySubscriptionVO> listDailySubscriptions;
-		private DailySubscriptionVO dailySubscriptionVO;
-		private DailySubscriptionDAO dailySubscriptionDAO;
+		private ArrayList<SubscriptionsToProcessVO> listSubscriptionsToProcess;
+//		private SubscriptionsToProcessVO subscriptionsToProcessVO;
+		private SubscriptionsToProcessDAO subscriptionsToProcessDAO;
 		private SubmittedProcessLogDAO submittedProcessLogDAO;
 		private MySQLTransaction mySQLTransaction;
 		private int level = 0;
 		private boolean unpaidSubGroup = false;
 		
-		public ProcessSubscription(ArrayList<DailySubscriptionVO> listDailySubscriptions, DailySubscriptionDAO dailySubscriptionDAO, MySQLTransaction mySQLTransaction){
-			this.listDailySubscriptions = listDailySubscriptions;
-			/*this.dailySubscriptionVO = dailySubscriptionVO;*/
-			this.dailySubscriptionDAO = dailySubscriptionDAO;
+		public ProcessSubscription(ArrayList<SubscriptionsToProcessVO> listSubscriptionsToProcess, SubscriptionsToProcessDAO subscriptionsToProcessDAO, MySQLTransaction mySQLTransaction){
+			this.listSubscriptionsToProcess = listSubscriptionsToProcess;
+			this.subscriptionsToProcessDAO = subscriptionsToProcessDAO;
 			this.mySQLTransaction = mySQLTransaction;
 		}
 		
 		@Override
 		public void run() {
-			System.out.println("El hilo " + this.getName() + " tiene " + listDailySubscriptions.size() + " elementos para procesar");
+			logger.debug("El hilo " + this.getName() + " tiene " + listSubscriptionsToProcess.size() + " elementos para procesar");
+			logger.trace("El hilo " + this.getName() + " tiene " + listSubscriptionsToProcess.size() + " elementos para procesar");
+			/*System.out.println("El hilo " + this.getName() + " tiene " + listSubscriptionsToProcess.size() + " elementos para procesar");*/
 			while(true){
 				try {
-					for (DailySubscriptionVO dailySubscriptionVO : listDailySubscriptions) {
+					for (SubscriptionsToProcessVO dailySubscriptionVO : listSubscriptionsToProcess) {
 //						System.out.println("Ejecutando " + this.getName() + " " + dailySubscriptionVO.getId());
 						hashMapCharge.put("amount", Utilities.currencyToStripe(dailySubscriptionVO.getAmount(), dailySubscriptionVO.getCurrency()));
 						hashMapCharge.put("currency", dailySubscriptionVO.getCurrency());
@@ -586,11 +617,12 @@ public class ProcessSubscriptionsMDTR {
 							dailySubscriptionVO.setStatus("Sending");
 							dailySubscriptionVO.setAuthorizerCode(null);
 							dailySubscriptionVO.setAuthorizerReason(null);
-							if (dailySubscriptionDAO.update(dailySubscriptionVO) != 0) {
+							if (subscriptionsToProcessDAO.update(dailySubscriptionVO) != 0) {
 								level = 1;
 								try {
 									sended();
 									Charge charge = Charge.create(hashMapCharge);
+									dailySubscriptionVO.setProcessAttempt("0");
 									dailySubscriptionVO.setStatus("Charged");
 									dailySubscriptionVO.setAuthorizerCode(charge.getId());
 									dailySubscriptionVO.setAuthorizerReason(null);
@@ -601,6 +633,7 @@ public class ProcessSubscriptionsMDTR {
 									unpaids = true;
 									unpaidSubGroup =  true;
 	//								System.out.println("Error: " + e.getMessage());
+									dailySubscriptionVO.setProcessAttempt(String.valueOf(Integer.parseInt(dailySubscriptionVO.getProcessAttempt()) + 1));
 									dailySubscriptionVO.setStatus("Unpaid");
 									dailySubscriptionVO.setAuthorizerCode(null);
 									dailySubscriptionVO.setAuthorizerReason(e.getMessage());
@@ -609,7 +642,7 @@ public class ProcessSubscriptionsMDTR {
 								}
 	//						}
 	//							dailySubscriptionVO.setErrorCode("2");//User esta variable para simular errores
-								if(dailySubscriptionDAO.update(dailySubscriptionVO) == 0) {
+								if(subscriptionsToProcessDAO.update(dailySubscriptionVO) == 0) {
 	//								System.out.println("No fue posible actualizar la informacion del pago. Suspender todo el proceso. " + "Generar informe con la informacion del error");
 									JSONObject errorDetails = new JSONObject();
 									errorDetails.put("Dasu_Status", dailySubscriptionVO.getStatus());
@@ -618,7 +651,7 @@ public class ProcessSubscriptionsMDTR {
 									errorDetails.put("Dasu_ID", dailySubscriptionVO.getId());
 									errorDetails.put("Subs_ID", dailySubscriptionVO.getSubscriptionId());
 									errorDetails.put("AutorizationID", dailySubscriptionVO.getAuthorizerCode());
-									errorDetails.put("CALL_DailySubscriptionDAO", dailySubscriptionDAO.getCallString());
+									errorDetails.put("CALL_DailySubscriptionDAO", subscriptionsToProcessDAO.getCallString());
 									errorDetails.put("ReprocessTRX",true);
 									writeError(errorDetails);
 									answer = false;
@@ -631,7 +664,7 @@ public class ProcessSubscriptionsMDTR {
 								}
 								if(unpaidSubGroup) break; //Rompe el ciclo despues de que consigue una subscripcion que no fue aprobada y es actualizada en las tablas de las subscripciones
 							}
-						} catch (DailySubscriptionDAOException e) {
+						} catch (SubscriptionsToProcessDAOException e) {
 	//						System.out.println("No fue posible actualizar la informacion del pago. Suspender todo el proceso. " + "Generar informe con la informacion del error");
 							JSONObject errorDetails = new JSONObject();
 							errorDetails.put("Dasu_Status", dailySubscriptionVO.getStatus());
@@ -640,7 +673,7 @@ public class ProcessSubscriptionsMDTR {
 							errorDetails.put("Dasu_ID", dailySubscriptionVO.getId());
 							errorDetails.put("Subs_ID", dailySubscriptionVO.getSubscriptionId());
 							errorDetails.put("AutorizationID", dailySubscriptionVO.getAuthorizerCode());
-							errorDetails.put("CALL_DailySubscriptionDAO", dailySubscriptionDAO.getCallString());
+							errorDetails.put("CALL_DailySubscriptionDAO", subscriptionsToProcessDAO.getCallString());
 							if(level == 1) {
 								/*Esto es para verificar que el archivo de errores contiene transacciones que deben ser cargadas en la BD.
 								 *Esto es porque el error ocurre antes de enviar la transaccion, por lo que el registro no se debe modificar para que
@@ -654,7 +687,7 @@ public class ProcessSubscriptionsMDTR {
 							writeError(errorDetails);
 							answer = false;
 							errorFileExist = true;
-							new SubscriptionsMDTRException(e, dailySubscriptionDAO.getCallString());
+							new SubscriptionsMDTRException(e, subscriptionsToProcessDAO.getCallString());
 						}
 					}
 				} catch (AuthenticationException e) {
@@ -674,6 +707,7 @@ public class ProcessSubscriptionsMDTR {
 			if (hashThreadsProcessSubscription.isEmpty()) {
 
 				finalTime = Calendar.getInstance().getTimeInMillis();
+				logger.info("Tiempo total para procesar todas las subscripciones: " + (finalTime-initialTime) + " ms.");
 				System.out.println("Tiempo total para procesar todas las subscripciones: " + (finalTime-initialTime) + " ms.");
 				try {
 					
@@ -719,7 +753,7 @@ public class ProcessSubscriptionsMDTR {
 					
 					information = new JSONObject();
 					information.put("Total Time", ((finalTime-initialTime) + " ms."));
-					information.put("Total Transactions to process", listDailySubscriptions.size());
+					information.put("Total Transactions to process", listSubscriptionsToProcess.size());
 					information.put("Total Transactions no updates on Data Base", numberNoUpdated);
 					information.put("Total Transactions updates on Data Base", numberUpdated);
 					information.put("Total Transactions keeped on file ", numberNoUpdated);
@@ -729,11 +763,17 @@ public class ProcessSubscriptionsMDTR {
 					informationDetails.put("Resume ProcessExecution", information);
 					
 					/**/
-					System.out.println("Imprimiendo resumen FINAL ... ");
-					System.out.println( "Total de numberNoUpdated: " + numberNoUpdated);
-					System.out.println( "Total de numberUpdated: " + numberUpdated);
-					System.out.println( "Total de numberUnpaids: " + numberUnpaids);
-					System.out.println( "Total de numberCharged: " + numberCharged);
+					logger.info("Imprimiendo resumen FINAL ... ");
+					logger.info( "Total de numberNoUpdated: " + numberNoUpdated);
+					logger.info( "Total de numberUpdated: " + numberUpdated);
+					logger.info( "Total de numberUnpaids: " + numberUnpaids);
+					logger.info( "Total de numberCharged: " + numberCharged);
+					
+					logger.info("Imprimiendo resumen FINAL ... ");
+					logger.info( "Total de numberNoUpdated: " + numberNoUpdated);
+					logger.info( "Total de numberUpdated: " + numberUpdated);
+					logger.info( "Total de numberUnpaids: " + numberUnpaids);
+					logger.info( "Total de numberCharged: " + numberCharged);
 					/**/
 					
 					submittedProcessLogVO.setInformation(informationDetails.toJSONString());
@@ -755,6 +795,7 @@ public class ProcessSubscriptionsMDTR {
 						e.printStackTrace();
 					}
 				}
+				logger.info("Este es un mensaje de salida");
 			}
 		}
 	}

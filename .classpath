@@ -21,5 +21,7 @@
 	<classpathentry kind="lib" path="/home/edicson/BillingBuddy/workspaceBB/BillingBuddyServer/lib/stripe-java-latest.jar"/>
 	<classpathentry kind="lib" path="/home/edicson/BillingBuddy/Liferay/tomcat-7.0.42/lib/commons-collections.jar"/>
 	<classpathentry kind="lib" path="/home/edicson/BillingBuddy/Liferay/tomcat-7.0.42/lib/ext/portal-service.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/BillingBuddy/workspaceBB/BillingBuddyServer/lib/log4j-api-2.3.jar"/>
+	<classpathentry kind="lib" path="/home/edicson/BillingBuddy/workspaceBB/BillingBuddyServer/lib/log4j-core-2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

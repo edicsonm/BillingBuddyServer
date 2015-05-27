@@ -2,7 +2,7 @@ package au.com.billingbuddy.vo.objects;
 
 import java.io.Serializable;
 
-public class DailySubscriptionVO extends VO implements Serializable {
+public class SubscriptionsToProcessVO extends VO implements Serializable {
 	
 	private static final long serialVersionUID = -2661663659313510412L;
 	private String id;
@@ -17,8 +17,8 @@ public class DailySubscriptionVO extends VO implements Serializable {
 	private String currentPeriodStart;
 	private String currentPeriodEnd;
 	private String creationTime;
-	private String AuthorizerCode;
-	private String AuthorizerReason;
+	private String authorizerCode;
+	private String authorizerReason;
 	
 	private MerchantCustomerCardVO merchantCustomerCardVO;
 	
@@ -76,18 +76,6 @@ public class DailySubscriptionVO extends VO implements Serializable {
 	public void setCreationTime(String creationTime) {
 		this.creationTime = creationTime;
 	}
-	public String getAuthorizerCode() {
-		return AuthorizerCode;
-	}
-	public void setAuthorizerCode(String authorizerCode) {
-		AuthorizerCode = authorizerCode;
-	}
-	public String getAuthorizerReason() {
-		return AuthorizerReason;
-	}
-	public void setAuthorizerReason(String authorizerReason) {
-		AuthorizerReason = authorizerReason;
-	}
 	
 	/*@Override
     public boolean equals(Object obj) {
@@ -99,9 +87,9 @@ public class DailySubscriptionVO extends VO implements Serializable {
 	
 	@Override
     public boolean equals(Object obj) {
-		if (!(obj instanceof DailySubscriptionVO))
+		if (!(obj instanceof SubscriptionsToProcessVO))
 			return false;
-		DailySubscriptionVO objetoVO = (DailySubscriptionVO) obj;
+		SubscriptionsToProcessVO objetoVO = (SubscriptionsToProcessVO) obj;
 		return (this.getSubscriptionId().equalsIgnoreCase(objetoVO.getSubscriptionId()));
     }
 
@@ -133,6 +121,18 @@ public class DailySubscriptionVO extends VO implements Serializable {
 	}
 	public void setProcessAttempt(String processAttempt) {
 		this.processAttempt = processAttempt;
+	}
+	public String getAuthorizerCode() {
+		return authorizerCode;
+	}
+	public void setAuthorizerCode(String authorizerCode) {
+		this.authorizerCode = authorizerCode;
+	}
+	public String getAuthorizerReason() {
+		return authorizerReason;
+	}
+	public void setAuthorizerReason(String authorizerReason) {
+		this.authorizerReason = authorizerReason;
 	}
 
 }
