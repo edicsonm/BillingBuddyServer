@@ -13,7 +13,7 @@ public class SubscriptionsToProcessVO extends VO implements Serializable {
 	private String quantity;
 	private String amount;
 	private String currency;
-	private String processAttempt;
+	private int processAttempt;
 	private String currentPeriodStart;
 	private String currentPeriodEnd;
 	private String creationTime;
@@ -116,12 +116,6 @@ public class SubscriptionsToProcessVO extends VO implements Serializable {
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
 	}
-	public String getProcessAttempt() {
-		return processAttempt;
-	}
-	public void setProcessAttempt(String processAttempt) {
-		this.processAttempt = processAttempt;
-	}
 	public String getAuthorizerCode() {
 		return authorizerCode;
 	}
@@ -133,6 +127,12 @@ public class SubscriptionsToProcessVO extends VO implements Serializable {
 	}
 	public void setAuthorizerReason(String authorizerReason) {
 		this.authorizerReason = authorizerReason;
+	}
+	public int getProcessAttempt() {
+		return processAttempt;
+	}
+	public void setProcessAttempt(int processAttempt) {
+		this.processAttempt = processAttempt;
 	}
 
 }

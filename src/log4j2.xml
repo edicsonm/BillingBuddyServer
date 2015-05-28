@@ -26,9 +26,9 @@
       </Appenders>
      
       <Loggers>
-        
+        <!-- "trace", "debug", "info", "warn", "error" and "fatal" -->
         <Logger name="au.com.billingbuddy.business.objects.ProcessSubscriptionsMDTR" level="info" additivity="false">
-          <AppenderRef ref="STDOUT"/>
+          <AppenderRef ref="File"/>
         </Logger> 
         
 		<!-- <Logger name="com.foo.MyApp" level="error" additivity="false">

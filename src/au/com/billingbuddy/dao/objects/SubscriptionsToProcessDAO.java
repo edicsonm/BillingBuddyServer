@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import au.com.billingbuddy.common.objects.ConfigurationSystem;
 import au.com.billingbuddy.connection.objects.MySQLConnection;
@@ -36,7 +37,7 @@ public class SubscriptionsToProcessDAO extends MySQLConnection implements IDaily
 			cstmt.setString(1,subscriptionsToProcessVO.getStatus());
 			cstmt.setString(2,subscriptionsToProcessVO.getAuthorizerCode());
 			cstmt.setString(3,subscriptionsToProcessVO.getAuthorizerReason());
-			cstmt.setString(4,subscriptionsToProcessVO.getProcessAttempt());
+			cstmt.setInt(4,subscriptionsToProcessVO.getProcessAttempt());
 			if (subscriptionsToProcessVO.getErrorCode() != null && subscriptionsToProcessVO.getErrorCode().equalsIgnoreCase("1")) {
 				cstmt.setString(5,"0");
 			}else if (subscriptionsToProcessVO.getErrorCode() != null && subscriptionsToProcessVO.getErrorCode().equalsIgnoreCase("2")) {
@@ -49,6 +50,7 @@ public class SubscriptionsToProcessDAO extends MySQLConnection implements IDaily
 //			cstmt.setString(4,subscriptionsToProcessVO.getId());
 			status = cstmt.executeUpdate();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new SubscriptionsToProcessDAOException(e);
 		} finally {
 			Cs(cstmt, getConnection());
@@ -122,6 +124,28 @@ public class SubscriptionsToProcessDAO extends MySQLConnection implements IDaily
 			PsRs(pstmt, resultSet,connection);
 		}
 		return list;
+	}
+
+	public HashMap<String,String> execute() throws SubscriptionsToProcessDAOException {
+		CallableStatement cstmt = null;
+		HashMap<String,String> res = null;
+		try {
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_EXECUTE_SUBSCRIPTIONS_PROCESS(?,?,?,?,?,?)}");
+			cstmt.executeUpdate();
+			res = new HashMap<String,String>();
+			res.put("PROC_PROCESS_NEW_SUBSCRIPTION_TRIALING", cstmt.getString(1));
+			res.put("PROC_PROCESS_NEW_SUBSCRIPTION_PENDING", cstmt.getString(2));
+			res.put("PROC_PROCESS_DAILY_SUBSCRIPTION", cstmt.getString(3));
+			res.put("PROC_PROCESS_WEEKLY_SUBSCRIPTION", cstmt.getString(4));
+			res.put("PROC_PROCESS_MONTHLY_SUBSCRIPTION", cstmt.getString(5));
+			res.put("PROC_PROCESS_YEARLY_SUBSCRIPTION", cstmt.getString(6));
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new SubscriptionsToProcessDAOException(e);
+		} finally {
+			Cs(cstmt, getConnection());
+		}
+		return res;
 	}
 	
 	/*public ArrayList<SubscriptionsToProcessVO> searchUnPaid() throws SubscriptionsToProcessDAOException {
