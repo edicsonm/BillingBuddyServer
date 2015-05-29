@@ -31,6 +31,8 @@ import au.com.billingbuddy.exceptions.objects.MySQLConnectionException;
 import au.com.billingbuddy.exceptions.objects.MySQLTransactionException;
 import au.com.billingbuddy.exceptions.objects.SubmittedProcessLogDAOException;
 import au.com.billingbuddy.exceptions.objects.SubscriptionsMDTRException;
+import au.com.billingbuddy.loggers.LoggerDeclined;
+import au.com.billingbuddy.loggers.LoggerProcessed;
 import au.com.billingbuddy.vo.objects.SubscriptionsToProcessVO;
 import au.com.billingbuddy.vo.objects.ErrorLogVO;
 import au.com.billingbuddy.vo.objects.SubmittedProcessLogVO;
@@ -48,6 +50,11 @@ public class ProcessSubscriptionsMDTR {
 	
 	private static ProcessSubscriptionsMDTR instance = null;
 	
+	private HashMap<String, ProcessSubscription> hashThreadsProcessSubscription = new HashMap<String, ProcessSubscription>();
+	private SubmittedProcessLogVO submittedProcessLogVO = new SubmittedProcessLogVO();
+	private MySQLTransaction mySQLTransaction = null;
+	private String processName = "ProcessSubscriptions";
+	
 	private long initialTime;
 	private long finalTime;
 	
@@ -57,9 +64,6 @@ public class ProcessSubscriptionsMDTR {
 	private boolean writeInErrorLog = false;
 	private String logFileName;
 	
-	private Map<String, Thread> hashThreadsProcessSubscription = new HashMap<String, Thread>();
-	private SubmittedProcessLogVO submittedProcessLogVO = new SubmittedProcessLogVO();
-	private MySQLTransaction mySQLTransaction = null;
 	private boolean answer = true;
 	private boolean unpaids =  false;
 	private boolean noUpdated =  false;
@@ -68,16 +72,17 @@ public class ProcessSubscriptionsMDTR {
 	private int numberNoUpdated =  0;
 	private int numberUpdated =  0;
 	private int numberCharged =  0;
-	private int numberSended =  0;
-	private String processName = "ProccesDailySubscriptions";
+	private int numberSent =  0;
+	private int numberTransactionsToProcess = 0;
 	
+	private boolean swErrorOnlevel1 = false;
 	private boolean errorFileExist =  false;
 	private ArrayList<SubscriptionsToProcessVO> listSubscriptionsToProcess = null;
 	
-	private boolean swErrorOnlevel1 = false;
-	
-	private static final Logger logger = LogManager.getLogger(ProcessSubscriptionsMDTR.class);
 	/*"trace", "debug", "info", "warn", "error" and "fatal"*/
+	private static final Logger logger = LogManager.getLogger(ProcessSubscriptionsMDTR.class);
+	private static final Logger loggerProcessed = LoggerProcessed.logger;
+	private static final Logger loggerDeclined = LoggerDeclined.logger;
     
 	public static synchronized ProcessSubscriptionsMDTR getInstance() {
 		if (instance == null) {
@@ -90,8 +95,10 @@ public class ProcessSubscriptionsMDTR {
 		Stripe.apiKey = ConfigurationSystem.getKey("apiKey");
 	}
 	
-	public HashMap<String,String> executeSubscriptionsToProcess() {
+	
+	public HashMap<String,String> executeSubscriptionsToProcess() throws SubscriptionsMDTRException {
 		HashMap<String,String> resp = null;
+		initVariables();
 		try {
 			SubscriptionsToProcessDAO subscriptionsToProcessDAO = new SubscriptionsToProcessDAO();
 			logger.info("/*****************************************************************************************************/");
@@ -106,17 +113,34 @@ public class ProcessSubscriptionsMDTR {
 				logger.info("/*****************************************************************************************************/");
 				logger.info("/************************TERMINA EL PROCESO DE PROC_EXECUTE_SUBSCRIPTIONS_PROCESS*********************/");
 				logger.info("/*****************************************************************************************************/");
-				try {
-					boolean respuesta = instance.proccesSubscriptions();
-					if (!respuesta){//Se presento algun error
-						if(instance.isWriteInErrorLog()){
-							logger.info("Se presentaron errores, la informacion se encuentra almacenada en el archivo " + instance.getLogFileName());
-							logger.info("Verifique las causas de los errores y ejecute el proceso de recuperacion de errores.");
+				if(resp.get("P_ERROR_CODE").equalsIgnoreCase("000")){
+					try {
+						boolean respuesta = instance.proccesSubscriptions();
+						if (!respuesta){//Se presento algun error
+							if(instance.isWriteInErrorLog()){
+								logger.info("Se presentaron errores, la informacion se encuentra almacenada en el archivo " + instance.getLogFileName());
+								logger.info("Verifique las causas de los errores y ejecute el proceso de recuperacion de errores.");
+							}
 						}
+					} catch (SubscriptionsMDTRException e) {
+						logger.info(e.getMessage());
+						logger.error(e);
 					}
-				} catch (SubscriptionsMDTRException e) {
-					logger.info(e.getMessage());
-					logger.error(e);
+				}else{
+					try {
+						JSONObject informationDetails = new JSONObject();
+						informationDetails.putAll(resp);
+						submittedProcessLogVO.setProcessName(processName);
+						submittedProcessLogVO.setStartTime(Calendar.getInstance().getTime().toString());
+						submittedProcessLogVO.setStatusProcess("Error");
+						submittedProcessLogVO.setInformation(informationDetails.toJSONString());
+						SubmittedProcessLogDAO submittedProcessLogDAO = new SubmittedProcessLogDAO();
+						submittedProcessLogDAO.insert(submittedProcessLogVO);
+					} catch (SubmittedProcessLogDAOException e) {
+						throw new SubscriptionsMDTRException(e);
+					}
+					logger.info("Se presentaron errores");
+					logger.info(resp.get("P_ERROR_TEXT"));
 				}
 			}else{
 				logger.info("/*****************************************************************************************************/");
@@ -133,6 +157,17 @@ public class ProcessSubscriptionsMDTR {
 		return resp;
 	}
 	
+	private void initVariables() {
+		numberUnpaids =  0;
+		numberNoUpdated =  0;
+		numberUpdated =  0;
+		numberCharged =  0;
+		numberSent =  0;
+		numberTransactionsToProcess = 0;
+		swErrorOnlevel1 = false;
+		errorFileExist =  false;
+	}
+
 	public synchronized boolean proccesSubscriptions() throws SubscriptionsMDTRException {
 		
 		logger.info("/*****************************************************************************************************/");
@@ -140,7 +175,8 @@ public class ProcessSubscriptionsMDTR {
 		logger.info("/*****************************************************************************************************/");
 		
 		setLogFileName(ConfigurationSystem.getKey("urlSaveErrorFilesSaveInformationSubscriptions") + processName + " - "+ Calendar.getInstance().getTime());
-		
+		loggerProcessed.info("Iniciando trazas sobre el procesamiento " + getLogFileName());
+		loggerDeclined.info("Iniciando trazas sobre el procesamiento " + getLogFileName());
 		try {
 			initialTime = Calendar.getInstance().getTimeInMillis();
 			mySQLTransaction = new MySQLTransaction();
@@ -155,6 +191,7 @@ public class ProcessSubscriptionsMDTR {
 			listSubscriptionsToProcess = subscriptionsToProcessDAO.search();
 			
 			if(listSubscriptionsToProcess != null && listSubscriptionsToProcess.size() > 0) {
+				numberTransactionsToProcess = listSubscriptionsToProcess.size();
 				initialTimeThreadsCreation = Calendar.getInstance().getTimeInMillis();
 				for (int position = 0; position<listSubscriptionsToProcess.size(); position++) {
 					
@@ -226,13 +263,13 @@ public class ProcessSubscriptionsMDTR {
 					
 					information = new JSONObject();
 					information.put("Total Time", ((finalTime-initialTime) + " ms."));
-					information.put("Total Transactions to process", listSubscriptionsToProcess.size());
+					information.put("Total Transactions to process", numberTransactionsToProcess);
 					information.put("Total Transactions no updates on Data Base", numberNoUpdated);
 					information.put("Total Transactions updates on Data Base", numberUpdated);
 					information.put("Total Transactions unpaids", numberUnpaids);
 					information.put("Total Transactions chargeds", numberCharged);
-					information.put("Total Transactions sended to our procesor", numberSended);
-					information.put("Total Transactions keeped on file ", numberSended);
+					information.put("Total Transactions sent to our procesor", numberSent);
+					information.put("Total Transactions keeped on file ", numberSent);
 					informationDetails.put("Resume ProcessExecution", information);
 					
 					logger.info("Imprimiendo resumen de las transacciones procesadas cuando no se encuentra ninguna");
@@ -262,16 +299,32 @@ public class ProcessSubscriptionsMDTR {
 				}
 			}
 		} catch (MySQLConnectionException e) {
+			logger.error(e);
+			logger.info("/*****************************************************************************************************/");
+			logger.info("/*********************************TERMINA EL PROCESO DE SUBSCRIPCIONES********************************/");
+			logger.info("/*****************************************************************************************************/");
 			throw new SubscriptionsMDTRException(e);
 		} catch (SubscriptionsToProcessDAOException e) {
+			logger.error(e);
+			logger.info("/*****************************************************************************************************/");
+			logger.info("/*********************************TERMINA EL PROCESO DE SUBSCRIPCIONES********************************/");
+			logger.info("/*****************************************************************************************************/");
 			SubscriptionsMDTRException subscriptionsMDTRException = new SubscriptionsMDTRException(e);
 			subscriptionsMDTRException.setErrorCode("SubscriptionsMDTR.proccesDailySubscriptions.DailySubscriptionDAOException");
 			throw subscriptionsMDTRException;
 		} catch (MySQLTransactionException e) {
+			logger.error(e);
+			logger.info("/*****************************************************************************************************/");
+			logger.info("/*********************************TERMINA EL PROCESO DE SUBSCRIPCIONES********************************/");
+			logger.info("/*****************************************************************************************************/");
 			SubscriptionsMDTRException subscriptionsMDTRException = new SubscriptionsMDTRException(e);
 			subscriptionsMDTRException.setErrorCode("SubscriptionsMDTR.proccesDailySubscriptions.MySQLTransactionException");
 			throw subscriptionsMDTRException;
 		} catch (SubmittedProcessLogDAOException e) {
+			logger.error(e);
+			logger.info("/*****************************************************************************************************/");
+			logger.info("/*********************************TERMINA EL PROCESO DE SUBSCRIPCIONES********************************/");
+			logger.info("/*****************************************************************************************************/");
 			throw new SubscriptionsMDTRException(e);
 		}
 		return answer;
@@ -337,13 +390,15 @@ public class ProcessSubscriptionsMDTR {
 			String linea;
 			while ((linea = bufferedReader.readLine()) != null) {
 				totalRegistries ++ ;
+				System.out.println(linea);
 				Object obj = JSONValue.parse(linea);
 				JSONObject jSONObject = (JSONObject) obj;
 				subscriptionsToProcessVO = new SubscriptionsToProcessVO();
-				subscriptionsToProcessVO.setStatus(jSONObject.get("Dasu_Status").toString());
-				subscriptionsToProcessVO.setAuthorizerCode(jSONObject.get("Dasu_AuthorizerCode")!= null? jSONObject.get("Dasu_AuthorizerCode").toString():null);
-				subscriptionsToProcessVO.setAuthorizerReason(jSONObject.get("Dasu_AuthorizerReason") != null ? jSONObject.get("Dasu_AuthorizerReason").toString():null);
-				subscriptionsToProcessVO.setId(jSONObject.get("Dasu_ID").toString());
+				subscriptionsToProcessVO.setStatus(jSONObject.get("Supr_Status").toString());
+				subscriptionsToProcessVO.setAuthorizerCode(jSONObject.get("Supr_AuthorizerCode")!= null? jSONObject.get("Supr_AuthorizerCode").toString():null);
+				subscriptionsToProcessVO.setAuthorizerReason(jSONObject.get("Supr_AuthorizerReason") != null ? jSONObject.get("Supr_AuthorizerReason").toString():null);
+				subscriptionsToProcessVO.setProcessAttempt(Integer.parseInt(jSONObject.get("Supr_ProcessAttempt").toString()));
+				subscriptionsToProcessVO.setId(jSONObject.get("Supr_ID").toString());
 				if(jSONObject.get("ReprocessTRX") != null && jSONObject.get("ReprocessTRX").toString().equalsIgnoreCase("true")){
 					try {
 						processed ++;
@@ -462,16 +517,16 @@ public class ProcessSubscriptionsMDTR {
 	}
 	
 	class MonitorProcessSubscription extends Thread {
-		Map<String, Thread> hashProcessSubscription = new HashMap<String, Thread>();
+		HashMap<String, ProcessSubscription> hashProcessSubscription = new HashMap<String, ProcessSubscription>();
 		
-		public MonitorProcessSubscription(Map<String, Thread> hashProcessSubscription){
+		public MonitorProcessSubscription(HashMap<String, ProcessSubscription> hashProcessSubscription){
 			this.hashProcessSubscription = hashProcessSubscription;
 		}		
 		
 		@Override
 		public void run() {
 			while (!hashProcessSubscription.isEmpty()) {
-					logger.info("Esperando la finalizacion de " + hashProcessSubscription.size() + " hilos ... " + "(numberSended: " + numberSended + ") (numberCharged: " +numberCharged+") (numberUnpaids: "  + numberUnpaids+")");
+					logger.info("Esperando la finalizacion de " + hashProcessSubscription.size() + " hilos ... " + "(numberSent: " + numberSent + ") (numberCharged: " +numberCharged+") (numberUnpaids: "  + numberUnpaids+")");
 					try {
 						this.sleep(4000);
 					} catch (InterruptedException e) {
@@ -492,6 +547,7 @@ public class ProcessSubscriptionsMDTR {
 		private MySQLTransaction mySQLTransaction;
 		private int level = 0;
 		private boolean unpaidSubGroup = false;
+		private boolean executeThread = true;
 		
 		public ProcessSubscription(ArrayList<SubscriptionsToProcessVO> listSubscriptionsToProcess, SubscriptionsToProcessDAO subscriptionsToProcessDAO, MySQLTransaction mySQLTransaction){
 			this.listSubscriptionsToProcess = listSubscriptionsToProcess;
@@ -502,7 +558,7 @@ public class ProcessSubscriptionsMDTR {
 		@Override
 		public void run() {
 			logger.trace("El hilo " + this.getName() + " tiene " + listSubscriptionsToProcess.size() + " elementos para procesar");
-			while(true){
+			while(executeThread){
 				try {
 					for (SubscriptionsToProcessVO subscriptionsToProcessVO : listSubscriptionsToProcess) {
 						logger.trace("Ejecutando " + subscriptionsToProcessVO.getId() + " de la subscripcion "  + this.getName());
@@ -525,13 +581,15 @@ public class ProcessSubscriptionsMDTR {
 								logger.debug("XXXXXXXXXXXXXXXXXXXXXXXXXX Envia la subscripcion numero "+subscriptionsToProcessVO.getId());
 								level = 1;
 								try {
-									sended();
+									sent();
 									Charge charge = Charge.create(hashMapCharge);
 									subscriptionsToProcessVO.setStatus("Charged");
 									subscriptionsToProcessVO.setAuthorizerCode(charge.getId());
 									subscriptionsToProcessVO.setAuthorizerReason(null);
 									charged();
 									logger.debug("La subscripcion "+subscriptionsToProcessVO.getId()+ " fue Charged.");
+//									LoggerProcessed.logger.info("La subscripcion "+subscriptionsToProcessVO.getId()+ " fue Charged.");
+									loggerProcessed.info("La subscripcion "+subscriptionsToProcessVO.getId()+ " fue Charged.");
 								} catch (CardException e) {
 									unpaid();
 									unpaids = true;
@@ -541,17 +599,18 @@ public class ProcessSubscriptionsMDTR {
 									subscriptionsToProcessVO.setAuthorizerCode(null);
 									subscriptionsToProcessVO.setAuthorizerReason(e.getMessage());
 									logger.debug("La subscripcion "+subscriptionsToProcessVO.getId()+ " fue decline.");
-	//								answer = false;
+									loggerDeclined.info("La subscripcion "+subscriptionsToProcessVO.getId()+ " fue decline.");
 								}
-	//						}
-	//							dailySubscriptionVO.setErrorCode("2");//User esta variable para simular errores
+								subscriptionsToProcessVO.setErrorCode("1");//User esta variable para simular errores, Con este valor no actualiza
+//								subscriptionsToProcessVO.setErrorCode("2");//User esta variable para simular errores, con este valor lanza una exception
 								if(subscriptionsToProcessDAO.update(subscriptionsToProcessVO) == 0) {
-	//								System.out.println("No fue posible actualizar la informacion del pago. Suspender todo el proceso. " + "Generar informe con la informacion del error");
+//									System.out.println("No fue posible actualizar la informacion del pago. Suspender todo el proceso. " + "Generar informe con la informacion del error");
 									JSONObject errorDetails = new JSONObject();
-									errorDetails.put("Dasu_Status", subscriptionsToProcessVO.getStatus());
-									errorDetails.put("Dasu_AuthorizerCode", subscriptionsToProcessVO.getAuthorizerCode());
-									errorDetails.put("Dasu_AuthorizerReason", subscriptionsToProcessVO.getAuthorizerReason());
-									errorDetails.put("Dasu_ID", subscriptionsToProcessVO.getId());
+									errorDetails.put("Supr_Status", subscriptionsToProcessVO.getStatus());
+									errorDetails.put("Supr_AuthorizerCode", subscriptionsToProcessVO.getAuthorizerCode());
+									errorDetails.put("Supr_AuthorizerReason", subscriptionsToProcessVO.getAuthorizerReason());
+									errorDetails.put("Supr_ProcessAttempt", subscriptionsToProcessVO.getProcessAttempt());
+									errorDetails.put("Supr_ID", subscriptionsToProcessVO.getId());
 									errorDetails.put("Subs_ID", subscriptionsToProcessVO.getSubscriptionId());
 									errorDetails.put("AutorizationID", subscriptionsToProcessVO.getAuthorizerCode());
 									errorDetails.put("CALL_DailySubscriptionDAO", subscriptionsToProcessDAO.getCallString());
@@ -572,10 +631,12 @@ public class ProcessSubscriptionsMDTR {
 						} catch (SubscriptionsToProcessDAOException e) {
 							logger.debug("No fue posible actualizar la informacion del pago. Suspender todo el proceso. " + "Generar informe con la informacion del error " + subscriptionsToProcessDAO.getCallString());
 							JSONObject errorDetails = new JSONObject();
-							errorDetails.put("Dasu_Status", subscriptionsToProcessVO.getStatus());
-							errorDetails.put("Dasu_AuthorizerCode", subscriptionsToProcessVO.getAuthorizerCode());
-							errorDetails.put("Dasu_AuthorizerReason", subscriptionsToProcessVO.getAuthorizerReason());
-							errorDetails.put("Dasu_ID", subscriptionsToProcessVO.getId());
+							errorDetails.put("Supr_Status", subscriptionsToProcessVO.getStatus());
+							errorDetails.put("Supr_Status", subscriptionsToProcessVO.getStatus());
+							errorDetails.put("Supr_AuthorizerCode", subscriptionsToProcessVO.getAuthorizerCode());
+							errorDetails.put("Supr_AuthorizerReason", subscriptionsToProcessVO.getAuthorizerReason());
+							errorDetails.put("Supr_ProcessAttempt", subscriptionsToProcessVO.getProcessAttempt());
+							errorDetails.put("Supr_ID", subscriptionsToProcessVO.getId());
 							errorDetails.put("Subs_ID", subscriptionsToProcessVO.getSubscriptionId());
 							errorDetails.put("AutorizationID", subscriptionsToProcessVO.getAuthorizerCode());
 							errorDetails.put("CALL_DailySubscriptionDAO", subscriptionsToProcessDAO.getCallString());
@@ -593,6 +654,7 @@ public class ProcessSubscriptionsMDTR {
 							answer = false;
 							errorFileExist = true;
 							new SubscriptionsMDTRException(e, subscriptionsToProcessDAO.getCallString());
+							break;
 						}
 					}
 				} catch (AuthenticationException e) {
@@ -604,7 +666,7 @@ public class ProcessSubscriptionsMDTR {
 				} catch (InvalidRequestException e) {
 					e.printStackTrace();
 				}
-				break;
+				executeThread = false;
 			}
 			
 			hashThreadsProcessSubscription.remove(this.getName());
@@ -658,20 +720,24 @@ public class ProcessSubscriptionsMDTR {
 					
 					information = new JSONObject();
 					information.put("Total Time", ((finalTime-initialTime) + " ms."));
-					information.put("Total Transactions to process", listSubscriptionsToProcess.size());
+					information.put("Total Transactions to process", numberTransactionsToProcess);
 					information.put("Total Transactions no updates on Data Base", numberNoUpdated);
 					information.put("Total Transactions updates on Data Base", numberUpdated);
 					information.put("Total Transactions keeped on file ", numberNoUpdated);
 					information.put("Total Transactions unpaids", numberUnpaids);
 					information.put("Total Transactions chargeds", numberCharged);
-					information.put("Total Transactions sended to our procesor", numberSended);
+					information.put("Total Transactions sent to our procesor", numberSent);
 					informationDetails.put("Resume ProcessExecution", information);
 					
 					logger.info("Imprimiendo resumen FINAL ... ");
-					logger.info( "Total de numberNoUpdated: " + numberNoUpdated);
-					logger.info( "Total de numberUpdated: " + numberUpdated);
-					logger.info( "Total de numberUnpaids: " + numberUnpaids);
-					logger.info( "Total de numberCharged: " + numberCharged);
+					logger.info("Total Time " + ((finalTime-initialTime) + " ms."));
+					logger.info("Total Transactions to process " +  numberTransactionsToProcess);
+					logger.info("Total Transactions no updates on Data Base "+ numberNoUpdated);
+					logger.info("Total Transactions updates on Data Base "+ numberUpdated);
+					logger.info("Total Transactions keeped on file "+ numberNoUpdated);
+					logger.info("Total Transactions unpaids "+ numberUnpaids);
+					logger.info("Total Transactions chargeds "+ numberCharged);
+					logger.info("Total Transactions sent to our procesor "+ numberSent);
 					
 					submittedProcessLogVO.setInformation(informationDetails.toJSONString());
 					submittedProcessLogDAO.update(submittedProcessLogVO);
@@ -697,10 +763,14 @@ public class ProcessSubscriptionsMDTR {
 				logger.info("/*****************************************************************************************************/");
 			}
 		}
+		
+		public void cancel() {
+			executeThread = false;
+		}
 	}
 	
-	private synchronized void sended(){
-		numberSended ++;
+	private synchronized void sent(){
+		numberSent ++;
 	}
 	
 	private synchronized void charged(){
@@ -722,5 +792,25 @@ public class ProcessSubscriptionsMDTR {
 	public synchronized void setSwErrorOnlevel1(boolean swErrorOnlevel1) {
 		this.swErrorOnlevel1 = swErrorOnlevel1;
 	}
+
+	public HashMap<String, ProcessSubscription> getHashThreadsProcessSubscription() {
+		return hashThreadsProcessSubscription;
+	}
 	
+	public void printThreads() {
+		System.out.println("Imprimiendo hilos .... ");
+		Set<String> set = hashThreadsProcessSubscription.keySet();
+		for (String key : set) {
+			ProcessSubscription processSubscription = hashThreadsProcessSubscription.get(key);
+			System.out.println("Nombre hilo " + processSubscription.getName());
+		}
+	}
+	
+	public void destroyThread(String name) {
+		System.out.println("Intentando cancelar hijo .... " + name);
+		ProcessSubscription processSubscription = hashThreadsProcessSubscription.get(name);
+		if(processSubscription != null ) processSubscription.cancel();
+		else System.out.println("Hilo no encontrado ...");
+	}
+
 }

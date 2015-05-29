@@ -2,6 +2,8 @@
     <Configuration status="WARN" strict="true" name="XMLConfigTest">
       <Properties>
         <Property name="filename">/BBErrors/ProcessSubscriptionsMDTR.log</Property>
+        <Property name="declined">/BBErrors/Declined.log</Property>
+        <Property name="processed">/BBErrors/Processed.log</Property>
         <!-- <Property name="filename2">/BBErrors/test2.log</Property> -->
       </Properties>
       <Filter type="ThresholdFilter" level="trace"/>
@@ -10,14 +12,29 @@
         <Appender type="Console" name="STDOUT">
           <Layout type="PatternLayout" pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Appender>
+        
         <!-- <Appender type="Console" name="FLOW">
           <Layout type="PatternLayout" pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Appender> -->
+        
         <Appender type="File" name="File" fileName="${filename}">
           <Layout type="PatternLayout">
             <Pattern>%d{HH:mm:ss.SSS} - %msg%n</Pattern>
           </Layout>
         </Appender>
+        
+        <Appender type="File" name="Processed" fileName="${processed}">
+          <Layout type="PatternLayout">
+            <Pattern>%d{HH:mm:ss.SSS} - %msg%n</Pattern>
+          </Layout>
+        </Appender>
+        
+        <Appender type="File" name="Declined" fileName="${declined}">
+          <Layout type="PatternLayout">
+            <Pattern>%d{HH:mm:ss.SSS} - %msg%n</Pattern>
+          </Layout>
+        </Appender>
+        
         <!-- <Appender type="File" name="File2" fileName="${filename2}">
           <Layout type="PatternLayout">
             <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
@@ -26,9 +43,18 @@
       </Appenders>
      
       <Loggers>
+      
         <!-- "trace", "debug", "info", "warn", "error" and "fatal" -->
         <Logger name="au.com.billingbuddy.business.objects.ProcessSubscriptionsMDTR" level="info" additivity="false">
           <AppenderRef ref="File"/>
+        </Logger>
+        
+        <Logger name="au.com.billingbuddy.loggers.LoggerProcessed" level="info" additivity="false">
+          <AppenderRef ref="Processed"/>
+        </Logger> 
+        
+        <Logger name="au.com.billingbuddy.loggers.LoggerDeclined" level="info" additivity="false">
+          <AppenderRef ref="Declined"/>
         </Logger> 
         
 		<!-- <Logger name="com.foo.MyApp" level="error" additivity="false">

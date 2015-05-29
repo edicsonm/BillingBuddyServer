@@ -30,13 +30,13 @@ public class SubmittedProcessLogDAO extends MySQLConnection implements ISubmitte
 		CallableStatement cstmt = null;
 		int status = 0;
 		try {
-			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_SUBMITTED_PROCESS_LOG(?,?,?,?)}");
+			cstmt = getConnection().prepareCall("{call "+ConfigurationSystem.getKey("schema")+".PROC_SAVE_SUBMITTED_PROCESS_LOG(?,?,?,?,?)}");
 			cstmt.setString(1,submittedProcessLogVO.getProcessName());
 			cstmt.setString(2,submittedProcessLogVO.getStartTime());
 			cstmt.setString(3,submittedProcessLogVO.getStatusProcess());
-			//cstmt.setString(3,submittedProcessLogVO.getId());
+			cstmt.setString(4,submittedProcessLogVO.getInformation());
 			status = cstmt.executeUpdate();
-			submittedProcessLogVO.setId(cstmt.getString(4));
+			submittedProcessLogVO.setId(cstmt.getString(5));
 		} catch (SQLException e) {
 			throw new SubmittedProcessLogDAOException(e);
 		} finally {
@@ -94,7 +94,6 @@ public class SubmittedProcessLogDAO extends MySQLConnection implements ISubmitte
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw new SubmittedProcessLogDAOException(e);
 		} finally {
 			PsRs(pstmt, resultSet,connection);
@@ -130,7 +129,6 @@ public class SubmittedProcessLogDAO extends MySQLConnection implements ISubmitte
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw new SubmittedProcessLogDAOException(e);
 		} finally {
 			PsRs(pstmt, resultSet,connection);
@@ -157,7 +155,6 @@ public class SubmittedProcessLogDAO extends MySQLConnection implements ISubmitte
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw new SubmittedProcessLogDAOException(e);
 		} finally {
 			PsRs(pstmt, resultSet,connection);
